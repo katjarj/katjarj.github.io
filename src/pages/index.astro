@@ -47,14 +47,14 @@ import { links, intro, education, work, projects, community, other, skills } fro
         <!-- Green ● — left arrow ← -->
         <button class="run-btn run-green" data-target="work" data-dir="left" id="btn-work">
           <span class="run-arrow" aria-hidden="true">
-            <svg viewBox="0 0 40 40" width="34" height="34">
+            <svg viewBox="0 0 40 40">
               <polygon points="4,20 18,8 18,15 36,15 36,25 18,25 18,32" fill="currentColor"/>
             </svg>
           </span>
           <span class="run-label">
             <span class="run-name">Work Experience</span>
             <span class="run-tag">
-              <svg viewBox="0 0 18 18" width="21" height="21"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
+              <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
             </span>
           </span>
         </button>
@@ -62,7 +62,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
         <!-- Blue ■ — up-left arrow ↖ (left polygon rotated +45°) -->
         <button class="run-btn run-blue" data-target="projects" data-dir="upleft" id="btn-projects">
           <span class="run-arrow" aria-hidden="true">
-            <svg viewBox="0 0 40 40" width="34" height="34">
+            <svg viewBox="0 0 40 40">
               <polygon points="4,20 18,8 18,15 36,15 36,25 18,25 18,32"
                        transform="rotate(45,20,20)" fill="currentColor"/>
             </svg>
@@ -70,7 +70,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
           <span class="run-label">
             <span class="run-name">Personal Projects</span>
             <span class="run-tag">
-              <svg viewBox="0 0 18 18" width="21" height="21"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
+              <svg viewBox="0 0 18 18"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
             </span>
           </span>
         </button>
@@ -78,7 +78,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
         <!-- Black ◆ — up-right arrow ↗ (right polygon rotated −45°) -->
         <button class="run-btn run-black" data-target="community" data-dir="upright" id="btn-community">
           <span class="run-arrow" aria-hidden="true">
-            <svg viewBox="0 0 40 40" width="34" height="34">
+            <svg viewBox="0 0 40 40">
               <polygon points="36,20 22,8 22,15 4,15 4,25 22,25 22,32"
                        transform="rotate(-45,20,20)" fill="currentColor"/>
             </svg>
@@ -86,7 +86,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
           <span class="run-label">
             <span class="run-name">Extracurricular</span>
             <span class="run-tag">
-              <svg viewBox="0 0 18 18" width="21" height="21"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
+              <svg viewBox="0 0 18 18"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
             </span>
           </span>
         </button>
@@ -94,16 +94,18 @@ import { links, intro, education, work, projects, community, other, skills } fro
         <!-- Double black ◆◆ — right arrow → -->
         <button class="run-btn run-dblack" data-target="skills" data-dir="right" id="btn-skills">
           <span class="run-arrow" aria-hidden="true">
-            <svg viewBox="0 0 40 40" width="34" height="34">
+            <svg viewBox="0 0 40 40">
               <polygon points="36,20 22,8 22,15 4,15 4,25 22,25 22,32" fill="currentColor"/>
             </svg>
           </span>
           <span class="run-label">
             <span class="run-name">Skills</span>
             <span class="run-tag">
-              <svg viewBox="0 0 28 18" width="38" height="24">
-                <polygon points="7,2 13,9 7,16 1,9" fill="currentColor"/>
-                <polygon points="21,2 27,9 21,16 15,9" fill="currentColor"/>
+              <!-- the two diamonds touch, the way a double-black is rated,
+                   and the pair sits a touch right of centre -->
+              <svg viewBox="0 0 25 18">
+                <polygon points="8,2 14,9 8,16 2,9" fill="currentColor"/>
+                <polygon points="18,2 24,9 18,16 12,9" fill="currentColor"/>
               </svg>
             </span>
           </span>
@@ -361,6 +363,11 @@ const RIDGE_NEAR = makeRidge(47, 0.26, 0.54);
 // treeline along the crest, mid-slope firs, then big foreground firs
 // that frame the run and carry the speed of the pan.
 //
+// Spacing is stratified, not free random: each band is cut into n equal
+// slots and every slot gets exactly one fir, nudged off its slot centre by
+// a seeded jitter. Pure random clumps the shoulder and leaves bald patches;
+// this keeps the stand evenly spaced with organic irregularity on top.
+//
 // Every band is placed by `d0`/`d1` — how far it stands *below the snow
 // crest*, in units of H — never by an absolute screen line, so a fir follows
 // the crest down at the sides of the viewport instead of hanging in the air.
@@ -368,9 +375,11 @@ const RIDGE_NEAR = makeRidge(47, 0.26, 0.54);
 //
 // Four flat tones instead of two, so a thick shoulder reads as a forest
 // and not one dark mass: the treeline stays the palest (haze), and each
-// nearer band picks between its own pair — `tones` — as it is laid out.
-// The left shoulder carries `extraL` more firs than the right, so the
-// forest is deliberately denser on the left and no longer symmetrical.
+// nearer band picks between its own pair — `tones` — as it is laid out,
+// dealt round-robin from a seeded offset so both always appear. The left
+// shoulder carries `extraL` more firs than the right, so the forest is
+// deliberately denser on the left and no longer symmetrical.
+const JITTER = 0.38;             // how far off its slot centre a fir may sit
 type Tree = { xf: number; d: number; s: number; tone: number };
 const FIRS: Tree[] = (() => {
   const r = srng(83);
@@ -383,13 +392,18 @@ const FIRS: Tree[] = (() => {
   for (const mirror of [false, true]) {          // left shoulder, then right
     for (const b of bands) {
       const n = b.n + (mirror ? 0 : b.extraL);   // thicker on the left
+      const slotX = (b.x1 - b.x0) / n;
+      const slotD = (b.d1 - b.d0) / n;
+      const toneAt = Math.floor(r() * b.tones.length);   // where the cycle starts
       for (let i = 0; i < n; i++) {
-        let xf = b.x0 + r() * (b.x1 - b.x0);
+        const jx = (r() - 0.5) * 2 * JITTER;
+        const jd = (r() - 0.5) * 2 * JITTER;
+        let xf = b.x0 + (i + 0.5 + jx) * slotX;   // one fir per slot, never two
         if (mirror) xf = 1 - xf;
         out.push({
-          xf, d: b.d0 + r() * (b.d1 - b.d0),
+          xf, d: b.d0 + (i + 0.5 + jd) * slotD,
           s: b.s0 + r() * (b.s1 - b.s0),
-          tone: b.tones[Math.floor(r() * b.tones.length)],
+          tone: b.tones[(i + toneAt) % b.tones.length],
         });
       }
     }
@@ -741,7 +755,7 @@ body {
   font: 600 0.95rem 'Barlow Condensed', sans-serif;
   letter-spacing: 0.08em; text-transform: uppercase;
   background: var(--sign-bg); color: var(--sign-txt);
-  border: 2px solid var(--sign-rim); border-radius: 4px;
+  border: 2px solid var(--sign-rim); border-radius: 7px;
   padding: 0.3rem 1rem; cursor: pointer;
   transition: background 0.3s;
 }
@@ -775,7 +789,7 @@ body {
   padding-bottom: 2.5rem;
 }
 .site-header {
-  position: absolute; top: clamp(1.2rem, 4vh, 2.5rem);
+  position: absolute; top: clamp(1.75rem, 5.5vh, 3.4rem);
   left: 0; right: 0; text-align: center; pointer-events: none;
   padding-inline: 1.25rem;              /* the name and line never touch the edge */
 }
@@ -786,58 +800,62 @@ body {
   }
 
 /* ─── Trail sign ─────────────────────────────── */
+/* Flat by design: solid fills, no borders, no drop shadows, no gradients
+   and no motion. The only softness is the corner radius. */
 .sign-wrap { display: flex; flex-direction: column; align-items: center; }
 .sign-cap {
-  font: 700 1.3rem 'Barlow Condensed', sans-serif;
+  font: 700 clamp(1.35rem, 3.4vw, 1.7rem) 'Barlow Condensed', sans-serif;
   letter-spacing: 0.2em; text-transform: uppercase;
   background: var(--sign-rim); color: var(--sign-txt);
-  padding: 0.3rem 2.2rem;
-  border-radius: 5px 5px 0 0;
-  border: 3px solid var(--sign-rim); border-bottom: none;
+  padding: 0.4rem 2.6rem;
+  border-radius: 10px 10px 0 0;
 }
 .sign-board {
   background: var(--sign-bg);
-  border: 3px solid var(--sign-rim);
-  border-radius: 0 0 7px 7px;
-  padding: 0.45rem 0.55rem;
-  min-width: min(320px, 88vw); max-width: 410px;
-  display: flex; flex-direction: column; gap: 0.38rem;
-  box-shadow: 0 8px 36px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  padding: 0.6rem 0.7rem;
+  /* a real width, not just min-width: the board is a content-sized flex
+     item, so min-width alone would leave it at its narrowest */
+  width: min(480px, 90vw);
+  display: flex; flex-direction: column; gap: 0.45rem;
+  border-radius: 0 0 10px 10px;
 }
 .post-shaft {
-  width: 16px; height: 72px;
-  background: linear-gradient(to right, #2a1a08, var(--post), #2a1a08);
-  border-radius: 0 0 3px 3px;
+  width: 18px; height: 84px;
+  background: var(--post);
+  border-radius: 0 0 4px 4px;
 }
 .run-btn {
-  display: flex; align-items: center; gap: 0.7rem;
-  width: 100%; padding: 0.5rem 0.75rem;
-  border: 2px solid transparent; border-radius: 5px;
+  display: flex; align-items: center; gap: 0.85rem;
+  width: 100%; padding: 0.65rem 0.95rem;
+  border: 0;                     /* the UA gives <button> a 2px border */
+  appearance: none;              /* ...and a grey background on some engines */
+  border-radius: 7px;
   cursor: pointer; text-align: left;
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
-  transition: transform 0.16s, box-shadow 0.16s;
   position: relative; overflow: hidden;
 }
+/* hover is a flat wash of light, never a move or a scale */
 .run-btn::after {
   content: ''; position: absolute; inset: 0;
-  background: rgba(255,255,255,0.06); opacity: 0;
+  background: rgba(255,255,255,0.10);
+  opacity: 0;
   transition: opacity 0.18s;
 }
 .run-btn:hover::after { opacity: 1; }
-.run-btn:hover { transform: translateX(2px) scale(1.012); box-shadow: 0 4px 18px rgba(0,0,0,0.45); }
-.run-btn:active { transform: scale(0.97); }
 .run-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.run-green  { background: #1b6238; color: #caf0db; border-color: #2E9E5B; }
-.run-blue   { background: #163672; color: #c4d8ff; border-color: #3A76E0; }
-.run-black  { background: #1c1c1c; color: #ddd;    border-color: #555;    }
-.run-dblack { background: #0e0e0e; color: #ccc;    border-color: #444;    }
-.run-arrow { flex-shrink: 0; display: flex; align-items: center; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+.run-green  { background: #1b6238; color: #caf0db; }
+.run-blue   { background: #163672; color: #c4d8ff; }
+.run-black  { background: #1c1c1c; color: #ddd;    }
+.run-dblack { background: #0e0e0e; color: #ccc;    }
+.run-arrow { flex-shrink: 0; display: flex; align-items: center; }
+.run-arrow svg { width: clamp(34px, 4.6vw, 44px); height: auto; }
 .run-label { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
-.run-name  { font-size: 1.12rem; font-weight: 600; line-height: 1; }
+.run-name  { font-size: clamp(1.1rem, 2.6vw, 1.38rem); font-weight: 600; line-height: 1; }
 /* the difficulty symbol rides the right-hand end of its row, like the
    rating plate on the far end of a real sign */
 .run-tag   { margin-left: auto; display: flex; align-items: center; opacity: 0.8; }
+.run-tag svg { width: clamp(21px, 2.9vw, 28px); height: auto; }
 .hint {
   color: var(--snow); opacity: 0.65;
   font: 500 0.88rem 'Barlow Condensed', sans-serif;

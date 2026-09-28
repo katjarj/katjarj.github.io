@@ -11,13 +11,6 @@ Prompts given by the owner, verbatim (contact details redacted). Newest last. Ag
 7. don't put the form in anymore. instead of night session call it 'night ski'. everything else sounds good, build the repo and i can download it. are you able to build it as a like, zip file that i can download into repo form?
 8. this site is too static. i want the site to look like a skier at the top of a ski hill. there's a big ski-style sign with multiple runs at the beginning, with a green run at the top with a left arrow labeled "work experience", a blue run with a forward-left labeled "personal projects", a black run with a forward-right arrow labelled "extracurricular", and a double black run with a right arrow labelled "skills". clicking on each section of the sign leads to a run (with animated motion leading in the right direction), and leads to what looks like a view from the top of the mountain, with overlayed text from my resume in that section. the skies should be blue during the day, and dark at night.
 9. the landing page is alright for now (but the blue and black runs' arrows are not accurate, pls review and make them go up-left and up-right respectively) but the animation and individual sections are way off. the animation should start at the landing page and make it look like the person is going in the direction indicated on the sign they clicked. the page that each section leads to can look almost identical to the landing page, but instead of having a sign in the middle just have the text overlaid over the screen.
-
-14. add 2 more possible shades to the trees and increase the density on the left side. this way they dont all just blend together
-
-16. make the trees more evenly spaced out and make the sign bigger
-
-15. some of the trees are floating. also move the shapes associated with the run to the right side of the sign section, and make them larger
-
 10. remove the frosted glass on each section, i can deal with contrast issues later. the animation is still incorrect, it needs to go directly from the landing page, moving in the direction of the respective arrow, through a continuous environment that lands at a duplicate version of the current landing page. the trees on the side of the landing page need to be bigger as well (and same goes for the sections then since they're dupes). the animation should also not rotate the screen as it currently does and it must be completely smooth
 11. in this project all the animations are way way off, the trees are also improperly drawn. the animations, as you can see in the previous instructions in prompts.md, are supposed to be continuous from one page to the other.
 12. overall looks significantly better. remove the lines in the snow and the movement that occurs when you move the mouse. also the bottoms of the trees render weirdly (they're pointy?)
@@ -34,3 +27,10 @@ also, love how the left and right arrows lead 2 scenes away, and the upper left 
   GitHub Actions CI Environment Detected!
   Additional steps may be needed to set your Node.js version:
   Documentation: https://docs.astro.build/en/guides/deploy/
+14. add 2 more possible shades to the trees and increase the density on the left side. this way they dont all just blend together
+15. some of the trees are floating. also move the shapes associated with the run to the right side of the sign section, and make them larger
+16. make the trees more evenly spaced out and make the sign bigger
+17. re read agents.md and remember to NOT commit files automatically anymore. never do that again.
+18. remove the border from the sign sections. make the graphic more flat overall. move the two diamonds in the double-black closer together (slightly overlapping). remove the animation of the sign section growing when you hover on it
+19. round the corners on the sign. move the double-black diamonds a little to the right. also bring the trees and sizing back
+
