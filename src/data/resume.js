@@ -1,9 +1,9 @@
 export const links = { linkedin: 'https://linkedin.com/in/katja-radovic-jonsson', github: 'https://github.com/katjarj' };
 export const intro = { name: 'Katja Radovic-Jonsson', tagline: 'Computer science at UBC. Hackathon builder, teacher, and ski instructor at Whistler Blackcomb.', where: 'Vancouver, BC. Willing to relocate.' };
-export const education = { title: 'B.Sc. Computer Science', org: 'The University of British Columbia', when: '2024 – present', pts: ['92.3% GPA', 'Dean’s Scholar Award; Loran Provincial Award', 'Courses: CPSC 110, 121, 210, 213, 221; DSCI 100'] };
+export const education = { group: 'education', title: 'B.Sc. Computer Science', org: 'The University of British Columbia', when: '2024 – present', pts: ['92.3% GPA', 'Dean’s Scholar Award; Loran Provincial Award', 'Courses: CPSC 110, 121, 210, 213, 221; DSCI 100'] };
 export const work = [
-  { title: 'Software developer co-op', org: 'UBC Faculty of Medicine Digital Solutions', when: 'Jan – Aug 2026', pts: ['Develop and maintain Java-based web applications with HTML, CSS, JavaScript, and React on the front end', 'Work in an Agile team, using Jira for sprint planning and issue tracking', 'Automate builds and deployment pipelines with Atlassian Bamboo for CI/CD', 'Build and optimize relational databases in SQL Server'] },
-  { title: 'Undergraduate teaching assistant', org: 'UBC Department of Computer Science', when: 'Jan – Aug 2026', pts: ['TA for CPSC 213: Introduction to Computer Systems'] },
+  { group: 'technical', title: 'Software developer co-op', org: 'UBC Faculty of Medicine Digital Solutions', when: 'Jan – Aug 2026', pts: ['Develop and maintain Java-based web applications with HTML, CSS, JavaScript, and React on the front end', 'Work in an Agile team, using Jira for sprint planning and issue tracking', 'Automate builds and deployment pipelines with Atlassian Bamboo for CI/CD', 'Build and optimize relational databases in SQL Server'] },
+  { group: 'technical', title: 'Undergraduate teaching assistant', org: 'UBC Department of Computer Science', when: 'Jan – Aug 2026', pts: ['TA for CPSC 213: Introduction to Computer Systems'] },
 ];
 // diff = trail rating: green | blue | black. Edit freely.
 export const projects = [
@@ -23,8 +23,19 @@ export const community = [
   { title: 'Managing Editor', org: 'The Griffins’ Nest', when: 'Sep 2023 – Jun 2024', pts: ['Oversaw bimonthly student newspaper issues, mentoring 100+ student writers', 'Kept the website updated and secured advertising funding from local businesses'] },
 ];
 export const other = [
-  { title: 'Ski instructor', org: 'Whistler Blackcomb', when: 'Dec 2022 – present', pts: ['Teach beginner to intermediate skiing in group and private lessons', 'Supervise students and meet their needs; give feedback to students and parents; debrief with supervisors daily'] },
-  { title: 'Private math tutor', org: 'Vancouver, BC', when: 'May 2025 – present', pts: ['Teach high school and intro university math, with personalized goals and progress tracking'] },
-  { title: 'Tech specialist', org: 'London Drugs', when: 'Nov 2022 – Dec 2025', pts: ['Advised clients across the Tech department and ran photo orders at the Photo Lab'] },
+  { group: 'nontechnical', title: 'Ski instructor', org: 'Whistler Blackcomb', when: 'Dec 2022 – present', pts: ['Teach beginner to intermediate skiing in group and private lessons', 'Supervise students and meet their needs; give feedback to students and parents; debrief with supervisors daily'] },
+  { group: 'nontechnical', title: 'Private math tutor', org: 'Vancouver, BC', when: 'May 2025 – present', pts: ['Teach high school and intro university math, with personalized goals and progress tracking'] },
+  { group: 'nontechnical', title: 'Tech specialist', org: 'London Drugs', when: 'Nov 2022 – Dec 2025', pts: ['Advised clients across the Tech department and ran photo orders at the Photo Lab'] },
+];
+
+// ─── Sub-signs: how the Experience section sorts itself ───────────
+// The section is cut into sub-signs, one per group, each carrying a trail
+// rating in `diff`. Every entry above is tagged with a `group` id, so adding a
+// job is a one-line change there, while reordering or re-rating a whole group
+// is a one-line change here. A group with no entries is simply not drawn.
+export const groups = [
+  { id: 'technical',    title: 'Technical',    diff: 'green' },
+  { id: 'nontechnical', title: 'Non-technical', diff: 'blue'  },
+  { id: 'education',    title: 'Education',     diff: 'black' },
 ];
 export const skills = [['Programming', 'Python, C++, Java, C, R, Racket'], ['Tools', 'Git, UML, Figma, VS Code, Docker, Jira, Bamboo, GitHub Copilot, Claude Code'], ['Web', 'HTML, Tailwind CSS, TypeScript, React.js, Next.js']];

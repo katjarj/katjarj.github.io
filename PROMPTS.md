@@ -33,4 +33,32 @@ also, love how the left and right arrows lead 2 scenes away, and the upper left 
 17. re read agents.md and remember to NOT commit files automatically anymore. never do that again.
 18. remove the border from the sign sections. make the graphic more flat overall. move the two diamonds in the double-black closer together (slightly overlapping). remove the animation of the sign section growing when you hover on it
 19. round the corners on the sign. move the double-black diamonds a little to the right. also bring the trees and sizing back
+20. move the name down a little
+21. before proceeding, re read agents.md. now you know i just want you to write code from now on, stop running stupid checks that take ages.
+
+move the ski sign up toward the middle of the page
+22. move the sign slightly down now
+23. and move the name down an itty bit more
+24. fix radius of the top two corners of the sign
+25. make the double black diamond be the same height as the single diamond
+26. make all the shapes (the circle, square, and diamonds) the same height, and make them all have the same center
+27. make the double diamond overlap a bit more
+28. make the square one pixel smaller it looks visually bigger
+29. why not make some more ski signs that sort the sections into different bits? for example, for work experience, have it like: technical (green): software developer co-op, teaching assistant. non-technical (blue): ski instructor, math tutor, tech specialist. do not include my education in there
+30. add a third (black run) part to work experience that says "Education". then rename work experience to Experience
+31. no i want another sign where you can pick between technical, non-technical, and education (just like the landing page), and then each one leads you to a list
+32. can you make it so that when theres three options (like the technical, non technical, education), the first option goes left, the second goes forward, the third goes right
+33. can you add a fourth 'back' option pointing right? also do you think it should be double black or like a different colour for back
+34. ok since theres four options on the experience page make it so it goes left, left-up, right-up, right, and make the animations match that
+
+
+
+
+
+
+
+
+
+
+
 

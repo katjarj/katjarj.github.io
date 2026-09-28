@@ -1,0 +1,23 @@
+---
+// The run arrow, defined once. `dir` is the direction the run heads on the sign.
+// Left and right are the straight arrows; the angled pair is the same left/right
+// polygon rotated 45°. Up is its own vertical arrow, for a run that goes over
+// the roll rather than traversing. Every run is still a horizontal traverse on
+// the ground — the angle and the upright arrow show the sign's direction, never
+// a climb.
+const { dir } = Astro.props;
+const LEFT  = '4,20 18,8 18,15 36,15 36,25 18,25 18,32';
+const RIGHT = '36,20 22,8 22,15 4,15 4,25 22,25 22,32';
+const UP    = '20,4 32,18 25,18 25,36 15,36 15,18 8,18';
+const ARROWS = {
+  left:    { pts: LEFT,  rot: '' },
+  upleft:  { pts: LEFT,  rot: 'rotate(45,20,20)' },
+  up:      { pts: UP,    rot: '' },
+  upright: { pts: RIGHT, rot: 'rotate(-45,20,20)' },
+  right:   { pts: RIGHT, rot: '' },
+};
+const a = ARROWS[dir] || ARROWS.left;
+---
+<svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+  <polygon points={a.pts} transform={a.rot || undefined} fill="currentColor" />
+</svg>

@@ -2,7 +2,21 @@
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource/barlow-condensed/500.css';
 import '@fontsource/barlow-condensed/600.css';
-import { links, intro, education, work, projects, community, other, skills } from '../data/resume.js';
+import { links, intro, education, work, other, groups, projects, community, skills } from '../data/resume.js';
+import Symbol from '../components/Symbol.astro';
+import Arrow from '../components/Arrow.astro';
+
+// Every experience entry, in the order the groups list them, tagged by group.
+const experience = [education, ...work, ...other];
+const groupOf = (id: string) => experience.filter((e) => e.group === id);
+
+// Four options fan out the way the main sign does: ←, ↖, ↗, →. The three
+// groups take the first three; Back is the fourth row and takes → (hardcoded
+// on its own button). Left and right are the long two-period traverses, the
+// angled pair one period each, so each arrow is matched by its pan distance.
+const DIRS = ['left', 'upleft', 'upright'];
+const LAYERS = groups.map((g, i) => ({ ...g, dir: DIRS[i] || 'upleft', entries: groupOf(g.id), layer: `layer-${g.id}` }))
+                    .filter((g) => g.entries.length > 0);
 ---
 <html lang="en">
 <head>
@@ -44,70 +58,39 @@ import { links, intro, education, work, projects, community, other, skills } fro
       <div class="sign-cap">TRAIL MAP</div>
       <div class="sign-board">
 
-        <!-- Green ● — left arrow ← -->
-        <button class="run-btn run-green" data-target="work" data-dir="left" id="btn-work">
-          <span class="run-arrow" aria-hidden="true">
-            <svg viewBox="0 0 40 40">
-              <polygon points="4,20 18,8 18,15 36,15 36,25 18,25 18,32" fill="currentColor"/>
-            </svg>
-          </span>
+        <!-- Green ● — left arrow ←. Leads to the Experience sub-sign. -->
+        <button class="run-btn run-green" data-target="experience" data-dir="left" id="btn-experience">
+          <span class="run-arrow"><Arrow dir="left" /></span>
           <span class="run-label">
-            <span class="run-name">Work Experience</span>
-            <span class="run-tag">
-              <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
-            </span>
+            <span class="run-name">Experience</span>
+            <span class="run-tag"><Symbol diff="green" /></span>
           </span>
         </button>
 
-        <!-- Blue ■ — up-left arrow ↖ (left polygon rotated +45°) -->
+        <!-- Blue ■ — up-left arrow ↖ -->
         <button class="run-btn run-blue" data-target="projects" data-dir="upleft" id="btn-projects">
-          <span class="run-arrow" aria-hidden="true">
-            <svg viewBox="0 0 40 40">
-              <polygon points="4,20 18,8 18,15 36,15 36,25 18,25 18,32"
-                       transform="rotate(45,20,20)" fill="currentColor"/>
-            </svg>
-          </span>
+          <span class="run-arrow"><Arrow dir="upleft" /></span>
           <span class="run-label">
             <span class="run-name">Personal Projects</span>
-            <span class="run-tag">
-              <svg viewBox="0 0 18 18"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
-            </span>
+            <span class="run-tag"><Symbol diff="blue" /></span>
           </span>
         </button>
 
-        <!-- Black ◆ — up-right arrow ↗ (right polygon rotated −45°) -->
+        <!-- Black ◆ — up-right arrow ↗ -->
         <button class="run-btn run-black" data-target="community" data-dir="upright" id="btn-community">
-          <span class="run-arrow" aria-hidden="true">
-            <svg viewBox="0 0 40 40">
-              <polygon points="36,20 22,8 22,15 4,15 4,25 22,25 22,32"
-                       transform="rotate(-45,20,20)" fill="currentColor"/>
-            </svg>
-          </span>
+          <span class="run-arrow"><Arrow dir="upright" /></span>
           <span class="run-label">
             <span class="run-name">Extracurricular</span>
-            <span class="run-tag">
-              <svg viewBox="0 0 18 18"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
-            </span>
+            <span class="run-tag"><Symbol diff="black" /></span>
           </span>
         </button>
 
         <!-- Double black ◆◆ — right arrow → -->
         <button class="run-btn run-dblack" data-target="skills" data-dir="right" id="btn-skills">
-          <span class="run-arrow" aria-hidden="true">
-            <svg viewBox="0 0 40 40">
-              <polygon points="36,20 22,8 22,15 4,15 4,25 22,25 22,32" fill="currentColor"/>
-            </svg>
-          </span>
+          <span class="run-arrow"><Arrow dir="right" /></span>
           <span class="run-label">
             <span class="run-name">Skills</span>
-            <span class="run-tag">
-              <!-- the two diamonds touch, the way a double-black is rated,
-                   and the pair sits a touch right of centre -->
-              <svg viewBox="0 0 25 18">
-                <polygon points="8,2 14,9 8,16 2,9" fill="currentColor"/>
-                <polygon points="18,2 24,9 18,16 12,9" fill="currentColor"/>
-              </svg>
-            </span>
+            <span class="run-tag"><Symbol diff="dblack" /></span>
           </span>
         </button>
 
@@ -122,40 +105,62 @@ import { links, intro, education, work, projects, community, other, skills } fro
        SECTION LAYERS — same world behind, text overlay
   ══════════════════════════════════════════════ -->
 
-  <!-- Work Experience (green) -->
-  <div id="layer-work" class="layer section-layer">
-    <div class="sec-scroll">
-      <div class="sec-inner">
-        <button class="back-btn" data-back>← Trail Map</button>
-        <h2>Work Experience</h2>
-        <div class="entries">
-          {work.map((w) => (
-            <article class="entry">
-              <div class="eh"><h3>{w.title}</h3><span class="when">{w.when}</span></div>
-              <p class="org">{w.org}</p>
-              <ul>{w.pts.map((p) => <li>{p}</li>)}</ul>
-            </article>
-          ))}
-          <article class="entry">
-            <div class="eh"><h3>{education.title}</h3><span class="when">{education.when}</span></div>
-            <p class="org">{education.org}</p>
-            <ul>{education.pts.map((p) => <li>{p}</li>)}</ul>
-          </article>
-          {other.map((o) => (
-            <article class="entry">
-              <div class="eh"><h3>{o.title}</h3><span class="when">{o.when}</span></div>
-              <p class="org">{o.org}</p>
-              <ul>{o.pts.map((p) => <li>{p}</li>)}</ul>
-            </article>
-          ))}
-        </div>
-        <div class="links-row">
-          <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-          <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+  <!-- ══════════════════════════════════════════════
+       EXPERIENCE — a second trail sign, reached from the green run.
+       Same object as the landing sign: a cap, a board of runs, a post.
+  ══════════════════════════════════════════════ -->
+  <div id="layer-experience" class="layer sub-layer">
+    <div class="sign-wrap">
+      <div class="sign-cap">EXPERIENCE</div>
+      <div class="sign-board">
+        {LAYERS.map((g) => (
+          <button class={`run-btn run-${g.diff}`} data-target={g.id} data-dir={g.dir} id={`btn-${g.id}`}>
+            <span class="run-arrow"><Arrow dir={g.dir} /></span>
+            <span class="run-label">
+              <span class="run-name">{g.title}</span>
+              <span class="run-tag"><Symbol diff={g.diff} /></span>
+            </span>
+          </button>
+        ))}
+        <!-- Back is the fourth row of the sign, not a button beneath it: a real
+             run pointing right, the way home. It borrows the sign's own frame
+             colour and carries no difficulty symbol, because it is wayfinding
+             rather than a rated run. -->
+        <button class="run-btn run-back" data-back-to="landing" data-dir="right" id="btn-back">
+          <span class="run-arrow"><Arrow dir="right" /></span>
+          <span class="run-label">
+            <span class="run-name">Back to Trail Map</span>
+          </span>
+        </button>
+      </div>
+      <div class="post-shaft"></div>
+    </div>
+  </div>
+
+  <!-- One list layer per group on the sub-sign, each its own run. -->
+  {LAYERS.map((g) => (
+    <div id={g.layer} class="layer section-layer">
+      <div class="sec-scroll">
+        <div class="sec-inner">
+          <button class="back-btn" data-back>← Experience</button>
+          <h2>{g.title}</h2>
+          <div class="entries">
+            {g.entries.map((e) => (
+              <article class="entry">
+                <div class="eh"><h3>{e.title}</h3><span class="when">{e.when}</span></div>
+                {e.org && <p class="org">{e.org}</p>}
+                <ul>{e.pts.map((p) => <li>{p}</li>)}</ul>
+              </article>
+            ))}
+          </div>
+          <div class="links-row">
+            <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+            <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  ))}
 
   <!-- Personal Projects (blue) -->
   <div id="layer-projects" class="layer section-layer">
@@ -165,22 +170,19 @@ import { links, intro, education, work, projects, community, other, skills } fro
         <h2>Personal Projects</h2>
         <p class="sec-note">Rated like ski runs — by me.</p>
         <div class="entries">
-          {projects.map((p) => {
-            const sym: Record<string,string> = { green:'●', blue:'■', black:'◆' };
-            return (
-              <article class="entry">
-                <div class="eh">
-                  <h3>
-                    <span class={`tdot tdot-${p.diff}`} aria-hidden="true">{sym[p.diff]}</span>
-                    {p.title}
-                  </h3>
-                  <span class="when">{p.when}</span>
-                </div>
-                {p.org && <p class="org">{p.org}</p>}
-                <ul>{p.pts.map((pt) => <li>{pt}</li>)}</ul>
-              </article>
-            );
-          })}
+          {projects.map((p) => (
+            <article class="entry">
+              <div class="eh">
+                <h3>
+                  <span class={`tdot tdot-${p.diff}`}><Symbol diff={p.diff} /></span>
+                  {p.title}
+                </h3>
+                <span class="when">{p.when}</span>
+              </div>
+              {p.org && <p class="org">{p.org}</p>}
+              <ul>{p.pts.map((pt) => <li>{pt}</li>)}</ul>
+            </article>
+          ))}
         </div>
         <div class="links-row">
           <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
@@ -597,9 +599,12 @@ function resize() {
 }
 
 // ─── The run: pan the camera through the scene you are looking at ─
-type Dir = 'left' | 'upleft' | 'upright' | 'right';
-const GOES_LEFT: Record<Dir, boolean> = { left: true, upleft: true, right: false, upright: false };
-const MIRROR: Record<Dir, Dir> = { left: 'right', right: 'left', upleft: 'upright', upright: 'upleft' };
+type Dir = 'left' | 'upleft' | 'up' | 'upright' | 'right';
+const GOES_LEFT: Record<Dir, boolean> = { left: true, upleft: true, up: false, upright: false, right: false };
+// Reverses the camera's travel, not the arrow. An angled run mirrors to its
+// opposite angle; an upright run went right for one period, so it mirrors to
+// upleft, the one-period run to the left.
+const MIRROR: Record<Dir, Dir> = { left: 'right', right: 'left', upleft: 'upright', up: 'upleft', upright: 'upleft' };
 const PERIODS_STRAIGHT = 2;   // world periods a green / double-black run crosses
 const PERIODS_ANGLED = 1;     // ...and a blue / black one. Whole periods every
                               //    time, so the trees and the ground come back
@@ -661,12 +666,31 @@ function tick(ts: number) {
 
 // ─── Navigation ─────────────────────────────────────────────────
 let lastDir: Dir = 'left';
+// The way back, so Back retraces the runs you took to get here — the sub-sign
+// returns to the trail map, and each list returns to the sub-sign.
+let current = 'layer-landing';
+const trail: string[] = [];
 
 document.querySelectorAll<HTMLButtonElement>('.run-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    const target = 'layer-' + btn.dataset.target!;
     const dir = btn.dataset.dir as Dir;
     lastDir = dir;
+
+    // Back is a run on the sign, so it pans the way its own arrow points
+    // rather than reversing the last one, and it empties the trail — the map
+    // is the root, so nothing is stacked behind it any more.
+    if (btn.dataset.backTo) {
+      current = 'layer-landing';
+      trail.length = 0;
+      showLayer(null);
+      if (reduced) { showLayer('layer-landing'); return; }
+      runPan(dir, () => showLayer('layer-landing'));
+      return;
+    }
+
+    const target = 'layer-' + btn.dataset.target!;
+    trail.push(current);
+    current = target;
 
     showLayer(null);        // the sign and your name slide away as you push off
     if (reduced) { showLayer(target); return; }
@@ -676,10 +700,12 @@ document.querySelectorAll<HTMLButtonElement>('.run-btn').forEach(btn => {
 
 document.querySelectorAll<HTMLButtonElement>('[data-back]').forEach(btn => {
   btn.addEventListener('click', () => {
+    const back = trail.pop() || 'layer-landing';
+    current = back;
     showLayer(null);
-    if (reduced) { showLayer('layer-landing'); return; }
+    if (reduced) { showLayer(back); return; }
     // Ski back the way you came in, over the same ground.
-    runPan(MIRROR[lastDir], () => showLayer('layer-landing'));
+    runPan(MIRROR[lastDir], () => showLayer(back));
   });
 });
 
@@ -785,11 +811,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 2.5rem;
+  justify-content: center;      /* the sign stands mid-page, not on the snow line */
+  /* the content centres in the box *inside* the padding, so this top pad
+     walks the sign down by half of it — a nudge, not a drop to the floor */
+  padding-top: 10vh;
 }
 .site-header {
-  position: absolute; top: clamp(1.75rem, 5.5vh, 3.4rem);
+  position: absolute; top: clamp(2rem, 7vh, 3.7rem);
   left: 0; right: 0; text-align: center; pointer-events: none;
   padding-inline: 1.25rem;              /* the name and line never touch the edge */
 }
@@ -817,7 +845,10 @@ body {
      item, so min-width alone would leave it at its narrowest */
   width: min(480px, 90vw);
   display: flex; flex-direction: column; gap: 0.45rem;
-  border-radius: 0 0 10px 10px;
+  /* rounded on all four: the cap is narrower than the board, so the board's
+     top corners stick out and are what the eye reads as the sign's top two.
+     Leaving them square while the bottom pair was rounded was the mismatch. */
+  border-radius: 10px;
 }
 .post-shaft {
   width: 18px; height: 84px;
@@ -848,14 +879,34 @@ body {
 .run-blue   { background: #163672; color: #c4d8ff; }
 .run-black  { background: #1c1c1c; color: #ddd;    }
 .run-dblack { background: #0e0e0e; color: #ccc;    }
+/* Back to the map. Not a difficulty, so it is not given one: it wears the
+   sign's own frame colour, the same brown as the cap above it, and carries no
+   rating symbol. A rating colour here would claim a grade the run does not
+   have — and double black, of all things, is the hardest run on the board. */
+.run-back   { background: var(--sign-rim); color: var(--sign-txt); }
 .run-arrow { flex-shrink: 0; display: flex; align-items: center; }
 .run-arrow svg { width: clamp(34px, 4.6vw, 44px); height: auto; }
 .run-label { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
 .run-name  { font-size: clamp(1.1rem, 2.6vw, 1.38rem); font-weight: 600; line-height: 1; }
 /* the difficulty symbol rides the right-hand end of its row, like the
-   rating plate on the far end of a real sign */
-.run-tag   { margin-left: auto; display: flex; align-items: center; opacity: 0.8; }
-.run-tag svg { width: clamp(21px, 2.9vw, 28px); height: auto; }
+   rating plate on the far end of a real sign.
+
+   Sized by HEIGHT, not width, and that is what keeps the four in agreement.
+   Every viewBox here is 18 units tall with a 14-unit glyph centred in it, so
+   one shared height lands all four shapes on the same pixel height — and
+   since each is centred in its own box, on the same centre line too. The
+   double black's box is wider (31 units, for two diamonds) so its width
+   follows from its own aspect ratio; no hand-tuned multiplier needed. */
+.run-tag {
+  --sym-h: clamp(21px, 2.9vw, 28px);
+  --sym-w: calc(var(--sym-h) * 31 / 18);   /* the double black: the widest case */
+  margin-left: auto;
+  display: flex; align-items: center; justify-content: center;
+  width: var(--sym-w);                    /* one box for all four… */
+  flex-shrink: 0;                         /* …so the centres must not be squeezed */
+  opacity: 0.8;
+}
+.run-tag svg { height: var(--sym-h); width: auto; }
 .hint {
   color: var(--snow); opacity: 0.65;
   font: 500 0.88rem 'Barlow Condensed', sans-serif;
@@ -925,12 +976,27 @@ h3 {
   font: 600 1.1rem / 1.2 'Fraunces Variable', Georgia, serif;
   font-variation-settings: 'SOFT' 100;
 }
+
+/* ─── Sub-sign ───────────────────────────────────────────────
+   The Experience sign, one level below the landing sign. It is
+   the same object — cap, board of runs, post — so it reuses
+   .sign-* and .run-* wholesale rather than inventing a second
+   visual language. The four rows fan out: first left, second
+   straight ahead, third right, and Back to the map on the far
+   right, the way a real sign files the way home. */
+.sub-layer {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center;
+  padding-top: 10vh;
+}
 .when { font: 500 0.93rem 'Barlow Condensed', sans-serif; color: var(--muted); white-space: nowrap; }
 .org  { font: 500 0.95rem 'Barlow Condensed', sans-serif; color: var(--muted); margin-bottom: 0.3rem; }
 ul { padding-left: 1.1rem; margin: 0.3rem 0 0; }
 li { margin: 0.22rem 0; font-size: 0.98rem; line-height: 1.55; }
 
-.tdot { margin-right: 0.32rem; font-size: 0.88em; }
+/* the project rating, inline in its title */
+.tdot { margin-right: 0.3rem; display: inline-flex; vertical-align: -0.12em; }
+.tdot svg { height: 0.85em; width: auto; }
 .tdot-green { color: #2E9E5B; }
 .tdot-blue  { color: #3A76E0; }
 .tdot-black { color: var(--ink); }
