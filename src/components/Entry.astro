@@ -1,0 +1,9 @@
+---
+const { title, org, when, pts = [], diff } = Astro.props;
+const sym = { green: '●', blue: '■', black: '◆' }, nm = { green: 'Green circle', blue: 'Blue square', black: 'Black diamond' };
+---
+<article class="e">
+  <div class="hd"><h3>{diff && <span class={`diff ${diff}`} role="img" aria-label={`${nm[diff]} difficulty`}>{sym[diff]}</span>}{title}</h3><span class="when">{when}</span></div>
+  {org && <p class="org">{org}</p>}
+  {pts.length > 0 && <ul>{pts.map((p) => <li>{p}</li>)}</ul>}
+</article>

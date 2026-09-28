@@ -1,0 +1,935 @@
+---
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource/barlow-condensed/500.css';
+import '@fontsource/barlow-condensed/600.css';
+import { links, intro, education, work, projects, community, other, skills } from '../data/resume.js';
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Katja Radovic-Jonsson</title>
+  <meta name="description" content="Katja Radovic-Jonsson: computer science student at UBC, hackathon builder, and ski instructor at Whistler Blackcomb." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L8 4H6.5L9 8H1L3.5 4H2Z' fill='%233B2A3F'/%3E%3C/svg%3E" />
+  <script is:inline>
+    try {
+      var m = localStorage.getItem('mode');
+      if (!m) m = matchMedia('(prefers-color-scheme:dark)').matches ? 'night' : 'day';
+      document.documentElement.dataset.mode = m;
+    } catch(e) {}
+  </script>
+</head>
+<body>
+
+  <!-- Mode button (always on top) -->
+  <button id="mode-btn" type="button">night ski</button>
+
+  <!-- ══════════════════════════════════════════════
+       WORLD — one canvas paints the whole scene.
+       The landing page IS this scene at camera (0,0);
+       every run is the same scene with the camera panned,
+       so the environment never changes, it only moves.
+  ══════════════════════════════════════════════ -->
+  <canvas id="world" aria-hidden="true"></canvas>
+
+  <!-- ══════════════════════════════════════════════
+       LAYER: LANDING — the trail sign
+  ══════════════════════════════════════════════ -->
+  <div id="layer-landing" class="layer active">
+    <header class="site-header">
+      <h1>{intro.name}</h1>
+      <p class="tagline">{intro.tagline}</p>
+    </header>
+
+    <div id="sign" class="sign-wrap">
+      <div class="sign-cap">TRAIL MAP</div>
+      <div class="sign-board">
+
+        <!-- Green ● — left arrow ← -->
+        <button class="run-btn run-green" data-target="work" data-dir="left" id="btn-work">
+          <span class="run-arrow" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <polygon points="4,20 18,8 18,15 36,15 36,25 18,25 18,32" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="run-label">
+            <span class="run-name">Work Experience</span>
+            <span class="run-tag">
+              <svg viewBox="0 0 18 18" width="13" height="13"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
+              Green Circle
+            </span>
+          </span>
+        </button>
+
+        <!-- Blue ■ — up-left arrow ↖ (left polygon rotated +45°) -->
+        <button class="run-btn run-blue" data-target="projects" data-dir="upleft" id="btn-projects">
+          <span class="run-arrow" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <polygon points="4,20 18,8 18,15 36,15 36,25 18,25 18,32"
+                       transform="rotate(45,20,20)" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="run-label">
+            <span class="run-name">Personal Projects</span>
+            <span class="run-tag">
+              <svg viewBox="0 0 18 18" width="13" height="13"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
+              Blue Square
+            </span>
+          </span>
+        </button>
+
+        <!-- Black ◆ — up-right arrow ↗ (right polygon rotated −45°) -->
+        <button class="run-btn run-black" data-target="community" data-dir="upright" id="btn-community">
+          <span class="run-arrow" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <polygon points="36,20 22,8 22,15 4,15 4,25 22,25 22,32"
+                       transform="rotate(-45,20,20)" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="run-label">
+            <span class="run-name">Extracurricular</span>
+            <span class="run-tag">
+              <svg viewBox="0 0 18 18" width="13" height="13"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
+              Black Diamond
+            </span>
+          </span>
+        </button>
+
+        <!-- Double black ◆◆ — right arrow → -->
+        <button class="run-btn run-dblack" data-target="skills" data-dir="right" id="btn-skills">
+          <span class="run-arrow" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <polygon points="36,20 22,8 22,15 4,15 4,25 22,25 22,32" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="run-label">
+            <span class="run-name">Skills</span>
+            <span class="run-tag">
+              <svg viewBox="0 0 28 18" width="24" height="13">
+                <polygon points="7,2 13,9 7,16 1,9" fill="currentColor"/>
+                <polygon points="21,2 27,9 21,16 15,9" fill="currentColor"/>
+              </svg>
+              Double Black Diamond
+            </span>
+          </span>
+        </button>
+
+      </div>
+      <div class="post-shaft"></div>
+    </div>
+
+    <p class="hint">Choose your run ↑</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION LAYERS — same world behind, text overlay
+  ══════════════════════════════════════════════ -->
+
+  <!-- Work Experience (green) -->
+  <div id="layer-work" class="layer section-layer">
+    <div class="sec-scroll">
+      <div class="sec-inner">
+        <button class="back-btn" data-back>← Trail Map</button>
+        <div class="run-badge green-badge">
+          <svg viewBox="0 0 18 18" width="12" height="12"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
+          Green Run
+        </div>
+        <h2>Work Experience</h2>
+        <div class="entries">
+          {work.map((w) => (
+            <article class="entry">
+              <div class="eh"><h3>{w.title}</h3><span class="when">{w.when}</span></div>
+              <p class="org">{w.org}</p>
+              <ul>{w.pts.map((p) => <li>{p}</li>)}</ul>
+            </article>
+          ))}
+          <article class="entry">
+            <div class="eh"><h3>{education.title}</h3><span class="when">{education.when}</span></div>
+            <p class="org">{education.org}</p>
+            <ul>{education.pts.map((p) => <li>{p}</li>)}</ul>
+          </article>
+          {other.map((o) => (
+            <article class="entry">
+              <div class="eh"><h3>{o.title}</h3><span class="when">{o.when}</span></div>
+              <p class="org">{o.org}</p>
+              <ul>{o.pts.map((p) => <li>{p}</li>)}</ul>
+            </article>
+          ))}
+        </div>
+        <div class="links-row">
+          <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal Projects (blue) -->
+  <div id="layer-projects" class="layer section-layer">
+    <div class="sec-scroll">
+      <div class="sec-inner">
+        <button class="back-btn" data-back>← Trail Map</button>
+        <div class="run-badge blue-badge">
+          <svg viewBox="0 0 18 18" width="12" height="12"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
+          Blue Run
+        </div>
+        <h2>Personal Projects</h2>
+        <p class="sec-note">Rated like ski runs — by me.</p>
+        <div class="entries">
+          {projects.map((p) => {
+            const sym: Record<string,string> = { green:'●', blue:'■', black:'◆' };
+            return (
+              <article class="entry">
+                <div class="eh">
+                  <h3>
+                    <span class={`tdot tdot-${p.diff}`} aria-hidden="true">{sym[p.diff]}</span>
+                    {p.title}
+                  </h3>
+                  <span class="when">{p.when}</span>
+                </div>
+                {p.org && <p class="org">{p.org}</p>}
+                <ul>{p.pts.map((pt) => <li>{pt}</li>)}</ul>
+              </article>
+            );
+          })}
+        </div>
+        <div class="links-row">
+          <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Extracurricular (black) -->
+  <div id="layer-community" class="layer section-layer">
+    <div class="sec-scroll">
+      <div class="sec-inner">
+        <button class="back-btn" data-back>← Trail Map</button>
+        <div class="run-badge black-badge">
+          <svg viewBox="0 0 18 18" width="12" height="12"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
+          Black Diamond
+        </div>
+        <h2>Extracurricular</h2>
+        <div class="entries">
+          {community.map((c) => (
+            <article class="entry">
+              <div class="eh"><h3>{c.title}</h3><span class="when">{c.when}</span></div>
+              {c.org && <p class="org">{c.org}</p>}
+              <ul>{c.pts.map((p) => <li>{p}</li>)}</ul>
+            </article>
+          ))}
+        </div>
+        <div class="links-row">
+          <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills (double black) -->
+  <div id="layer-skills" class="layer section-layer">
+    <div class="sec-scroll">
+      <div class="sec-inner">
+        <button class="back-btn" data-back>← Trail Map</button>
+        <div class="run-badge dblack-badge">
+          <svg viewBox="0 0 28 18" width="22" height="12">
+            <polygon points="7,2 13,9 7,16 1,9" fill="currentColor"/>
+            <polygon points="21,2 27,9 21,16 15,9" fill="currentColor"/>
+          </svg>
+          Double Black Diamond
+        </div>
+        <h2>Skills</h2>
+        <dl class="skills-dl">
+          {skills.map(([k, v]) => (
+            <>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </>
+          ))}
+        </dl>
+        <div class="links-row">
+          <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ─── Helpers ────────────────────────────────────────────────────
+const root = document.documentElement;
+const allLayers = [...document.querySelectorAll<HTMLElement>('.layer')];
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function getVar(name: string): string {
+  return getComputedStyle(root).getPropertyValue(name).trim();
+}
+
+// Seeded RNG: the world is generated from fixed seeds, so it looks
+// identical on every load, on every page, at every moment.
+function srng(seed: number) {
+  let s = seed;
+  return () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+}
+
+// ─── Mode toggle ────────────────────────────────────────────────
+const modeBtn = document.getElementById('mode-btn')!;
+function syncLabel() {
+  modeBtn.textContent = root.dataset.mode === 'night' ? 'bluebird' : 'night ski';
+}
+syncLabel();
+modeBtn.addEventListener('click', () => {
+  const next = root.dataset.mode === 'night' ? 'day' : 'night';
+  root.dataset.mode = next;
+  try { localStorage.setItem('mode', next); } catch(e) {}
+  syncLabel();
+  palette = null;   // colours are read from the CSS variables
+  draw();
+});
+
+// ─── Layer switching ─────────────────────────────────────────────
+// The world behind these layers never changes; only the sign and the
+// text come and go over it.
+function showLayer(id: string | null) {
+  allLayers.forEach(l => l.classList.remove('active'));
+  const t = document.getElementById(id);
+  if (t) {
+    t.classList.add('active');
+    const scroller = t.querySelector<HTMLElement>('.sec-scroll');
+    if (scroller) scroller.scrollTop = 0;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// THE WORLD — one canvas paints one continuous scene
+//
+// The landing page is this scene at camera (0, 0). A section page is
+// the very same scene: a run ends on a whole number of world periods,
+// and every part of the world tiles seamlessly, so you always land on
+// the identical view. So a run is nothing but this same environment
+// sliding past you — translation only. Never a cross-fade between two
+// different worlds, never rotation.
+//
+//   camX > 0 : world slides left  → you went right
+//   camX < 0 : world slides right → you went left
+// The camera has no vertical axis at all: every run is a level traverse,
+// and the view never drifts with the cursor.
+// ════════════════════════════════════════════════════════════════
+
+const worldCanvas = document.getElementById('world') as HTMLCanvasElement;
+const wctx = worldCanvas.getContext('2d')!;
+let W = 0, H = 0, dpr = 1;
+
+type Palette = {
+  night: boolean;
+  skyHi: string; skyLo: string;
+  mtnFar: string; mtnMid: string; mtnNear: string;
+  snow: string; snow2: string;
+  treeN: string; treeF: string;
+};
+let palette: Palette | null = null;
+function pal(): Palette {
+  if (!palette) {
+    palette = {
+      night: root.dataset.mode === 'night',
+      skyHi: getVar('--sky-hi'), skyLo: getVar('--sky-lo'),
+      mtnFar: getVar('--mtn-far'), mtnMid: getVar('--mtn-mid'), mtnNear: getVar('--mtn-near'),
+      snow: getVar('--snow'), snow2: getVar('--snow2'),
+      treeN: getVar('--tree-n'), treeF: getVar('--tree-f'),
+    };
+  }
+  return palette;
+}
+
+// ─── Ridgelines ─────────────────────────────────────────────────
+// Periodic value noise: smooth, and identical at u = 0 and u = 1, so
+// a ridge drawn tile after tile has no seam anywhere in it.
+function noise1d(seed: number, n: number) {
+  const r = srng(seed);
+  const v = Array.from({ length: n }, () => r());
+  return (u: number) => {
+    const x = u * n, i = Math.floor(x), f = x - i;
+    const a = v[((i % n) + n) % n], b = v[(((i + 1) % n) + n) % n];
+    const s = f * f * (3 - 2 * f);              // smoothstep
+    return a + (b - a) * s;
+  };
+}
+function fbm1d(seed: number) {
+  const a = noise1d(seed + 977, 3), b = noise1d(seed + 1951, 6),
+        c = noise1d(seed + 2903, 12), d = noise1d(seed + 4013, 24);
+  return (u: number) => (a(u) + 0.5 * b(u) + 0.25 * c(u) + 0.125 * d(u)) / 1.875;
+}
+type Ridge = { xf: number; hf: number }[];
+// hf = height as a fraction of viewport height, measured from the bottom
+function makeRidge(seed: number, lo: number, hi: number, samples = 120): Ridge {
+  const n = fbm1d(seed);
+  const pts: Ridge = [];
+  for (let i = 0; i <= samples; i++) {
+    const u = i / samples;
+    // the exponent keeps the shoulders low and the peaks pointed
+    pts.push({ xf: u, hf: lo + (hi - lo) * Math.pow(n(u), 1.55) });
+  }
+  return pts;
+}
+const RIDGE_FAR  = makeRidge(11, 0.70, 0.92);
+const RIDGE_MID  = makeRidge(29, 0.44, 0.70);
+const RIDGE_NEAR = makeRidge(47, 0.26, 0.54);
+
+// ─── Forests ────────────────────────────────────────────────────
+// One tile of firs per world period, repeated, so the forest is
+// continuous forever. Three depth bands per shoulder of the run: a
+// treeline up the slope, mid-slope firs, then big foreground firs
+// that frame the run and carry the speed of the pan.
+type Tree = { xf: number; yf: number; s: number; far: boolean };
+const FIRS: Tree[] = (() => {
+  const r = srng(83);
+  const out: Tree[] = [];
+  const bands = [
+    { n: 12, x0: -0.04, x1: 0.26, y0: 0.695, y1: 0.760, s0: 0.070, s1: 0.125, far: true  },
+    { n: 10, x0: -0.02, x1: 0.22, y0: 0.775, y1: 0.850, s0: 0.130, s1: 0.215, far: false },
+    { n: 8,  x0: -0.06, x1: 0.14, y0: 0.880, y1: 1.010, s0: 0.230, s1: 0.470, far: false },
+  ];
+  for (const mirror of [false, true]) {          // left shoulder, then right
+    for (const b of bands) {
+      for (let i = 0; i < b.n; i++) {
+        let xf = b.x0 + r() * (b.x1 - b.x0);
+        if (mirror) xf = 1 - xf;
+        out.push({
+          xf, yf: b.y0 + r() * (b.y1 - b.y0),
+          s: b.s0 + r() * (b.s1 - b.s0), far: b.far,
+        });
+      }
+    }
+  }
+  return out.sort((p, q) => p.yf - q.yf);        // farthest first, nearest last
+})();
+
+// A PNW spire fir: a bare leader tip, then nine tiers of long branches that
+// hang and overlap one another. Each tier is a downward chevron, and because
+// they all overlap the union is solid — no gaps for the snow to show through —
+// while the sides still serrate the way snow-laden branches do. The lowest
+// tier ends on a shallow flat hem, so the fir sits on its trunk and on the
+// snow instead of tapering away to a point.
+function fir(x: number, baseY: number, h: number, col: string) {
+  const half = h * 0.20;                     // half the width at the branches' base
+  const apex = baseY - h;
+  const trunkH = h * 0.09;
+  const hemY = baseY - trunkH;               // the lowest branches end here
+  const tiers = 9;
+  const hang = h * 0.26;                     // how deep an inner tier's arms droop
+  const top = apex + h * 0.13;               // the bare leader above the first arms
+  const step = (hemY - top) / tiers;         // one tier per step... and the last
+                                             // one hangs just one step deep, so
+                                             // the bottom stays flat, not cupped
+  const widthAt = (y: number) => half * Math.pow((y - apex) / (hemY - apex), 0.85);
+
+  wctx.fillStyle = col;
+  const trunkW = Math.max(1.2, half * 0.15);
+  wctx.fillRect(x - trunkW / 2, hemY, trunkW, trunkH);   // the trunk it stands on
+
+  const lead = widthAt(top);
+  wctx.beginPath();                          // the leader, up to a point
+  wctx.moveTo(x, apex);
+  wctx.lineTo(x + lead, top);
+  wctx.lineTo(x - lead, top);
+  wctx.closePath();
+  wctx.fill();
+
+  for (let i = 0; i < tiers; i++) {          // the branches, each hanging a level
+    const y = top + i * step;
+    const w = widthAt(y);
+    const lowest = i === tiers - 1;
+    const d = lowest ? step : Math.min(hang, hemY - y);
+    wctx.beginPath();
+    wctx.moveTo(x - w, y);
+    wctx.lineTo(x + w, y);
+    if (lowest) {
+      // the bottom hem: level in the middle, the arms drooping at the sides
+      wctx.quadraticCurveTo(x + w * 0.70, y + d * 0.78, x + w * 0.42, y + d);
+      wctx.lineTo(x - w * 0.42, y + d);
+      wctx.quadraticCurveTo(x - w * 0.70, y + d * 0.78, x - w, y);
+    } else {
+      wctx.quadraticCurveTo(x + w * 0.62, y + d * 0.5, x, y + d);
+      wctx.quadraticCurveTo(x - w * 0.62, y + d * 0.5, x - w, y);
+    }
+    wctx.closePath();
+    wctx.fill();
+  }
+}
+
+// ─── Stars overhead ─────────────────────────────────────────────
+const STARS = (() => {
+  const r = srng(7);
+  return Array.from({ length: 220 }, () => ({
+    xf: r(), yf: r() * 0.55, rad: 0.35 + r() * 0.9, a: 0.25 + r() * 0.65,
+  }));
+})();
+
+// ─── Drawing ────────────────────────────────────────────────────
+const wrap = (v: number, m: number) => ((v % m) + m) % m;
+
+// One ridge, tiled across the viewport at its own depth, so the three
+// ridgelines drift at different speeds and give the scene its depth.
+function drawRidge(ridge: Ridge, camX: number, depth: number, col: string) {
+  const off = wrap(camX * depth, W);
+  wctx.fillStyle = col;
+  wctx.beginPath();
+  wctx.moveTo(-off - W, H + 600);
+  for (let tile = -1; tile <= 1; tile++) {
+    const tileX = tile * W - off;
+    for (const p of ridge) wctx.lineTo(tileX + p.xf * W, H * (1 - p.hf));
+  }
+  wctx.lineTo(2 * W - off, H + 600);
+  wctx.closePath();
+  wctx.fill();
+}
+
+// The run underfoot: one unbroken field of snow, filled with a single
+// gradient. Nothing is drawn on it — the trees and the ridges overhead
+// are what slide past and show you that you are moving.
+function drawSlope(p: Palette) {
+  const crest = H * 0.70;
+  const g = wctx.createLinearGradient(0, crest - H * 0.06, 0, H + 120);
+  g.addColorStop(0, p.snow);
+  g.addColorStop(1, p.snow2);
+  wctx.fillStyle = g;
+  wctx.beginPath();
+  wctx.moveTo(-60, H + 600);
+  wctx.lineTo(-60, crest + H * 0.075);
+  wctx.quadraticCurveTo(W * 0.5, crest - H * 0.055, W + 60, crest + H * 0.075);
+  wctx.lineTo(W + 60, H + 600);
+  wctx.closePath();
+  wctx.fill();
+}
+
+// The forest is drawn as one forest, not tile by tile: every visible fir
+// goes into one list sorted by depth, so a pale far tree can never end up
+// painted over a dark near one from the tile next door.
+type Placed = { x: number; y: number; h: number; far: boolean; yf: number };
+const PLACED: Placed[] = [];
+
+function drawFirs(camX: number, p: Palette) {
+  const off = wrap(camX, W);
+  PLACED.length = 0;
+  for (let tile = -1; tile <= 2; tile++) {
+    const tileX = tile * W - off;
+    for (const t of FIRS) {
+      // never let a fir be wider than a fifth of the screen (phones)
+      const h = Math.min(t.s * H, W * 0.55);
+      const sx = tileX + t.xf * W;
+      if (sx < -h || sx > W + h) continue;            // off to the side
+      const sy = t.yf * H;
+      if (sy - h > H + 80 || sy < -80) continue;      // off the top or bottom
+      PLACED.push({ x: sx, y: sy, h, far: t.far, yf: t.yf });
+    }
+  }
+  PLACED.sort((a, b) => a.yf - b.yf);                 // farthest first
+  for (const t of PLACED) fir(t.x, t.y, t.h, t.far ? p.treeF : p.treeN);
+}
+
+function drawStars(camX: number, p: Palette) {
+  if (!p.night) return;
+  const off = wrap(camX * 0.03, W);
+  for (const s of STARS) {
+    wctx.beginPath();
+    wctx.arc(wrap(s.xf * W - off, W), s.yf * H, s.rad, 0, Math.PI * 2);
+    wctx.fillStyle = `rgba(255,255,255,${s.a})`;
+    wctx.fill();
+  }
+}
+
+// ─── Camera ─────────────────────────────────────────────────────
+const cam = { x: 0 };                    // world pixels panned, horizontally only
+
+function draw() {
+  const p = pal();
+  wctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const sky = wctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, p.skyHi);
+  sky.addColorStop(1, p.skyLo);
+  wctx.fillStyle = sky;
+  wctx.fillRect(0, 0, W, H);
+  drawStars(cam.x, p);
+  drawRidge(RIDGE_FAR,  cam.x, 0.06, p.mtnFar);
+  drawRidge(RIDGE_MID,  cam.x, 0.18, p.mtnMid);
+  drawRidge(RIDGE_NEAR, cam.x, 0.40, p.mtnNear);
+  drawSlope(p);
+  drawFirs(cam.x, p);
+}
+
+function resize() {
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  worldCanvas.width = Math.round(W * dpr);
+  worldCanvas.height = Math.round(H * dpr);
+  worldCanvas.style.width = W + 'px';
+  worldCanvas.style.height = H + 'px';
+}
+
+// ─── The run: pan the camera through the scene you are looking at ─
+type Dir = 'left' | 'upleft' | 'upright' | 'right';
+const GOES_LEFT: Record<Dir, boolean> = { left: true, upleft: true, right: false, upright: false };
+const MIRROR: Record<Dir, Dir> = { left: 'right', right: 'left', upleft: 'upright', upright: 'upleft' };
+const PERIODS_STRAIGHT = 2;   // world periods a green / double-black run crosses
+const PERIODS_ANGLED = 1;     // ...and a blue / black one. Whole periods every
+                              //    time, so the trees and the ground come back
+                              //    identical. No run ever climbs or drops.
+const PAN_MS = 1600;          // the time a two-period run takes; a shorter run
+                              // takes proportionally less, so the world always
+                              // slides past at the very same speed.
+                              // (Angled runs traverse level, just like the
+                              // straight ones — only half as far.)
+
+let pan: {
+  t0: number; dur: number;
+  fx: number; tx: number;                           // the anchors it runs between
+  revealed: boolean; onReveal: () => void;
+} | null = null;
+
+let raf = 0;
+function schedule() { if (!raf) raf = requestAnimationFrame(tick); }
+
+// A run always crosses a whole number of world periods, so wherever it
+// starts from, it stops on the same stretch of ground. Clicking while a run
+// is already in flight is not ignored: you turn around and ski back.
+function runPan(dir: Dir, onReveal: () => void) {
+  const straight = dir === 'left' || dir === 'right';
+  const sign = GOES_LEFT[dir] ? -1 : 1;
+  const total = W * (straight ? PERIODS_STRAIGHT : PERIODS_ANGLED);
+  const anchor = Math.round(cam.x / W) * W;         // the nearest settled view
+  const tx = anchor + sign * total;
+  const span = Math.abs(tx - cam.x);
+  pan = {
+    t0: performance.now(),
+    dur: Math.max(300, PAN_MS * (span / (W * PERIODS_STRAIGHT))),  // one speed
+    fx: cam.x, tx,
+    revealed: false,
+    onReveal,
+  };
+  schedule();
+}
+
+// Smooth in and out at both ends, so the run starts and stops gently.
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+function tick(ts: number) {
+  raf = 0;
+  let more = false;
+
+  if (pan) {
+    const t = Math.min((ts - pan.t0) / pan.dur, 1);
+    const p = easeInOut(t);
+    cam.x = pan.fx + (pan.tx - pan.fx) * p;
+    if (!pan.revealed && p >= 0.7) { pan.revealed = true; pan.onReveal(); }
+    if (t < 1) more = true;
+    else pan = null;                                // the camera stays where it stopped
+  }
+
+  draw();
+  if (more) schedule();
+}
+
+// ─── Navigation ─────────────────────────────────────────────────
+let lastDir: Dir = 'left';
+
+document.querySelectorAll<HTMLButtonElement>('.run-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = 'layer-' + btn.dataset.target!;
+    const dir = btn.dataset.dir as Dir;
+    lastDir = dir;
+
+    showLayer(null);        // the sign and your name slide away as you push off
+    if (reduced) { showLayer(target); return; }
+    runPan(dir, () => showLayer(target));         // pushing off along the traverse
+  });
+});
+
+document.querySelectorAll<HTMLButtonElement>('[data-back]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    showLayer(null);
+    if (reduced) { showLayer('layer-landing'); return; }
+    // Ski back the way you came in, over the same ground.
+    runPan(MIRROR[lastDir], () => showLayer('layer-landing'));
+  });
+});
+
+window.addEventListener('resize', () => { resize(); draw(); });
+
+resize();
+draw();
+</script>
+
+</body>
+</html>
+
+<style is:global>
+/* ─── Variables ───────────────────────────────── */
+:root {
+  --bg:       #F3ECE2;
+  --ink:      #3B2A3F;
+  --muted:    #7A6577;
+  --accent:   #F0805A;
+  --sky-hi:   #2188c9;
+  --sky-lo:   #a8d8f2;
+  --mtn-far:  #7caec8;
+  --mtn-mid:  #4d8aaa;
+  --mtn-near: #2f6682;
+  --snow:     #EEF3F8;
+  --snow2:    #c8d8e4;
+  --tree-f:   #8aafc4;
+  --tree-n:   #1E4024;
+  --sign-bg:  #2A1F14;
+  --sign-rim: #9B7820;
+  --sign-txt: #F5EDD8;
+  --post:     #5C3D1E;
+}
+[data-mode='night'] {
+  --bg:       #0b1510;
+  --ink:      #EDE6D8;
+  --muted:    #A3AFA0;
+  --accent:   #FFB340;
+  --sky-hi:   #020d18;
+  --sky-lo:   #091d30;
+  --mtn-far:  #0d2018;
+  --mtn-mid:  #091510;
+  --mtn-near: #050d08;
+  --snow:     #b0c4d0;
+  --snow2:    #7a99ab;
+  --tree-f:   #0d2015;
+  --tree-n:   #040e07;
+  --sign-bg:  #1a1208;
+  --sign-rim: #7a5c10;
+  --sign-txt: #E8D9B8;
+  --post:     #3a2510;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  overflow: hidden;
+  font: 400 1.1rem / 1.65 'Fraunces Variable', Georgia, serif;
+  font-variation-settings: 'SOFT' 100;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* ─── Mode button ────────────────────────────── */
+#mode-btn {
+  position: fixed; top: 1rem; right: 1rem; z-index: 300;
+  font: 600 0.95rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--sign-bg); color: var(--sign-txt);
+  border: 2px solid var(--sign-rim); border-radius: 4px;
+  padding: 0.3rem 1rem; cursor: pointer;
+  transition: background 0.3s;
+}
+#mode-btn:hover { background: var(--sign-rim); }
+#mode-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ─── World: one canvas paints the whole scene ─ */
+/* Landing page, runs and section pages are all this canvas at
+   different camera positions — nothing else draws scenery. */
+#world {
+  position: fixed; inset: 0; z-index: 0;
+  display: block; width: 100%; height: 100%;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+/* ─── Layers ─────────────────────────────────── */
+.layer {
+  position: fixed; inset: 0; z-index: 10;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.layer.active { opacity: 1; pointer-events: all; }
+
+/* ─── Landing layer ──────────────────────────── */
+#layer-landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 2.5rem;
+}
+.site-header {
+  position: absolute; top: clamp(1.2rem, 4vh, 2.5rem);
+  left: 0; right: 0; text-align: center; pointer-events: none;
+  padding-inline: 1.25rem;              /* the name and line never touch the edge */
+}
+.site-header h1 {
+  font: 700 clamp(1.9rem, 6.5vw, 4.2rem) / 1 'Fraunces Variable', Georgia, serif;
+  font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 144;
+  letter-spacing: -0.02em;
+  color: var(--sign-txt);
+  text-shadow: 0 2px 20px rgba(0,0,0,0.55);
+}
+.site-header .tagline {
+  font: 500 clamp(0.78rem, 2vw, 1.02rem) 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.07em; color: var(--snow);
+  margin-top: 0.4rem; opacity: 0.85;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+}
+
+/* ─── Trail sign ─────────────────────────────── */
+.sign-wrap { display: flex; flex-direction: column; align-items: center; }
+.sign-cap {
+  font: 700 1.3rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  background: var(--sign-rim); color: var(--sign-txt);
+  padding: 0.3rem 2.2rem;
+  border-radius: 5px 5px 0 0;
+  border: 3px solid var(--sign-rim); border-bottom: none;
+}
+.sign-board {
+  background: var(--sign-bg);
+  border: 3px solid var(--sign-rim);
+  border-radius: 0 0 7px 7px;
+  padding: 0.45rem 0.55rem;
+  min-width: min(320px, 88vw); max-width: 410px;
+  display: flex; flex-direction: column; gap: 0.38rem;
+  box-shadow: 0 8px 36px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.post-shaft {
+  width: 16px; height: 72px;
+  background: linear-gradient(to right, #2a1a08, var(--post), #2a1a08);
+  border-radius: 0 0 3px 3px;
+}
+.run-btn {
+  display: flex; align-items: center; gap: 0.7rem;
+  width: 100%; padding: 0.5rem 0.75rem;
+  border: 2px solid transparent; border-radius: 5px;
+  cursor: pointer; text-align: left;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  transition: transform 0.16s, box-shadow 0.16s;
+  position: relative; overflow: hidden;
+}
+.run-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255,255,255,0.06); opacity: 0;
+  transition: opacity 0.18s;
+}
+.run-btn:hover::after { opacity: 1; }
+.run-btn:hover { transform: translateX(2px) scale(1.012); box-shadow: 0 4px 18px rgba(0,0,0,0.45); }
+.run-btn:active { transform: scale(0.97); }
+.run-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.run-green  { background: #1b6238; color: #caf0db; border-color: #2E9E5B; }
+.run-blue   { background: #163672; color: #c4d8ff; border-color: #3A76E0; }
+.run-black  { background: #1c1c1c; color: #ddd;    border-color: #555;    }
+.run-dblack { background: #0e0e0e; color: #ccc;    border-color: #444;    }
+.run-arrow { flex-shrink: 0; display: flex; align-items: center; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+.run-label { display: flex; flex-direction: column; gap: 0.08rem; }
+.run-name  { font-size: 1.12rem; font-weight: 600; line-height: 1; }
+.run-tag   { font-size: 0.78rem; opacity: 0.72; display: flex; align-items: center; gap: 0.35rem; }
+.hint {
+  color: var(--snow); opacity: 0.65;
+  font: 500 0.88rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.6rem;
+  animation: pulse 2.8s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.85} }
+
+/* Standing still, and asking for less motion: no pulse, no pan. */
+@media (prefers-reduced-motion: reduce) {
+  .hint { animation: none; opacity: 0.7; }
+  .layer { transition: none; }
+}
+
+/* ─── Section layers — text overlaid on world ─── */
+.section-layer { overflow: hidden; }
+
+.sec-scroll {
+  position: absolute; inset: 0;
+  overflow-y: auto;
+}
+
+.sec-inner {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 6rem;
+}
+@media (min-width: 700px) {
+  .sec-inner { padding: 3rem 3.5rem 7rem; }
+}
+
+.back-btn {
+  font: 600 0.9rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: none; border: 1.5px solid var(--muted);
+  border-radius: 4px; color: var(--muted);
+  padding: 0.28rem 0.85rem; cursor: pointer; margin-bottom: 1.4rem;
+  transition: border-color 0.2s, color 0.2s;
+}
+.back-btn:hover { border-color: var(--ink); color: var(--ink); }
+.back-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.run-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font: 600 0.82rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border-radius: 4px; padding: 0.22rem 0.7rem; margin-bottom: 0.65rem;
+}
+.green-badge  { background: #1b6238; color: #caf0db; }
+.blue-badge   { background: #163672; color: #c4d8ff; }
+.black-badge  { background: #1c1c1c; color: #ddd; }
+.dblack-badge { background: #0e0e0e; color: #ccc; border: 1px solid #333; }
+
+h2 {
+  font: 700 clamp(1.9rem, 5.5vw, 3rem) / 1.05 'Fraunces Variable', Georgia, serif;
+  font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 144;
+  letter-spacing: -0.02em; margin-bottom: 0.25rem; color: var(--ink);
+}
+.sec-note {
+  color: var(--muted);
+  font: 500 0.98rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em; margin-bottom: 1.6rem;
+}
+
+.entries { display: flex; flex-direction: column; gap: 2rem; margin-top: 1.5rem; }
+.entry { border-left: 3px solid var(--accent); padding-left: 1.15rem; }
+.eh {
+  display: flex; flex-wrap: wrap;
+  justify-content: space-between; align-items: baseline;
+  gap: 0.15rem 1rem; margin-bottom: 0.18rem;
+}
+h3 {
+  font: 600 1.1rem / 1.2 'Fraunces Variable', Georgia, serif;
+  font-variation-settings: 'SOFT' 100;
+}
+.when { font: 500 0.93rem 'Barlow Condensed', sans-serif; color: var(--muted); white-space: nowrap; }
+.org  { font: 500 0.95rem 'Barlow Condensed', sans-serif; color: var(--muted); margin-bottom: 0.3rem; }
+ul { padding-left: 1.1rem; margin: 0.3rem 0 0; }
+li { margin: 0.22rem 0; font-size: 0.98rem; line-height: 1.55; }
+
+.tdot { margin-right: 0.32rem; font-size: 0.88em; }
+.tdot-green { color: #2E9E5B; }
+.tdot-blue  { color: #3A76E0; }
+.tdot-black { color: var(--ink); }
+
+.skills-dl {
+  display: grid; grid-template-columns: max-content 1fr;
+  gap: 0.6rem 1.8rem; margin-top: 1.5rem;
+}
+.skills-dl dt {
+  font: 700 1.1rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent);
+}
+.skills-dl dd { font-size: 0.98rem; line-height: 1.55; }
+
+.links-row {
+  margin-top: 2.5rem; display: flex; gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.links-row a {
+  font: 600 0.95rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--accent); text-decoration: none; transition: opacity 0.2s;
+}
+.links-row a:hover { opacity: 0.65; }
+.links-row a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+</style>
