@@ -13,6 +13,9 @@ Prompts given by the owner, verbatim (contact details redacted). Newest last. Ag
 9. the landing page is alright for now (but the blue and black runs' arrows are not accurate, pls review and make them go up-left and up-right respectively) but the animation and individual sections are way off. the animation should start at the landing page and make it look like the person is going in the direction indicated on the sign they clicked. the page that each section leads to can look almost identical to the landing page, but instead of having a sign in the middle just have the text overlaid over the screen.
 
 14. add 2 more possible shades to the trees and increase the density on the left side. this way they dont all just blend together
+
+16. make the trees more evenly spaced out and make the sign bigger
+
 15. some of the trees are floating. also move the shapes associated with the run to the right side of the sign section, and make them larger
 
 10. remove the frosted glass on each section, i can deal with contrast issues later. the animation is still incorrect, it needs to go directly from the landing page, moving in the direction of the respective arrow, through a continuous environment that lands at a duplicate version of the current landing page. the trees on the side of the landing page need to be bigger as well (and same goes for the sections then since they're dupes). the animation should also not rotate the screen as it currently does and it must be completely smooth

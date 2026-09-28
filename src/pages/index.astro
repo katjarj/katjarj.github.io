@@ -9,7 +9,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Katja Radovic-Jonsson</title>
-  <meta name="description" content="Katja Radovic-Jonsson: computer science student at UBC, hackathon builder, and ski instructor at Whistler Blackcomb." />
+  <meta name="description" content="Katja Radovic-Jonsson's personal website" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L8 4H6.5L9 8H1L3.5 4H2Z' fill='%233B2A3F'/%3E%3C/svg%3E" />
   <script is:inline>
     try {
@@ -38,7 +38,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
   <div id="layer-landing" class="layer active">
     <header class="site-header">
       <h1>{intro.name}</h1>
-      <p class="tagline">{intro.tagline}</p>
     </header>
 
     <div id="sign" class="sign-wrap">
@@ -783,16 +782,8 @@ body {
 .site-header h1 {
   font: 700 clamp(1.9rem, 6.5vw, 4.2rem) / 1 'Fraunces Variable', Georgia, serif;
   font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 144;
-  letter-spacing: -0.02em;
   color: var(--sign-txt);
-  text-shadow: 0 2px 20px rgba(0,0,0,0.55);
-}
-.site-header .tagline {
-  font: 500 clamp(0.78rem, 2vw, 1.02rem) 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.07em; color: var(--snow);
-  margin-top: 0.4rem; opacity: 0.85;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
-}
+  }
 
 /* ─── Trail sign ─────────────────────────────── */
 .sign-wrap { display: flex; flex-direction: column; align-items: center; }
