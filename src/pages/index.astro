@@ -55,7 +55,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
           <span class="run-label">
             <span class="run-name">Work Experience</span>
             <span class="run-tag">
-              <svg viewBox="0 0 18 18" width="13" height="13"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
+              <svg viewBox="0 0 18 18" width="21" height="21"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
             </span>
           </span>
         </button>
@@ -71,7 +71,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
           <span class="run-label">
             <span class="run-name">Personal Projects</span>
             <span class="run-tag">
-              <svg viewBox="0 0 18 18" width="13" height="13"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
+              <svg viewBox="0 0 18 18" width="21" height="21"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
             </span>
           </span>
         </button>
@@ -87,7 +87,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
           <span class="run-label">
             <span class="run-name">Extracurricular</span>
             <span class="run-tag">
-              <svg viewBox="0 0 18 18" width="13" height="13"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
+              <svg viewBox="0 0 18 18" width="21" height="21"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
             </span>
           </span>
         </button>
@@ -102,7 +102,7 @@ import { links, intro, education, work, projects, community, other, skills } fro
           <span class="run-label">
             <span class="run-name">Skills</span>
             <span class="run-tag">
-              <svg viewBox="0 0 28 18" width="24" height="13">
+              <svg viewBox="0 0 28 18" width="38" height="24">
                 <polygon points="7,2 13,9 7,16 1,9" fill="currentColor"/>
                 <polygon points="21,2 27,9 21,16 15,9" fill="currentColor"/>
               </svg>
@@ -359,22 +359,27 @@ const RIDGE_NEAR = makeRidge(47, 0.26, 0.54);
 // ─── Forests ────────────────────────────────────────────────────
 // One tile of firs per world period, repeated, so the forest is
 // continuous forever. Three depth bands per shoulder of the run: a
-// treeline up the slope, mid-slope firs, then big foreground firs
+// treeline along the crest, mid-slope firs, then big foreground firs
 // that frame the run and carry the speed of the pan.
+//
+// Every band is placed by `d0`/`d1` — how far it stands *below the snow
+// crest*, in units of H — never by an absolute screen line, so a fir follows
+// the crest down at the sides of the viewport instead of hanging in the air.
+// `d` doubles as the depth key the forest is sorted by, farthest first.
 //
 // Four flat tones instead of two, so a thick shoulder reads as a forest
 // and not one dark mass: the treeline stays the palest (haze), and each
 // nearer band picks between its own pair — `tones` — as it is laid out.
 // The left shoulder carries `extraL` more firs than the right, so the
 // forest is deliberately denser on the left and no longer symmetrical.
-type Tree = { xf: number; yf: number; s: number; tone: number };
+type Tree = { xf: number; d: number; s: number; tone: number };
 const FIRS: Tree[] = (() => {
   const r = srng(83);
   const out: Tree[] = [];
   const bands = [
-    { n: 12, extraL: 6, tones: [0],    x0: -0.04, x1: 0.26, y0: 0.695, y1: 0.760, s0: 0.070, s1: 0.125 },
-    { n: 10, extraL: 5, tones: [1, 2], x0: -0.02, x1: 0.22, y0: 0.775, y1: 0.850, s0: 0.130, s1: 0.215 },
-    { n: 8,  extraL: 3, tones: [2, 3], x0: -0.06, x1: 0.14, y0: 0.880, y1: 1.010, s0: 0.230, s1: 0.470 },
+    { n: 12, extraL: 6, tones: [0],    x0: -0.04, x1: 0.26, d0: 0.000, d1: 0.035, s0: 0.070, s1: 0.125 },
+    { n: 10, extraL: 5, tones: [1, 2], x0: -0.02, x1: 0.22, d0: 0.055, d1: 0.135, s0: 0.130, s1: 0.215 },
+    { n: 8,  extraL: 3, tones: [2, 3], x0: -0.06, x1: 0.14, d0: 0.185, d1: 0.400, s0: 0.230, s1: 0.470 },
   ];
   for (const mirror of [false, true]) {          // left shoulder, then right
     for (const b of bands) {
@@ -383,14 +388,14 @@ const FIRS: Tree[] = (() => {
         let xf = b.x0 + r() * (b.x1 - b.x0);
         if (mirror) xf = 1 - xf;
         out.push({
-          xf, yf: b.y0 + r() * (b.y1 - b.y0),
+          xf, d: b.d0 + r() * (b.d1 - b.d0),
           s: b.s0 + r() * (b.s1 - b.s0),
           tone: b.tones[Math.floor(r() * b.tones.length)],
         });
       }
     }
   }
-  return out.sort((p, q) => p.yf - q.yf);        // farthest first, nearest last
+  return out.sort((p, q) => p.d - q.d);            // farthest first, nearest last
 })();
 
 // A PNW spire fir: a bare leader tip, then nine tiers of long branches that
@@ -473,20 +478,39 @@ function drawRidge(ridge: Ridge, camX: number, depth: number, col: string) {
   wctx.fill();
 }
 
+// ─── The snow line ──────────────────────────────────────────────
+// One quadratic crest, shared by the slope fill and by the firs, so every
+// tree stands on the ground. The crest falls away at the two sides of the
+// viewport and rides highest through the middle; a fir is planted on that
+// curve instead of on a fixed line, which is what used to leave the
+// treeline hovering over the snow at the edges.
+const CREST_F = 0.70;        // the crest, as a fraction of H
+const CREST_DROP = 0.075;    // how far it falls away at each side
+const CREST_LIFT = 0.055;    // ...and how far it rides up through the middle
+const CREST_PAD = 60;        // the slope is drawn this far past each side
+
+function snowTopY(x: number): number {
+  const yEdge = H * (CREST_F + CREST_DROP);
+  const yMid = H * (CREST_F - CREST_LIFT);
+  const t = Math.min(1, Math.max(0, (x + CREST_PAD) / (W + CREST_PAD * 2)));
+  const u = 1 - t;
+  return u * u * yEdge + 2 * u * t * yMid + t * t * yEdge;
+}
+
 // The run underfoot: one unbroken field of snow, filled with a single
 // gradient. Nothing is drawn on it — the trees and the ridges overhead
 // are what slide past and show you that you are moving.
 function drawSlope(p: Palette) {
-  const crest = H * 0.70;
+  const crest = H * CREST_F;
   const g = wctx.createLinearGradient(0, crest - H * 0.06, 0, H + 120);
   g.addColorStop(0, p.snow);
   g.addColorStop(1, p.snow2);
   wctx.fillStyle = g;
   wctx.beginPath();
-  wctx.moveTo(-60, H + 600);
-  wctx.lineTo(-60, crest + H * 0.075);
-  wctx.quadraticCurveTo(W * 0.5, crest - H * 0.055, W + 60, crest + H * 0.075);
-  wctx.lineTo(W + 60, H + 600);
+  wctx.moveTo(-CREST_PAD, H + 600);
+  wctx.lineTo(-CREST_PAD, snowTopY(-CREST_PAD));
+  wctx.quadraticCurveTo(W * 0.5, H * (CREST_F - CREST_LIFT), W + CREST_PAD, snowTopY(W + CREST_PAD));
+  wctx.lineTo(W + CREST_PAD, H + 600);
   wctx.closePath();
   wctx.fill();
 }
@@ -494,7 +518,7 @@ function drawSlope(p: Palette) {
 // The forest is drawn as one forest, not tile by tile: every visible fir
 // goes into one list sorted by depth, so a pale far tree can never end up
 // painted over a dark near one from the tile next door.
-type Placed = { x: number; y: number; h: number; tone: number; yf: number };
+type Placed = { x: number; y: number; h: number; tone: number; d: number };
 const PLACED: Placed[] = [];
 
 function drawFirs(camX: number, p: Palette) {
@@ -508,12 +532,14 @@ function drawFirs(camX: number, p: Palette) {
       const h = Math.min(t.s * H, W * 0.55);
       const sx = tileX + t.xf * W;
       if (sx < -h || sx > W + h) continue;            // off to the side
-      const sy = t.yf * H;
+      // planted on the snow, not on a fixed line: the ground it stands on is
+      // the crest curve at its own x, and `d` is how far below that it is
+      const sy = snowTopY(sx) + t.d * H;
       if (sy - h > H + 80 || sy < -80) continue;      // off the top or bottom
-      PLACED.push({ x: sx, y: sy, h, tone: t.tone, yf: t.yf });
+      PLACED.push({ x: sx, y: sy, h, tone: t.tone, d: t.d });
     }
   }
-  PLACED.sort((a, b) => a.yf - b.yf);                 // farthest first
+  PLACED.sort((a, b) => a.d - b.d);                   // farthest first
   for (const t of PLACED) fir(t.x, t.y, t.h, tones[t.tone]);
 }
 
@@ -816,9 +842,11 @@ body {
 .run-black  { background: #1c1c1c; color: #ddd;    border-color: #555;    }
 .run-dblack { background: #0e0e0e; color: #ccc;    border-color: #444;    }
 .run-arrow { flex-shrink: 0; display: flex; align-items: center; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
-.run-label { display: flex; flex-direction: column; gap: 0.08rem; }
+.run-label { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
 .run-name  { font-size: 1.12rem; font-weight: 600; line-height: 1; }
-.run-tag   { font-size: 0.78rem; opacity: 0.72; display: flex; align-items: center; gap: 0.35rem; }
+/* the difficulty symbol rides the right-hand end of its row, like the
+   rating plate on the far end of a real sign */
+.run-tag   { margin-left: auto; display: flex; align-items: center; opacity: 0.8; }
 .hint {
   color: var(--snow); opacity: 0.65;
   font: 500 0.88rem 'Barlow Condensed', sans-serif;
