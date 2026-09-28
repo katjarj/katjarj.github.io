@@ -56,7 +56,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
             <span class="run-name">Work Experience</span>
             <span class="run-tag">
               <svg viewBox="0 0 18 18" width="13" height="13"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
-              Green Circle
             </span>
           </span>
         </button>
@@ -73,7 +72,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
             <span class="run-name">Personal Projects</span>
             <span class="run-tag">
               <svg viewBox="0 0 18 18" width="13" height="13"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
-              Blue Square
             </span>
           </span>
         </button>
@@ -90,7 +88,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
             <span class="run-name">Extracurricular</span>
             <span class="run-tag">
               <svg viewBox="0 0 18 18" width="13" height="13"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
-              Black Diamond
             </span>
           </span>
         </button>
@@ -109,7 +106,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
                 <polygon points="7,2 13,9 7,16 1,9" fill="currentColor"/>
                 <polygon points="21,2 27,9 21,16 15,9" fill="currentColor"/>
               </svg>
-              Double Black Diamond
             </span>
           </span>
         </button>
@@ -130,10 +126,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
     <div class="sec-scroll">
       <div class="sec-inner">
         <button class="back-btn" data-back>← Trail Map</button>
-        <div class="run-badge green-badge">
-          <svg viewBox="0 0 18 18" width="12" height="12"><circle cx="9" cy="9" r="7" fill="currentColor"/></svg>
-          Green Run
-        </div>
         <h2>Work Experience</h2>
         <div class="entries">
           {work.map((w) => (
@@ -169,10 +161,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
     <div class="sec-scroll">
       <div class="sec-inner">
         <button class="back-btn" data-back>← Trail Map</button>
-        <div class="run-badge blue-badge">
-          <svg viewBox="0 0 18 18" width="12" height="12"><rect x="2" y="2" width="14" height="14" fill="currentColor"/></svg>
-          Blue Run
-        </div>
         <h2>Personal Projects</h2>
         <p class="sec-note">Rated like ski runs — by me.</p>
         <div class="entries">
@@ -206,10 +194,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
     <div class="sec-scroll">
       <div class="sec-inner">
         <button class="back-btn" data-back>← Trail Map</button>
-        <div class="run-badge black-badge">
-          <svg viewBox="0 0 18 18" width="12" height="12"><polygon points="9,2 16,9 9,16 2,9" fill="currentColor"/></svg>
-          Black Diamond
-        </div>
         <h2>Extracurricular</h2>
         <div class="entries">
           {community.map((c) => (
@@ -233,13 +217,6 @@ import { links, intro, education, work, projects, community, other, skills } fro
     <div class="sec-scroll">
       <div class="sec-inner">
         <button class="back-btn" data-back>← Trail Map</button>
-        <div class="run-badge dblack-badge">
-          <svg viewBox="0 0 28 18" width="22" height="12">
-            <polygon points="7,2 13,9 7,16 1,9" fill="currentColor"/>
-            <polygon points="21,2 27,9 21,16 15,9" fill="currentColor"/>
-          </svg>
-          Double Black Diamond
-        </div>
         <h2>Skills</h2>
         <dl class="skills-dl">
           {skills.map(([k, v]) => (
@@ -327,7 +304,7 @@ type Palette = {
   skyHi: string; skyLo: string;
   mtnFar: string; mtnMid: string; mtnNear: string;
   snow: string; snow2: string;
-  treeN: string; treeF: string;
+  tree1: string; tree2: string; tree3: string; tree4: string;
 };
 let palette: Palette | null = null;
 function pal(): Palette {
@@ -337,7 +314,9 @@ function pal(): Palette {
       skyHi: getVar('--sky-hi'), skyLo: getVar('--sky-lo'),
       mtnFar: getVar('--mtn-far'), mtnMid: getVar('--mtn-mid'), mtnNear: getVar('--mtn-near'),
       snow: getVar('--snow'), snow2: getVar('--snow2'),
-      treeN: getVar('--tree-n'), treeF: getVar('--tree-f'),
+      // fir tones, palest (farthest) to darkest (nearest)
+      tree1: getVar('--tree-1'), tree2: getVar('--tree-2'),
+      tree3: getVar('--tree-3'), tree4: getVar('--tree-4'),
     };
   }
   return palette;
@@ -382,23 +361,31 @@ const RIDGE_NEAR = makeRidge(47, 0.26, 0.54);
 // continuous forever. Three depth bands per shoulder of the run: a
 // treeline up the slope, mid-slope firs, then big foreground firs
 // that frame the run and carry the speed of the pan.
-type Tree = { xf: number; yf: number; s: number; far: boolean };
+//
+// Four flat tones instead of two, so a thick shoulder reads as a forest
+// and not one dark mass: the treeline stays the palest (haze), and each
+// nearer band picks between its own pair — `tones` — as it is laid out.
+// The left shoulder carries `extraL` more firs than the right, so the
+// forest is deliberately denser on the left and no longer symmetrical.
+type Tree = { xf: number; yf: number; s: number; tone: number };
 const FIRS: Tree[] = (() => {
   const r = srng(83);
   const out: Tree[] = [];
   const bands = [
-    { n: 12, x0: -0.04, x1: 0.26, y0: 0.695, y1: 0.760, s0: 0.070, s1: 0.125, far: true  },
-    { n: 10, x0: -0.02, x1: 0.22, y0: 0.775, y1: 0.850, s0: 0.130, s1: 0.215, far: false },
-    { n: 8,  x0: -0.06, x1: 0.14, y0: 0.880, y1: 1.010, s0: 0.230, s1: 0.470, far: false },
+    { n: 12, extraL: 6, tones: [0],    x0: -0.04, x1: 0.26, y0: 0.695, y1: 0.760, s0: 0.070, s1: 0.125 },
+    { n: 10, extraL: 5, tones: [1, 2], x0: -0.02, x1: 0.22, y0: 0.775, y1: 0.850, s0: 0.130, s1: 0.215 },
+    { n: 8,  extraL: 3, tones: [2, 3], x0: -0.06, x1: 0.14, y0: 0.880, y1: 1.010, s0: 0.230, s1: 0.470 },
   ];
   for (const mirror of [false, true]) {          // left shoulder, then right
     for (const b of bands) {
-      for (let i = 0; i < b.n; i++) {
+      const n = b.n + (mirror ? 0 : b.extraL);   // thicker on the left
+      for (let i = 0; i < n; i++) {
         let xf = b.x0 + r() * (b.x1 - b.x0);
         if (mirror) xf = 1 - xf;
         out.push({
           xf, yf: b.y0 + r() * (b.y1 - b.y0),
-          s: b.s0 + r() * (b.s1 - b.s0), far: b.far,
+          s: b.s0 + r() * (b.s1 - b.s0),
+          tone: b.tones[Math.floor(r() * b.tones.length)],
         });
       }
     }
@@ -507,10 +494,11 @@ function drawSlope(p: Palette) {
 // The forest is drawn as one forest, not tile by tile: every visible fir
 // goes into one list sorted by depth, so a pale far tree can never end up
 // painted over a dark near one from the tile next door.
-type Placed = { x: number; y: number; h: number; far: boolean; yf: number };
+type Placed = { x: number; y: number; h: number; tone: number; yf: number };
 const PLACED: Placed[] = [];
 
 function drawFirs(camX: number, p: Palette) {
+  const tones = [p.tree1, p.tree2, p.tree3, p.tree4];
   const off = wrap(camX, W);
   PLACED.length = 0;
   for (let tile = -1; tile <= 2; tile++) {
@@ -522,11 +510,11 @@ function drawFirs(camX: number, p: Palette) {
       if (sx < -h || sx > W + h) continue;            // off to the side
       const sy = t.yf * H;
       if (sy - h > H + 80 || sy < -80) continue;      // off the top or bottom
-      PLACED.push({ x: sx, y: sy, h, far: t.far, yf: t.yf });
+      PLACED.push({ x: sx, y: sy, h, tone: t.tone, yf: t.yf });
     }
   }
   PLACED.sort((a, b) => a.yf - b.yf);                 // farthest first
-  for (const t of PLACED) fir(t.x, t.y, t.h, t.far ? p.treeF : p.treeN);
+  for (const t of PLACED) fir(t.x, t.y, t.h, tones[t.tone]);
 }
 
 function drawStars(camX: number, p: Palette) {
@@ -679,8 +667,11 @@ draw();
   --mtn-near: #2f6682;
   --snow:     #EEF3F8;
   --snow2:    #c8d8e4;
-  --tree-f:   #8aafc4;
-  --tree-n:   #1E4024;
+  /* fir tones, farthest / palest to nearest / darkest */
+  --tree-1:   #8aafc4;
+  --tree-2:   #6f9aa4;
+  --tree-3:   #47705c;
+  --tree-4:   #1E4024;
   --sign-bg:  #2A1F14;
   --sign-rim: #9B7820;
   --sign-txt: #F5EDD8;
@@ -698,8 +689,11 @@ draw();
   --mtn-near: #050d08;
   --snow:     #b0c4d0;
   --snow2:    #7a99ab;
-  --tree-f:   #0d2015;
-  --tree-n:   #040e07;
+  /* fir tones, farthest / palest to nearest / darkest */
+  --tree-1:   #0d2015;
+  --tree-2:   #0a1a11;
+  --tree-3:   #07130c;
+  --tree-4:   #040e07;
   --sign-bg:  #1a1208;
   --sign-rim: #7a5c10;
   --sign-txt: #E8D9B8;
@@ -867,12 +861,6 @@ body {
 .back-btn:hover { border-color: var(--ink); color: var(--ink); }
 .back-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.run-badge {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  font: 600 0.82rem 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  border-radius: 4px; padding: 0.22rem 0.7rem; margin-bottom: 0.65rem;
-}
 .green-badge  { background: #1b6238; color: #caf0db; }
 .blue-badge   { background: #163672; color: #c4d8ff; }
 .black-badge  { background: #1c1c1c; color: #ddd; }

@@ -6,7 +6,7 @@ Instructions for any AI agent working on this repo. Read fully before editing.
 Katja Radovic-Jonsson's personal site (resume content plus personality). Repo: `katjarj.github.io`, served at https://katjarj.github.io via GitHub Pages.
 
 ## Workflow rules (from the owner)
-- Append every prompt the owner gives you to `PROMPTS.md`, verbatim, numbered. Redact personal contact details (phone, email) as `[redacted]`. This repo is public.
+- Append every prompt the owner gives you to `PROMPTS.md` before taking action, verbatim, numbered. Redact personal contact details (phone, email) as `[redacted]`. This repo is public.
 - Keep this file current when decisions change.
 
 ## Stack
