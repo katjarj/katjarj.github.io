@@ -8,6 +8,7 @@ Katja Radovic-Jonsson's personal site (resume content plus personality). Repo: `
 ## Workflow rules (from the owner)
 - Append every prompt the owner gives you to `PROMPTS.md` before taking action, verbatim, numbered. Redact personal contact details (phone, email) as `[redacted]`. This repo is public.
 - Keep this file current when decisions change.
+- Do NOT commit files without explicitly being told to.
 
 ## Stack
 Astro (static output), plain CSS (no Tailwind, no UI kit), a little vanilla JS. Fonts are self-hosted via Fontsource: Fraunces Variable (text and headings, uses SOFT/WONK axes) and Barlow Condensed (dates, section titles, trail-sign feel). Do not swap in generic fonts (Inter, Roboto, etc.).
