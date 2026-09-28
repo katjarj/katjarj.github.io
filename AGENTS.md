@@ -36,6 +36,8 @@ All resume content lives in `src/data/resume.js`. Edit content there, not in mar
 ## Deploy
 Push to `main`; `.github/workflows/deploy.yml` builds and deploys. One-time: repo Settings, Pages, Source = GitHub Actions. Repo must be public.
 
+Astro needs **Node >= 22.12.0** (it refuses to run on 20). Local dev is Node 24, and the number is also declared as `engines.node` in `package.json`. The workflow pins it explicitly with `withastro/action`'s `node-version` input, because that action's own default is still Node 20 — which is exactly how the CI build fails while a local build passes. If the runner ever reports an unsupported Node again, that input is the first thing to check.
+
 ## Commands
 `npm install`, `npm run dev`, `npm run build`, `npm run preview`.
 

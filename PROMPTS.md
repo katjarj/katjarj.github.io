@@ -16,3 +16,14 @@ Prompts given by the owner, verbatim (contact details redacted). Newest last. Ag
 12. overall looks significantly better. remove the lines in the snow and the movement that occurs when you move the mouse. also the bottoms of the trees render weirdly (they're pointy?)
 
 also, love how the left and right arrows lead 2 scenes away, and the upper left and upper right arrows lead 1 scene away. now for the upper left and upper right, just make the animation go left/right directly without moving up at all. kind of like the left/right arrows but moving 1 scene instead of 2.
+13. Run $PACKAGE_MANAGER run build
+
+  > build
+  > astro build
+
+  Node.js v20.20.2 is not supported by Astro!
+  Please upgrade Node.js to a supported version: ">=22.12.0"
+
+  GitHub Actions CI Environment Detected!
+  Additional steps may be needed to set your Node.js version:
+  Documentation: https://docs.astro.build/en/guides/deploy/

@@ -16,6 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: withastro/action@v3
+        with:
+          # Astro needs Node >= 22.12.0. This action's own default is still
+          # Node 20, which is why the CI build fails while a local build (Node
+          # 24) passes. Keep this in step with the Node used locally.
+          node-version: "24"
   deploy:
     needs: build
     runs-on: ubuntu-latest
