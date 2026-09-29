@@ -69,6 +69,12 @@ move the ski sign up toward the middle of the page
 51. when in night mode (i.e. when the text on the mode button says bluebird) the button should be lighter (pick a colour from the palette)
 
 53. instead of all the items on the pages being listed like a resume on blank space, use the brown from the sign and make cards for each project/experience/extracurricular/etc. experience can all be in one column, projects can be in two columns and leave placeholders for me to put images for each project and a github link for each, extracurriculars can be split into cards based on organization, also all in one column
+54. now split the personal projects into three categories: academic, hackathons, and side projects. academic: music player. hackathons: rabbit hole, awardscope, arc share yx, bus buddies, wellspring. side projects: (create a new entry for) personal website. also make sure each personal project card's github link is glued toward the bottom of the card
+55. instead of splitting with headers split with a sign! left = academic, up-left = hackathons, right = side projects, and up-right = back (because we're going back to the parent sign)
+56. academic should be a green run, hackathons blue, and side projects black
+
+
+
 
 
 

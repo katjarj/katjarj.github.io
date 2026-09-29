@@ -11,6 +11,7 @@ import {
   groups,
   trailMap,
   projects,
+  projectCats,
   community,
   skills,
 } from "../data/resume.js";
@@ -33,6 +34,28 @@ const byOrg = (arr: { org: string }[]) => {
   return [...seen].map(([org, items]) => ({ org, items }));
 };
 const ORGS = byOrg(community);
+
+// Projects gets its own sign too: the three categories, then Back.
+// Back points up-right, the reverse of the blue up-left run that reached this
+// sign, so it is the way home. That leaves ←, ↖ and → for the categories.
+const PROJECT_DIRS = ["left", "upleft", "right"];
+const projectLayers = projectCats
+  .map((c, i) => ({
+    ...c,
+    dir: PROJECT_DIRS[i] || "left",
+    items: projects.filter((p) => p.cat === c.id),
+    layer: `layer-${c.id}`,
+  }))
+  .filter((c) => c.items.length > 0);
+const projectRuns = [
+  ...projectLayers.map((c) => ({
+    id: c.id,
+    title: c.title,
+    diff: c.diff,
+    dir: c.dir,
+  })),
+  { title: "Back to Trail Map", dir: "upright", back: true },
+];
 
 // Four options fan out the way the main sign does: ←, ↖, ↗, →. The three
 // groups take the first three; the Back row below is the fourth and takes →.
@@ -197,19 +220,30 @@ const skillRuns = [
       ))
     }
 
-    <!-- Personal Projects (blue) -->
-    <div id="layer-projects" class="layer section-layer">
-      <div class="sec-scroll">
-        <div class="sec-inner">
-          <button class="back-btn" data-back>← Trail Map</button>
-          <h2>Personal Projects</h2>
-          <div class="entries entries-2">
-            {
-              projects.map((p) => (
+    <!-- ══════════════════════════════════════════════
+         PROJECTS — a sign of its own, reached from the blue run.
+         Back points up-right, the way home to the trail map.
+    ══════════════════════════════════════════════ -->
+    <div id="layer-projects" class="layer sub-layer">
+      <Sign cap="PROJECTS" runs={projectRuns} />
+    </div>
+
+    {projectLayers.map((c) => (
+      <div id={c.layer} class="layer section-layer">
+        <div class="sec-scroll">
+          <div class="sec-inner">
+            <button class="back-btn" data-back>← Projects</button>
+            <h2>{c.title}</h2>
+            <div class="entries entries-2">
+              {c.items.map((p) => (
                 <article class="entry entry-shot">
                   <div class="shot">
                     {p.img ? (
-                      <img src={p.img} alt={`${p.title} screenshot`} loading="lazy" />
+                      <img
+                        src={p.img}
+                        alt={`${p.title} screenshot`}
+                        loading="lazy"
+                      />
                     ) : (
                       <span class="shot-empty">Screenshot</span>
                     )}
@@ -225,19 +259,24 @@ const skillRuns = [
                     ))}
                   </ul>
                   {p.github ? (
-                    <a class="card-link" href={p.github} target="_blank" rel="noopener">
+                    <a
+                      class="card-link"
+                      href={p.github}
+                      target="_blank"
+                      rel="noopener"
+                    >
                       GitHub ↗
                     </a>
                   ) : (
                     <span class="card-link is-empty">GitHub — add a repo</span>
                   )}
                 </article>
-              ))
-            }
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    ))}
 
     <!-- Extracurricular (black) -->
     <div id="layer-community" class="layer section-layer">
@@ -1471,7 +1510,11 @@ const skillRuns = [
     color: color-mix(in srgb, var(--sign-txt) 45%, transparent);
   }
   .card-link {
-    margin-top: 0.95rem;
+    /* auto margin on the last child of the flex column glues the link to the
+       foot of the card, so the links line up across a row of cards of unequal
+       height; the padding keeps a minimum gap under the bullets */
+    margin-top: auto;
+    padding-top: 0.95rem;
     align-self: flex-start;
     font:
       600 0.85rem "Barlow Condensed",
