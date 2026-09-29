@@ -216,7 +216,7 @@ export const projects = [
   {
     title: 'Google Calendar CLI',
     cat: 'side',
-    when: '2026',
+    when: '2025',
     img: '/projects/gcal-terminal.png',
     github: 'https://github.com/katjarj/gcal-terminal',
     pts: [
