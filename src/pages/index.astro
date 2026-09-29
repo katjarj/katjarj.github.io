@@ -2,21 +2,29 @@
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource/barlow-condensed/500.css';
 import '@fontsource/barlow-condensed/600.css';
-import { links, intro, education, work, other, groups, projects, community, skills } from '../data/resume.js';
+import { links, intro, education, work, other, groups, trailMap, projects, community, skills } from '../data/resume.js';
 import Symbol from '../components/Symbol.astro';
-import Arrow from '../components/Arrow.astro';
+import Sign from '../components/Sign.astro';
 
 // Every experience entry, in the order the groups list them, tagged by group.
 const experience = [education, ...work, ...other];
 const groupOf = (id: string) => experience.filter((e) => e.group === id);
 
 // Four options fan out the way the main sign does: ←, ↖, ↗, →. The three
-// groups take the first three; Back is the fourth row and takes → (hardcoded
-// on its own button). Left and right are the long two-period traverses, the
-// angled pair one period each, so each arrow is matched by its pan distance.
+// groups take the first three; the Back row below is the fourth and takes →.
+// Left and right are the long two-period traverses, the angled pair one period
+// each, so each arrow is matched by its pan distance.
 const DIRS = ['left', 'upleft', 'upright'];
 const LAYERS = groups.map((g, i) => ({ ...g, dir: DIRS[i] || 'upleft', entries: groupOf(g.id), layer: `layer-${g.id}` }))
                     .filter((g) => g.entries.length > 0);
+
+// The sub-sign's runs, in the order the groups list them, plus the Back row.
+// `back: true` is all it takes to make a row unrated: Sign.astro gives it the
+// run-back styling, no symbol, and Back behaviour.
+const subRuns = [
+  ...LAYERS.map((g) => ({ id: g.id, title: g.title, diff: g.diff, dir: g.dir })),
+  { title: 'Back to Trail Map', dir: 'right', back: true },
+];
 ---
 <html lang="en">
 <head>
@@ -54,51 +62,7 @@ const LAYERS = groups.map((g, i) => ({ ...g, dir: DIRS[i] || 'upleft', entries: 
       <h1>{intro.name}</h1>
     </header>
 
-    <div id="sign" class="sign-wrap">
-      <div class="sign-cap">TRAIL MAP</div>
-      <div class="sign-board">
-
-        <!-- Green ● — left arrow ←. Leads to the Experience sub-sign. -->
-        <button class="run-btn run-green" data-target="experience" data-dir="left" id="btn-experience">
-          <span class="run-arrow"><Arrow dir="left" /></span>
-          <span class="run-label">
-            <span class="run-name">Experience</span>
-            <span class="run-tag"><Symbol diff="green" /></span>
-          </span>
-        </button>
-
-        <!-- Blue ■ — up-left arrow ↖ -->
-        <button class="run-btn run-blue" data-target="projects" data-dir="upleft" id="btn-projects">
-          <span class="run-arrow"><Arrow dir="upleft" /></span>
-          <span class="run-label">
-            <span class="run-name">Personal Projects</span>
-            <span class="run-tag"><Symbol diff="blue" /></span>
-          </span>
-        </button>
-
-        <!-- Black ◆ — up-right arrow ↗ -->
-        <button class="run-btn run-black" data-target="community" data-dir="upright" id="btn-community">
-          <span class="run-arrow"><Arrow dir="upright" /></span>
-          <span class="run-label">
-            <span class="run-name">Extracurricular</span>
-            <span class="run-tag"><Symbol diff="black" /></span>
-          </span>
-        </button>
-
-        <!-- Double black ◆◆ — right arrow → -->
-        <button class="run-btn run-dblack" data-target="skills" data-dir="right" id="btn-skills">
-          <span class="run-arrow"><Arrow dir="right" /></span>
-          <span class="run-label">
-            <span class="run-name">Skills</span>
-            <span class="run-tag"><Symbol diff="dblack" /></span>
-          </span>
-        </button>
-
-      </div>
-      <div class="post-shaft"></div>
-    </div>
-
-    <p class="hint">Choose your run ↑</p>
+    <Sign cap="TRAIL MAP" runs={trailMap} />
   </div>
 
   <!-- ══════════════════════════════════════════════
@@ -107,34 +71,10 @@ const LAYERS = groups.map((g, i) => ({ ...g, dir: DIRS[i] || 'upleft', entries: 
 
   <!-- ══════════════════════════════════════════════
        EXPERIENCE — a second trail sign, reached from the green run.
-       Same object as the landing sign: a cap, a board of runs, a post.
+       Same <Sign> as the landing page: cap, board of runs, post, hint.
   ══════════════════════════════════════════════ -->
   <div id="layer-experience" class="layer sub-layer">
-    <div class="sign-wrap">
-      <div class="sign-cap">EXPERIENCE</div>
-      <div class="sign-board">
-        {LAYERS.map((g) => (
-          <button class={`run-btn run-${g.diff}`} data-target={g.id} data-dir={g.dir} id={`btn-${g.id}`}>
-            <span class="run-arrow"><Arrow dir={g.dir} /></span>
-            <span class="run-label">
-              <span class="run-name">{g.title}</span>
-              <span class="run-tag"><Symbol diff={g.diff} /></span>
-            </span>
-          </button>
-        ))}
-        <!-- Back is the fourth row of the sign, not a button beneath it: a real
-             run pointing right, the way home. It borrows the sign's own frame
-             colour and carries no difficulty symbol, because it is wayfinding
-             rather than a rated run. -->
-        <button class="run-btn run-back" data-back-to="landing" data-dir="right" id="btn-back">
-          <span class="run-arrow"><Arrow dir="right" /></span>
-          <span class="run-label">
-            <span class="run-name">Back to Trail Map</span>
-          </span>
-        </button>
-      </div>
-      <div class="post-shaft"></div>
-    </div>
+    <Sign cap="EXPERIENCE" runs={subRuns} />
   </div>
 
   <!-- One list layer per group on the sub-sign, each its own run. -->
@@ -671,24 +611,14 @@ let lastDir: Dir = 'left';
 let current = 'layer-landing';
 const trail: string[] = [];
 
-document.querySelectorAll<HTMLButtonElement>('.run-btn').forEach(btn => {
+// Forward: a run you pick. Where you came from goes on the trail, so Back
+// can retrace it. The Back row is excluded — it is a sign's own way home, not
+// a run, and it is handled below.
+document.querySelectorAll<HTMLButtonElement>('.run-btn:not([data-back])').forEach(btn => {
   btn.addEventListener('click', () => {
+    const target = 'layer-' + btn.dataset.target!;
     const dir = btn.dataset.dir as Dir;
     lastDir = dir;
-
-    // Back is a run on the sign, so it pans the way its own arrow points
-    // rather than reversing the last one, and it empties the trail — the map
-    // is the root, so nothing is stacked behind it any more.
-    if (btn.dataset.backTo) {
-      current = 'layer-landing';
-      trail.length = 0;
-      showLayer(null);
-      if (reduced) { showLayer('layer-landing'); return; }
-      runPan(dir, () => showLayer('layer-landing'));
-      return;
-    }
-
-    const target = 'layer-' + btn.dataset.target!;
     trail.push(current);
     current = target;
 
@@ -698,14 +628,23 @@ document.querySelectorAll<HTMLButtonElement>('.run-btn').forEach(btn => {
   });
 });
 
+// Back, in one place and one behaviour, for both kinds. A list's Back retraces
+// the run that got you there; a sign's own Back row pans the way its own arrow
+// points, because it is a run like any other. Either way it returns to the
+// layer it was reached from — so a sign nested under another sign goes home to
+// the sign above it rather than to the map.
+//
+// It deliberately does NOT set `lastDir`: that must keep meaning "the run you
+// skied to get here", or two Backs in a row would mirror an already-mirrored
+// direction and drift further off course each time.
 document.querySelectorAll<HTMLButtonElement>('[data-back]').forEach(btn => {
   btn.addEventListener('click', () => {
     const back = trail.pop() || 'layer-landing';
+    const dir = (btn.dataset.dir as Dir) || MIRROR[lastDir];
     current = back;
     showLayer(null);
     if (reduced) { showLayer(back); return; }
-    // Ski back the way you came in, over the same ground.
-    runPan(MIRROR[lastDir], () => showLayer(back));
+    runPan(dir, () => showLayer(back));
   });
 });
 
@@ -813,16 +752,17 @@ body {
   align-items: center;
   justify-content: center;      /* the sign stands mid-page, not on the snow line */
   /* the content centres in the box *inside* the padding, so this top pad
-     walks the sign down by half of it — a nudge, not a drop to the floor */
-  padding-top: 10vh;
+     walks the sign down by half of it — a nudge, not a drop to the floor.
+     .sub-layer uses the same value, so both signs sit at the same height. */
+  padding-top: 15vh;
 }
 .site-header {
-  position: absolute; top: clamp(2rem, 7vh, 3.7rem);
+  position: absolute; top: clamp(2.8rem, 9vh, 4.8rem);
   left: 0; right: 0; text-align: center; pointer-events: none;
   padding-inline: 1.25rem;              /* the name and line never touch the edge */
 }
 .site-header h1 {
-  font: 700 clamp(1.9rem, 6.5vw, 4.2rem) / 1 'Fraunces Variable', Georgia, serif;
+  font: 700 clamp(2.2rem, 7.6vw, 4.9rem) / 1 'Fraunces Variable', Georgia, serif;
   font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 144;
   color: var(--sign-txt);
   }
@@ -837,6 +777,8 @@ body {
   background: var(--sign-rim); color: var(--sign-txt);
   padding: 0.4rem 2.6rem;
   border-radius: 10px 10px 0 0;
+  /* A tab, not a bar. Do not pin this to the board's width: a full-length cap
+     reads as a header strip, and the overhang is what makes it a sign cap. */
 }
 .sign-board {
   background: var(--sign-bg);
@@ -887,7 +829,9 @@ body {
 .run-arrow { flex-shrink: 0; display: flex; align-items: center; }
 .run-arrow svg { width: clamp(34px, 4.6vw, 44px); height: auto; }
 .run-label { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
-.run-name  { font-size: clamp(1.1rem, 2.6vw, 1.38rem); font-weight: 600; line-height: 1; }
+/* never wraps: a taller row on one sign than the other would undo the point
+   of them being the same object. The board is wide enough at every size. */
+.run-name  { font-size: clamp(1.1rem, 2.6vw, 1.38rem); font-weight: 600; line-height: 1; white-space: nowrap; }
 /* the difficulty symbol rides the right-hand end of its row, like the
    rating plate on the far end of a real sign.
 
@@ -981,13 +925,12 @@ h3 {
    The Experience sign, one level below the landing sign. It is
    the same object — cap, board of runs, post — so it reuses
    .sign-* and .run-* wholesale rather than inventing a second
-   visual language. The four rows fan out: first left, second
-   straight ahead, third right, and Back to the map on the far
-   right, the way a real sign files the way home. */
+   visual language. The four rows fan out the way the main sign does:
+   first ←, second ↖, third ↗, and Back to the map on the far right. */
 .sub-layer {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center;
-  padding-top: 10vh;
+  padding-top: 15vh;      /* matches #layer-landing, so both signs agree */
 }
 .when { font: 500 0.93rem 'Barlow Condensed', sans-serif; color: var(--muted); white-space: nowrap; }
 .org  { font: 500 0.95rem 'Barlow Condensed', sans-serif; color: var(--muted); margin-bottom: 0.3rem; }

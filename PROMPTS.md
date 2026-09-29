@@ -50,6 +50,16 @@ move the ski sign up toward the middle of the page
 32. can you make it so that when theres three options (like the technical, non technical, education), the first option goes left, the second goes forward, the third goes right
 33. can you add a fourth 'back' option pointing right? also do you think it should be double black or like a different colour for back
 34. ok since theres four options on the experience page make it so it goes left, left-up, right-up, right, and make the animations match that
+35. move the signs down and the name down a bit
+36. make the two signs the same size (i want all the ski signs to look very similar)
+37. now the top tab ('experience' or 'trail map') is full length, i dont want that. revert that
+38. make my name bigger and a bit lower
+39. would it be possible to extract the signs to its own component of some kind to reduce duplication as i add more? the reason i'm asking is so that when i add more signs to help separate out some of the other sections (for example maybe i will want to separate my skils into different categories) i can easily create a new sign that has the same styles and behaviour. also generalise back so a nested sign can return to its own parent sign rather than always the trail map
+
+
+
+
+
 
 
 

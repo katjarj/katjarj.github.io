@@ -38,4 +38,16 @@ export const groups = [
   { id: 'nontechnical', title: 'Non-technical', diff: 'blue'  },
   { id: 'education',    title: 'Education',     diff: 'black' },
 ];
+
+// ─── The runs on the main TRAIL MAP sign ──────────────────────
+// `diff` is the trail rating, and it drives both the row's colour and its
+// symbol from this one value, so the two can never drift apart. `dir` is the
+// way the camera travels when you take that run. A run with no `diff` is
+// unrated — it wears the sign's own frame colour and carries no symbol.
+export const trailMap = [
+  { id: 'experience', title: 'Experience',        diff: 'green',  dir: 'left'    },
+  { id: 'projects',   title: 'Personal Projects', diff: 'blue',   dir: 'upleft'  },
+  { id: 'community',  title: 'Extracurricular',   diff: 'black',  dir: 'upright' },
+  { id: 'skills',     title: 'Skills',            diff: 'dblack', dir: 'right'   },
+];
 export const skills = [['Programming', 'Python, C++, Java, C, R, Racket'], ['Tools', 'Git, UML, Figma, VS Code, Docker, Jira, Bamboo, GitHub Copilot, Claude Code'], ['Web', 'HTML, Tailwind CSS, TypeScript, React.js, Next.js']];
