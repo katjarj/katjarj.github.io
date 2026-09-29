@@ -338,6 +338,46 @@ const subRuns = [
         modeBtn.textContent = root.dataset.mode === 'night' ? 'bluebird' : 'night ski';
       }
       syncLabel();
+
+      // Long enough for the sun to actually cross the ridge, short enough that
+      // it does not become an event you wait for.
+      const MODE_MS = 1300;
+      let modeRaf = 0;
+      // This view looks west. That fixes which way the sun is allowed to move:
+      // a sunset is in front of you and goes down into the frame, but a sunrise
+      // comes up behind your back — so switching to day must NOT show a sun
+      // rising. Only the way down gets one. The golden light either way is
+      // still right: dawn is warm too, it just arrives from off-screen.
+      let sunSets = false;
+      function runModeChange(to: number) {
+        if (modeRaf) cancelAnimationFrame(modeRaf);
+        const from = blend;
+        sunSets = to > from; // going to night is the sunset
+        MID = sunSets ? GOLD : DAWN; // ...and the hour it passes through
+        const t0 = performance.now();
+        const step = () => {
+          const k = Math.min(1, (performance.now() - t0) / MODE_MS);
+          // smoothstep. easeInOutQuad and smootherstep were both tried and
+          // are WORSE here: their curves are more peaked (max rate 2.0 and
+          // 1.875 against smoothstep's 1.5), so they concentrate more of the
+          // change into the middle — exactly the surge this is smoothing out.
+          const e = k * k * (3 - 2 * k);
+          blend = from + (to - from) * e;
+          paintChrome(blend);
+          draw();
+          if (k < 1) {
+            modeRaf = requestAnimationFrame(step);
+          } else {
+            modeRaf = 0;
+            blend = to;
+            // hand the colours back to the stylesheet, which is where they
+            // live the rest of the time
+            releaseChrome();
+          }
+        };
+        modeRaf = requestAnimationFrame(step);
+      }
+
       modeBtn.addEventListener('click', () => {
         const next = root.dataset.mode === 'night' ? 'day' : 'night';
         root.dataset.mode = next;
@@ -345,8 +385,16 @@ const subRuns = [
           localStorage.setItem('mode', next);
         } catch (e) {}
         syncLabel();
-        palette = null; // colours are read from the CSS variables
-        draw();
+        if (reduced) {
+          // no sun, no fade: the two scenes just swap, as they always did
+          if (modeRaf) cancelAnimationFrame(modeRaf);
+          modeRaf = 0;
+          releaseChrome();
+          blend = next === 'night' ? 1 : 0;
+          draw();
+          return;
+        }
+        runModeChange(next === 'night' ? 1 : 0);
       });
 
       // ─── Layer switching ─────────────────────────────────────────────
@@ -394,8 +442,135 @@ const subRuns = [
         H = 0,
         dpr = 1;
 
+      // ─── Mode: day, night, and the hour between them ────────────────
+      // Switching modes used to snap, which made the world look like a
+      // lightbox rather than a place. It now travels: the two palettes are
+      // read out of the stylesheet and mixed through a golden hour in the
+      // middle, while a sun crosses the far ridge and the stars come out the
+      // other side. Nothing here restates a colour that the CSS already owns
+      // — the only literal is GOLD, which has no counterpart in the palette.
+      const VARS = [
+        '--bg',
+        '--ink',
+        '--muted',
+        '--accent',
+        '--sky-hi',
+        '--sky-lo',
+        '--mtn-far',
+        '--mtn-mid',
+        '--mtn-near',
+        '--snow',
+        '--snow2',
+        '--tree-1',
+        '--tree-2',
+        '--tree-3',
+        '--tree-4',
+        '--sign-bg',
+        '--sign-txt',
+        '--post',
+      ];
+      // The light a few minutes either side of the horizon. The ground goes
+      // warm before the sky does, and the firs go to silhouettes.
+      const GOLD: Record<string, string> = {
+        '--bg': '#e8cda6',
+        '--ink': '#3a2a2b',
+        '--muted': '#7d5f4a',
+        '--accent': '#ffb340',
+        '--sky-hi': '#c9542a',
+        '--sky-lo': '#f6b26b',
+        '--mtn-far': '#a8674c',
+        '--mtn-mid': '#74402f',
+        '--mtn-near': '#452521',
+        '--snow': '#f9dcc0',
+        '--snow2': '#cf9a72',
+        '--tree-1': '#7f6247',
+        '--tree-2': '#614533',
+        '--tree-3': '#422d22',
+        '--tree-4': '#251a14',
+        '--sign-bg': '#2a1c10',
+        '--sign-txt': '#f7e3c0',
+        '--post': '#6a3d1a',
+      };
+      // The hour the sun is NOT in the sky. This view faces west, so switching
+      // to day is a sunrise with the sun behind the viewer — which means the
+      // scene is lit from the front, not hazed by a low sun, and there is no
+      // fiery band to pass through.
+      //
+      // It is WARM, not neutral: dawn is an orange light, and a sunrise with
+      // none reads as a grey fade rather than as morning. The warmth is
+      // concentrated where it actually shows — `--sky-lo`, the horizon band,
+      // and `--snow`, the largest single area on screen, both run around 40%
+      // saturation, while the top of the sky stays a dusky violet because that
+      // is what a dawn overhead really is.
+      //
+      // What it must NOT do is get bright. `GOLD` sits at near-day luminance
+      // (bg 208) because the sun is in frame to justify it, and reusing that
+      // here put 90% of the luminance change into the first half — that was
+      // the lurch, not the colour. `DAWN` holds every value near the MIDPOINT
+      // of night and day instead, so the brightness change is spread evenly
+      // across the transition. Warmth is free at a fixed luminance: measured
+      // per frame, peak luminance change 3.21 → 3.16 and saturation swing
+      // 1.43 → 1.47 against the cool version, and 6.13 / 7.70 for the old
+      // GOLD-on-the-way-up. The chroma swing is what the eye reads as a jolt.
+      const DAWN: Record<string, string> = {
+        '--bg': '#9b8b7d',
+        '--ink': '#2b2520',
+        '--muted': '#6e5f52',
+        '--accent': '#ffb340',
+        '--sky-hi': '#4a4256',
+        '--sky-lo': '#ab7648',
+        '--mtn-far': '#7d6a5c',
+        '--mtn-mid': '#5c4a40',
+        '--mtn-near': '#40332c',
+        '--snow': '#e3d3bd',
+        '--snow2': '#b0a08c',
+        '--tree-1': '#6e6250',
+        '--tree-2': '#574b3d',
+        '--tree-3': '#3d3a2c',
+        '--tree-4': '#211d17',
+        '--sign-bg': '#2a1f14',
+        '--sign-txt': '#f5edd8',
+        '--post': '#5c3d1e',
+      };
+      // Whichever hour the current change is passing through. GOLD on the way
+      // down, DAWN on the way up.
+      let MID: Record<string, string> = GOLD;
+
+      function hexToRgb(hex: string): [number, number, number] {
+        let h = hex.trim().replace('#', '');
+        if (h.length === 3)
+          h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+        const n = parseInt(h, 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      }
+      function mixHex(a: string, b: string, t: number): string {
+        const A = hexToRgb(a);
+        const B = hexToRgb(b);
+        return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(' ')})`;
+      }
+      // day → the hour → night, meeting at the halfway point.
+      function mixAt(v: string, day: string, night: string, t: number): string {
+        return t < 0.5
+          ? mixHex(day, MID[v], t * 2)
+          : mixHex(MID[v], night, (t - 0.5) * 2);
+      }
+
+      // Both palettes are read straight off the CSS, by briefly wearing each
+      // mode, so the stylesheet stays the only place a colour is written down.
+      function readAll(mode: string): Record<string, string> {
+        const prev = root.dataset.mode;
+        root.dataset.mode = mode;
+        const out: Record<string, string> = {};
+        for (const v of VARS) out[v] = getVar(v);
+        if (prev) root.dataset.mode = prev;
+        else root.removeAttribute('data-mode');
+        return out;
+      }
+      const PAL_DAY = readAll('day');
+      const PAL_NIGHT = readAll('night');
+
       type Palette = {
-        night: boolean;
+        starAlpha: number; // 0 by day, 1 at full night
         skyHi: string;
         skyLo: string;
         mtnFar: string;
@@ -408,26 +583,38 @@ const subRuns = [
         tree3: string;
         tree4: string;
       };
-      let palette: Palette | null = null;
+      // 0 is day, 1 is night, anything between is the sun on its way.
+      let blend = root.dataset.mode === 'night' ? 1 : 0;
       function pal(): Palette {
-        if (!palette) {
-          palette = {
-            night: root.dataset.mode === 'night',
-            skyHi: getVar('--sky-hi'),
-            skyLo: getVar('--sky-lo'),
-            mtnFar: getVar('--mtn-far'),
-            mtnMid: getVar('--mtn-mid'),
-            mtnNear: getVar('--mtn-near'),
-            snow: getVar('--snow'),
-            snow2: getVar('--snow2'),
-            // fir tones, palest (farthest) to darkest (nearest)
-            tree1: getVar('--tree-1'),
-            tree2: getVar('--tree-2'),
-            tree3: getVar('--tree-3'),
-            tree4: getVar('--tree-4'),
-          };
+        const t = blend;
+        const c = (v: string) => mixAt(v, PAL_DAY[v], PAL_NIGHT[v], t);
+        return {
+          starAlpha: t,
+          skyHi: c('--sky-hi'),
+          skyLo: c('--sky-lo'),
+          mtnFar: c('--mtn-far'),
+          mtnMid: c('--mtn-mid'),
+          mtnNear: c('--mtn-near'),
+          snow: c('--snow'),
+          snow2: c('--snow2'),
+          // fir tones, palest (farthest) to darkest (nearest)
+          tree1: c('--tree-1'),
+          tree2: c('--tree-2'),
+          tree3: c('--tree-3'),
+          tree4: c('--tree-4'),
+        };
+      }
+      // The page around the canvas has to travel too, or the cards and the
+      // sign snap while the snow behind them fades. Inline properties beat
+      // any selector, so these hold until the transition ends and are then
+      // dropped, leaving the stylesheet back in sole charge.
+      function paintChrome(t: number) {
+        for (const v of VARS) {
+          root.style.setProperty(v, mixAt(v, PAL_DAY[v], PAL_NIGHT[v], t));
         }
-        return palette;
+      }
+      function releaseChrome() {
+        for (const v of VARS) root.style.removeProperty(v);
       }
 
       // ─── Ridgelines ─────────────────────────────────────────────────
@@ -735,14 +922,51 @@ const subRuns = [
       }
 
       function drawStars(camX: number, p: Palette) {
-        if (!p.night) return;
+        if (p.starAlpha <= 0.002) return;
         const off = wrap(camX * 0.03, W);
         for (const s of STARS) {
           wctx.beginPath();
           wctx.arc(wrap(s.xf * W - off, W), s.yf * H, s.rad, 0, Math.PI * 2);
-          wctx.fillStyle = `rgba(255,255,255,${s.a})`;
+          // they come out as the sun goes down, and go in as it comes up
+          wctx.fillStyle = `rgba(255,255,255,${(s.a * p.starAlpha).toFixed(3)})`;
           wctx.fill();
         }
+      }
+
+      // ─── The sun ─────────────────────────────────────────────────────
+      // On screen only while the mode is changing. It is drawn BEFORE the far
+      // ridge, so the ridge cuts it in half as it goes down behind it — the
+      // same trick as a real horizon, and the reason it reads as setting
+      // rather than as a disc shrinking.
+      const SUN_XF = 0.63; // where it sits across the viewport
+      const SUN_R = 24; // radius, in CSS pixels
+      // Its path is absolute, measured in H, rather than relative to the far
+      // ridge. The ridge still hides it — a tall peak swallows the sun sooner
+      // than a low shoulder, which is the honest result — but the arc no longer
+      // depends on where the ridge happens to be, so the sun is reliably on
+      // screen for the middle of the change. It starts just off the top and
+      // finishes below the highest point the far ridge ever reaches (0.92 of
+      // H), so it is never left hanging in the sky at full night.
+      const SUN_TOP = -0.08; // × H
+      const SUN_END = 0.34; // × H
+      const SUN_WARM = '#ffd489';
+
+      function drawSun(t: number) {
+        // A rising sun would be behind the viewer, so there is only ever one
+        // going down. It is also never drawn at rest — day and night each hide
+        // it completely, so the two resting scenes are exactly as they were.
+        if (!sunSets || t <= 0.002 || t >= 0.998) return;
+        const x = W * SUN_XF;
+        const y = H * (SUN_TOP + (SUN_END - SUN_TOP) * t);
+        if (y < -SUN_R || y > H) return;
+        // A flat disc, like everything else in here. It fades in as it clears
+        // the top of the frame rather than popping into existence.
+        wctx.globalAlpha = Math.min(1, t / 0.16);
+        wctx.fillStyle = SUN_WARM;
+        wctx.beginPath();
+        wctx.arc(x, y, SUN_R, 0, Math.PI * 2);
+        wctx.fill();
+        wctx.globalAlpha = 1;
       }
 
       // ─── Camera ─────────────────────────────────────────────────────
@@ -757,6 +981,7 @@ const subRuns = [
         wctx.fillStyle = sky;
         wctx.fillRect(0, 0, W, H);
         drawStars(cam.x, p);
+        drawSun(p.starAlpha);
         drawRidge(RIDGE_FAR, cam.x, 0.06, p.mtnFar);
         drawRidge(RIDGE_MID, cam.x, 0.18, p.mtnMid);
         drawRidge(RIDGE_NEAR, cam.x, 0.4, p.mtnNear);

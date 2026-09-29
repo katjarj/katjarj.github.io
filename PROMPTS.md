@@ -51,3 +51,5 @@ move the ski sign up toward the middle of the page 22. move the sign slightly do
 70. make the favicon a K icon
 71. ok so the fraunces font does look different on preview than on dev. it's less bold for some reason? or kind of like, less round? how do i make it look like dev
 72. make this site mobile friendly. ask questions as needed
+
+73. create a sunrise/sunset transition effect when switching between dark and light mode
