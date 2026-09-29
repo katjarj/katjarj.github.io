@@ -17,6 +17,7 @@ import {
 } from '../data/resume.js';
 import Sign from '../components/Sign.astro';
 import Card from '../components/Card.astro';
+import Arrow from '../components/Arrow.astro';
 
 // Every experience entry, in the order the groups list them, tagged by group.
 const experience = [education, ...work, ...other];
@@ -38,17 +39,42 @@ const byOrg = <T extends { org: string }>(arr: T[]) => {
 };
 const ORGS = byOrg(community);
 
+// The reverse of a run's direction — which way a Back retraces it. This is the
+// build-time twin of MIRROR in the script below, and it exists so a card
+// page's Back arrow is DERIVED from the run that reached it rather than typed
+// in by hand: hand-written arrows drift the moment a run changes direction.
+// The two maps must stay identical; a card page's back pan is driven by the
+// same value, so a mismatch shows up as an arrow that lies about the pan.
+const MIRROR_DIR: Record<string, string> = {
+  left: 'right',
+  right: 'left',
+  upleft: 'upright',
+  up: 'upleft',
+  upright: 'upleft',
+};
+// A card page is always reached by exactly one run, so its way back is a
+// constant of the page, not of the journey. This reads that run's direction
+// off the parent sign rather than restating it.
+const backOf = (runs: { id: string; dir: string }[], id: string) => {
+  const run = runs.find((r) => r.id === id);
+  return run ? MIRROR_DIR[run.dir] : 'left';
+};
+
 // Projects gets its own sign too: the three categories, then Back.
 // Back points up-right, the reverse of the blue up-left run that reached this
 // sign, so it is the way home. That leaves ←, ↖ and → for the categories.
 const PROJECT_DIRS = ['left', 'upleft', 'right'];
 const projectLayers = projectCats
-  .map((c, i) => ({
-    ...c,
-    dir: PROJECT_DIRS[i] || 'left',
-    items: projects.filter((p) => p.cat === c.id),
-    layer: `layer-${c.id}`,
-  }))
+  .map((c, i) => {
+    const dir = PROJECT_DIRS[i] || 'left';
+    return {
+      ...c,
+      dir,
+      backDir: MIRROR_DIR[dir],
+      items: projects.filter((p) => p.cat === c.id),
+      layer: `layer-${c.id}`,
+    };
+  })
   .filter((c) => c.items.length > 0);
 const projectRuns = [
   ...projectLayers.map((c) => ({
@@ -66,12 +92,16 @@ const projectRuns = [
 // each, so each arrow is matched by its pan distance.
 const DIRS = ['left', 'upleft', 'upright'];
 const LAYERS = groups
-  .map((g, i) => ({
-    ...g,
-    dir: DIRS[i] || 'upleft',
-    entries: groupOf(g.id),
-    layer: `layer-${g.id}`,
-  }))
+  .map((g, i) => {
+    const dir = DIRS[i] || 'upleft';
+    return {
+      ...g,
+      dir,
+      backDir: MIRROR_DIR[dir],
+      entries: groupOf(g.id),
+      layer: `layer-${g.id}`,
+    };
+  })
   .filter((g) => g.entries.length > 0);
 
 // The sub-sign's runs, in the order the groups list them, plus the Back row.
@@ -177,9 +207,9 @@ const subRuns = [
       <div id={g.layer} class="layer section-layer">
         <div class="sec-scroll">
           <div class="sec-inner">
-            <button class="back-btn" data-back>
+            <button class="back-btn" data-back data-dir={g.backDir}>
               <span class="back-arrow" aria-hidden="true">
-                ←
+                <Arrow dir={g.backDir} />
               </span>{' '}
               Experience
             </button>
@@ -206,9 +236,9 @@ const subRuns = [
       <div id={c.layer} class="layer section-layer">
         <div class="sec-scroll">
           <div class="sec-inner">
-            <button class="back-btn" data-back>
+            <button class="back-btn" data-back data-dir={c.backDir}>
               <span class="back-arrow" aria-hidden="true">
-                ←
+                <Arrow dir={c.backDir} />
               </span>{' '}
               Projects
             </button>
@@ -227,9 +257,9 @@ const subRuns = [
     <div id="layer-community" class="layer section-layer">
       <div class="sec-scroll">
         <div class="sec-inner">
-          <button class="back-btn" data-back>
+          <button class="back-btn" data-back data-dir={backOf(trailMap, 'community')}>
             <span class="back-arrow" aria-hidden="true">
-              ←
+              <Arrow dir={backOf(trailMap, 'community')} />
             </span>{' '}
             Trail Map
           </button>
@@ -263,9 +293,9 @@ const subRuns = [
     <div id="layer-skills" class="layer section-layer">
       <div class="sec-scroll">
         <div class="sec-inner">
-          <button class="back-btn" data-back>
+          <button class="back-btn" data-back data-dir={backOf(trailMap, 'skills')}>
             <span class="back-arrow" aria-hidden="true">
-              ←
+              <Arrow dir={backOf(trailMap, 'skills')} />
             </span>{' '}
             Trail Map
           </button>
@@ -858,11 +888,15 @@ const subRuns = [
         });
       });
 
-      // Back, in one place and one behaviour, for both kinds. A list's Back retraces
-      // the run that got you there; a sign's own Back row pans the way its own arrow
-      // points, because it is a run like any other. Either way it returns to the
-      // layer it was reached from — so a sign nested under another sign goes home to
-      // the sign above it rather than to the map.
+      // Back, in one place and one behaviour, for both kinds. A card page's Back
+      // carries the direction it retraces, rendered onto the button's arrow at
+      // build time from the run that reached it — so the arrow and the pan are
+      // driven by ONE value and cannot disagree. A sign's own Back row carries
+      // its own `data-dir` for the same reason: it pans the way its own arrow
+      // points, because it is a run like any other. `MIRROR[lastDir]` is the
+      // fallback for a Back with no direction of its own. Either way it returns
+      // to the layer it was reached from — so a sign nested under another sign
+      // goes home to the sign above it rather than to the map.
       //
       // It deliberately does NOT set `lastDir`: that must keep meaning "the run you
       // skied to get here", or two Backs in a row would mirror an already-mirrored
@@ -1319,11 +1353,17 @@ const subRuns = [
   }
   /* the arrow is its own span so the gap comes from `gap`, not a space that
      the uppercasing would leave dangling; it is hidden from screen readers
-     because the label already says where you are going */
+     because the label already says where you are going. It holds the same
+     <Arrow> a run row uses, so the button's arrow IS the sign's arrow — a
+     text glyph could not show ↖ or ↗, only ←. */
   .back-btn .back-arrow {
     position: relative;
-    font-size: 1.1em;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+  }
+  .back-btn .back-arrow svg {
+    width: 1.05em;
+    height: auto;
   }
   .back-btn:focus-visible {
     outline: 2px solid var(--accent);
