@@ -48,3 +48,5 @@ move the ski sign up toward the middle of the page 22. move the sign slightly do
 67. ive added project screenshots in the data/ folder, can you link them to the resume to be used in the site? the file names are self explanatory
 68. increase the top padding of each project card by a few pixels to match the bottom
 69. also for each screenshot just zoom to fit the frame, i dont want any unfilled bits on the frame
+70. make the favicon a K icon
+71. ok so the fraunces font does look different on preview than on dev. it's less bold for some reason? or kind of like, less round? how do i make it look like dev

@@ -101,7 +101,7 @@ const subRuns = [
     <meta name="description" content="Katja Radovic-Jonsson's personal website" />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L8 4H6.5L9 8H1L3.5 4H2Z' fill='%233B2A3F'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 1.5V8.5M8.5 1.5L2 5l6.5 3.5' stroke='%233B2A3F' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
     />
     <script is:inline>
       try {
@@ -950,10 +950,16 @@ const subRuns = [
 
   body {
     overflow: hidden;
-    font:
-      400 1.1rem / 1.65 'Fraunces Variable',
-      Georgia,
-      serif;
+    /* Longhands, not the `font` shorthand. The shorthand RESETS
+       font-variation-settings, and the production minifier reorders these
+       declarations so the shorthand lands LAST — which silently threw the
+       axes away in the built site and rendered Fraunces with its default,
+       sharper cuts. With no shorthand there is nothing left to reset, so the
+       axes survive minification whatever order the declarations land in. */
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.65;
     font-variation-settings: 'SOFT' 100;
     background: var(--bg);
     color: var(--ink);
@@ -1057,10 +1063,11 @@ const subRuns = [
     padding-inline: 1.25rem; /* the name and line never touch the edge */
   }
   .site-header h1 {
-    font:
-      700 clamp(2.2rem, 7.6vw, 4.9rem) / 1 'Fraunces Variable',
-      Georgia,
-      serif;
+    /* longhands only — see the note on `body` about the font shorthand */
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: clamp(2.2rem, 7.6vw, 4.9rem);
+    font-weight: 700;
+    line-height: 1;
     font-variation-settings:
       'SOFT' 100,
       'WONK' 1,
@@ -1326,10 +1333,11 @@ const subRuns = [
   }
 
   h2 {
-    font:
-      700 clamp(1.9rem, 5.5vw, 3rem) / 1.05 'Fraunces Variable',
-      Georgia,
-      serif;
+    /* longhands only — see the note on `body` about the font shorthand */
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: clamp(1.9rem, 5.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.05;
     font-variation-settings:
       'SOFT' 100,
       'WONK' 1,
@@ -1381,10 +1389,11 @@ const subRuns = [
     margin-bottom: 0.18rem;
   }
   h3 {
-    font:
-      600 1.1rem / 1.2 'Fraunces Variable',
-      Georgia,
-      serif;
+    /* longhands only — see the note on `body` about the font shorthand */
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.2;
     font-variation-settings: 'SOFT' 100;
   }
 

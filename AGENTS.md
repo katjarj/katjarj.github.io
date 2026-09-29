@@ -17,6 +17,8 @@ Katja Radovic-Jonsson's personal site (resume content plus personality). Repo: `
 
 Astro (static output), plain CSS (no Tailwind, no UI kit), a little vanilla JS. Fonts are self-hosted via Fontsource: Fraunces Variable (text and headings, uses SOFT/WONK axes) and Barlow Condensed (dates, section titles, trail-sign feel). Do not swap in generic fonts (Inter, Roboto, etc.).
 
+**Never write `font:` shorthand in a rule that also sets `font-variation-settings`.** The shorthand *resets* the variation settings, and the production minifier reorders declarations so the shorthand lands last — which silently discarded the SOFT/WONK/opsz axes in the built site and rendered Fraunces with its default, sharper cuts. Dev was unaffected (no minifier), so this only ever showed up on preview and the deployed site. Use the longhands (`font-family`, `font-size`, `font-weight`, `line-height`) for every Fraunces rule. It applies only to Fraunces; the Barlow Condensed shorthands are safe, having no variation settings to lose.
+
 ## Content
 
 All resume content lives in `src/data/resume.js`. Edit content there, not in markup. Cards are rendered by `Card.astro`; the only card written inline is the extracurricular one.
