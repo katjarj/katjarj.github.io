@@ -25,8 +25,11 @@ const groupOf = (id: string) => experience.filter((e) => e.group === id);
 // Extracurricular is carded per organisation rather than per role, so one
 // card holds everything held under that org — a club's three positions sit
 // together instead of repeating the club's name three times down the page.
-const byOrg = (arr: { org: string }[]) => {
-  const seen = new Map<string, typeof arr>();
+// Generic, so the entry type survives: the old `{ org: string }[]` parameter
+// widened every item to just its org and dropped title/when/pts from the type,
+// even though the values were all still there at runtime.
+const byOrg = <T extends { org: string }>(arr: T[]) => {
+  const seen = new Map<string, T[]>();
   for (const e of arr) {
     if (!seen.has(e.org)) seen.set(e.org, []);
     seen.get(e.org)!.push(e);
@@ -322,7 +325,9 @@ const skillRuns = [
       // text come and go over it.
       function showLayer(id: string | null) {
         allLayers.forEach((l) => l.classList.remove('active'));
-        const t = document.getElementById(id);
+        // null means "hide everything", which the callers do mid-pan before the
+        // next layer is revealed — so it is a real state, not a missing id
+        const t = id ? document.getElementById(id) : null;
         if (t) {
           t.classList.add('active');
           const scroller = t.querySelector<HTMLElement>('.sec-scroll');

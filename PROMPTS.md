@@ -35,6 +35,8 @@ move the ski sign up toward the middle of the page 22. move the sign slightly do
 56. academic should be a green run, hackathons blue, and side projects black
 57. is it possible to extract a project card into its own component?
 61. now update the readme to be more user-directed than just instructions for me
+62. fix these issues (TS2339 on org grouping, TS2345 on showLayer)
+
 
 58. how do i add the links to the cards now
 59. how do i improve the formatting of the js in the resume
