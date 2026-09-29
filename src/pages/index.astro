@@ -78,6 +78,11 @@ const skillRuns = [
     </header>
 
     <Sign cap="TRAIL MAP" runs={trailMap} />
+
+    <div class="links-row landing-links">
+      <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
   </div>
 
   <!-- ══════════════════════════════════════════════
@@ -86,7 +91,7 @@ const skillRuns = [
 
   <!-- ══════════════════════════════════════════════
        EXPERIENCE — a second trail sign, reached from the green run.
-       Same <Sign> as the landing page: cap, board of runs, post, hint.
+       Same <Sign> as the landing page: cap, board of runs, post.
   ══════════════════════════════════════════════ -->
   <div id="layer-experience" class="layer sub-layer">
     <Sign cap="EXPERIENCE" runs={subRuns} />
@@ -107,10 +112,6 @@ const skillRuns = [
                 <ul>{e.pts.map((p) => <li>{p}</li>)}</ul>
               </article>
             ))}
-          </div>
-          <div class="links-row">
-            <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-            <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
           </div>
         </div>
       </div>
@@ -139,10 +140,6 @@ const skillRuns = [
             </article>
           ))}
         </div>
-        <div class="links-row">
-          <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-          <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
-        </div>
       </div>
     </div>
   </div>
@@ -161,10 +158,6 @@ const skillRuns = [
               <ul>{c.pts.map((p) => <li>{p}</li>)}</ul>
             </article>
           ))}
-        </div>
-        <div class="links-row">
-          <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-          <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
         </div>
       </div>
     </div>
@@ -186,10 +179,6 @@ const skillRuns = [
           <button class="back-btn" data-back>← Skills</button>
           <h2>{s.title}</h2>
           <p class="skill-items">{s.items}</p>
-          <div class="links-row">
-            <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-            <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
-          </div>
         </div>
       </div>
     </div>
@@ -681,7 +670,10 @@ draw();
   --bg:       #F3ECE2;
   --ink:      #3B2A3F;
   --muted:    #7A6577;
-  --accent:   #F0805A;
+  /* No peach: the old coral sat around 2.5:1 on the cream, too low for link
+     text and weak for the entry rule. Accents fall back to the ink, which is
+     high contrast in both modes; night ski still overrides this with amber. */
+  --accent:   var(--ink);
   --sky-hi:   #2188c9;
   --sky-lo:   #a8d8f2;
   --mtn-far:  #7caec8;
@@ -792,19 +784,24 @@ body {
 .sign-cap {
   font: 700 clamp(1.35rem, 3.4vw, 1.7rem) 'Barlow Condensed', sans-serif;
   letter-spacing: 0.2em; text-transform: uppercase;
-  background: var(--sign-rim); color: var(--sign-txt);
+  background: var(--post); color: var(--sign-txt);
   padding: 0.4rem 2.6rem;
   border-radius: 10px 10px 0 0;
   /* A tab, not a bar. Do not pin this to the board's width: a full-length cap
-     reads as a header strip, and the overhang is what makes it a sign cap. */
+     reads as a header strip, and the overhang is what makes it a sign cap.
+     The cap is the post's brown, so the sign reads as one piece of timber
+     rather than a gold header bolted to a brown one. */
 }
 .sign-board {
   background: var(--sign-bg);
-  padding: 0.6rem 0.7rem;
+  /* the board is also the sign's dark brown frame, showing between the runs
+     and around the edge — so the `padding` and the `gap` below are both
+     frame thickness, not just spacing */
+  padding: 0.78rem 0.92rem;
   /* a real width, not just min-width: the board is a content-sized flex
      item, so min-width alone would leave it at its narrowest */
   width: min(480px, 90vw);
-  display: flex; flex-direction: column; gap: 0.45rem;
+  display: flex; flex-direction: column; gap: 0.62rem;
   /* rounded on all four: the cap is narrower than the board, so the board's
      top corners stick out and are what the eye reads as the sign's top two.
      Leaving them square while the bottom pair was rounded was the mismatch. */
@@ -840,10 +837,10 @@ body {
 .run-black  { background: #1c1c1c; color: #ddd;    }
 .run-dblack { background: #0e0e0e; color: #ccc;    }
 /* Back to the map. Not a difficulty, so it is not given one: it wears the
-   sign's own frame colour, the same brown as the cap above it, and carries no
+   post's brown, the same as the cap and the sign's timber, and carries no
    rating symbol. A rating colour here would claim a grade the run does not
    have — and double black, of all things, is the hardest run on the board. */
-.run-back   { background: var(--sign-rim); color: var(--sign-txt); }
+.run-back   { background: var(--post); color: var(--sign-txt); }
 .run-arrow { flex-shrink: 0; display: flex; align-items: center; }
 .run-arrow svg { width: clamp(34px, 4.6vw, 44px); height: auto; }
 .run-label { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
@@ -869,17 +866,9 @@ body {
   opacity: 0.8;
 }
 .run-tag svg { height: var(--sym-h); width: auto; }
-.hint {
-  color: var(--snow); opacity: 0.65;
-  font: 500 0.88rem 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.6rem;
-  animation: pulse 2.8s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.85} }
 
-/* Standing still, and asking for less motion: no pulse, no pan. */
+/* Standing still: ask for less motion and the pan does not happen. */
 @media (prefers-reduced-motion: reduce) {
-  .hint { animation: none; opacity: 0.7; }
   .layer { transition: none; }
 }
 
@@ -974,8 +963,13 @@ li { margin: 0.22rem 0; font-size: 0.98rem; line-height: 1.55; }
 .links-row a {
   font: 600 0.95rem 'Barlow Condensed', sans-serif;
   letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--accent); text-decoration: none; transition: opacity 0.2s;
+  /* the accent is the ink colour, so the underline is what marks these as links */
+  color: var(--accent); text-decoration: underline; text-underline-offset: 4px;
+  transition: opacity 0.2s;
 }
 .links-row a:hover { opacity: 0.65; }
 .links-row a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* on the landing the links sit under the sign, so they are centred and the
+   rule above them is dropped — it would cut the post in half */
+.landing-links { justify-content: center; margin-top: 1.75rem; padding-top: 0; border-top: 0; }
 </style>

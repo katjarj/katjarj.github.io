@@ -2,15 +2,15 @@
 import Arrow from './Arrow.astro';
 import Symbol from './Symbol.astro';
 
-// One sign: a cap, a board of runs, a post and a hint. Every sign on the site
-// is one of these, so making another is a data array and a single call — the
-// styles and the click behaviour are generic and come along for free.
+// One sign: a cap, a board of runs and a post. Every sign on the site is one
+// of these, so making another is a data array and a single call — the styles
+// and the click behaviour are generic and come along for free.
 //
 // A run is { id, title, diff, dir }. `diff` is the trail rating, and it drives
 // both the row's colour and its symbol from one value, so the two cannot drift
 // apart. A run with no `diff` is unrated: it wears `run-back` and carries no
 // symbol, which is what the Back row is.
-const { cap, runs = [], hint = 'Choose your run ↑' } = Astro.props;
+const { cap, runs = [] } = Astro.props;
 ---
 <div class="sign-wrap">
   <div class="sign-cap">{cap}</div>
@@ -33,4 +33,3 @@ const { cap, runs = [], hint = 'Choose your run ↑' } = Astro.props;
   </div>
   <div class="post-shaft"></div>
 </div>
-{hint && <p class="hint">{hint}</p>}

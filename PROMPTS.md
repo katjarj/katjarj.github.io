@@ -56,6 +56,16 @@ move the ski sign up toward the middle of the page
 38. make my name bigger and a bit lower
 39. would it be possible to extract the signs to its own component of some kind to reduce duplication as i add more? the reason i'm asking is so that when i add more signs to help separate out some of the other sections (for example maybe i will want to separate my skils into different categories) i can easily create a new sign that has the same styles and behaviour. also generalise back so a nested sign can return to its own parent sign rather than always the trail map
 40. now separate the skills using a sign. the back button should point left (toward the parent) and the rest fill in the usual spots
+41. remove the 'choose your run' bit
+42. add my contact info at the bottom of the landing rather than in each individual page. remove the peachy colour, it's too low contrast.
+43. instead of the golden brown for the top tab and 'back' button use the brown from the sign pole
+44. make the dark brown border bit of the sign slightly thicker
+45. ok well also increase the distance between each item in the sign
+
+
+
+
+
 
 
 
