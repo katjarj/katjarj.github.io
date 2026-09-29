@@ -61,6 +61,8 @@ move the ski sign up toward the middle of the page
 43. instead of the golden brown for the top tab and 'back' button use the brown from the sign pole
 44. make the dark brown border bit of the sign slightly thicker
 45. ok well also increase the distance between each item in the sign
+46. instead of the github and linkedin links at the bottom, put their text inside of these bear pngs (one for each link). put one bear to the left of the sign, on the snow, and one bear to the right of the sign, on the snow. these bear pngs must be attributed as such: <a href="https://www.flaticon.com/free-icons/bear" title="bear icons">Bear icons created by Victoruler - Flaticon</a>
+
 
 
 

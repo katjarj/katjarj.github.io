@@ -1,10 +1,21 @@
 ---
-import '@fontsource-variable/fraunces/full.css';
-import '@fontsource/barlow-condensed/500.css';
-import '@fontsource/barlow-condensed/600.css';
-import { links, intro, education, work, other, groups, trailMap, projects, community, skills } from '../data/resume.js';
-import Symbol from '../components/Symbol.astro';
-import Sign from '../components/Sign.astro';
+import "@fontsource-variable/fraunces/full.css";
+import "@fontsource/barlow-condensed/500.css";
+import "@fontsource/barlow-condensed/600.css";
+import {
+  links,
+  intro,
+  education,
+  work,
+  other,
+  groups,
+  trailMap,
+  projects,
+  community,
+  skills,
+} from "../data/resume.js";
+import Symbol from "../components/Symbol.astro";
+import Sign from "../components/Sign.astro";
 
 // Every experience entry, in the order the groups list them, tagged by group.
 const experience = [education, ...work, ...other];
@@ -14,16 +25,27 @@ const groupOf = (id: string) => experience.filter((e) => e.group === id);
 // groups take the first three; the Back row below is the fourth and takes →.
 // Left and right are the long two-period traverses, the angled pair one period
 // each, so each arrow is matched by its pan distance.
-const DIRS = ['left', 'upleft', 'upright'];
-const LAYERS = groups.map((g, i) => ({ ...g, dir: DIRS[i] || 'upleft', entries: groupOf(g.id), layer: `layer-${g.id}` }))
-                    .filter((g) => g.entries.length > 0);
+const DIRS = ["left", "upleft", "upright"];
+const LAYERS = groups
+  .map((g, i) => ({
+    ...g,
+    dir: DIRS[i] || "upleft",
+    entries: groupOf(g.id),
+    layer: `layer-${g.id}`,
+  }))
+  .filter((g) => g.entries.length > 0);
 
 // The sub-sign's runs, in the order the groups list them, plus the Back row.
 // `back: true` is all it takes to make a row unrated: Sign.astro gives it the
 // run-back styling, no symbol, and Back behaviour.
 const subRuns = [
-  ...LAYERS.map((g) => ({ id: g.id, title: g.title, diff: g.diff, dir: g.dir })),
-  { title: 'Back to Trail Map', dir: 'right', back: true },
+  ...LAYERS.map((g) => ({
+    id: g.id,
+    title: g.title,
+    diff: g.diff,
+    dir: g.dir,
+  })),
+  { title: "Back to Trail Map", dir: "right", back: true },
 ];
 
 // Skills splits the same way — a sign of its own, one page per category — and
@@ -31,823 +53,1138 @@ const subRuns = [
 // from the trail map's double-black run, and that run traverses right, so home
 // is the other way. Back takes the ← slot and the three categories fill the
 // rest of the fan.
-const SKILL_DIRS = ['upleft', 'upright', 'right'];
+const SKILL_DIRS = ["upleft", "upright", "right"];
 // The layer id must be `layer-` + the run's id: the click handler builds the
 // target by prefixing `layer-` to `data-target`, which Sign.astro sets from
 // `r.id`. Anything else and showLayer finds nothing and the screen goes blank.
-const skillLayers = skills.map((s, i) => ({ ...s, dir: SKILL_DIRS[i], layer: `layer-${s.id}` }));
+const skillLayers = skills.map((s, i) => ({
+  ...s,
+  dir: SKILL_DIRS[i],
+  layer: `layer-${s.id}`,
+}));
 const skillRuns = [
-  ...skillLayers.map((s) => ({ id: s.id, title: s.title, diff: s.diff, dir: s.dir })),
-  { title: 'Back to Trail Map', dir: 'left', back: true },
+  ...skillLayers.map((s) => ({
+    id: s.id,
+    title: s.title,
+    diff: s.diff,
+    dir: s.dir,
+  })),
+  { title: "Back to Trail Map", dir: "left", back: true },
 ];
 ---
+
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Katja Radovic-Jonsson</title>
-  <meta name="description" content="Katja Radovic-Jonsson's personal website" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L8 4H6.5L9 8H1L3.5 4H2Z' fill='%233B2A3F'/%3E%3C/svg%3E" />
-  <script is:inline>
-    try {
-      var m = localStorage.getItem('mode');
-      if (!m) m = matchMedia('(prefers-color-scheme:dark)').matches ? 'night' : 'day';
-      document.documentElement.dataset.mode = m;
-    } catch(e) {}
-  </script>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Katja Radovic-Jonsson</title>
+    <meta
+      name="description"
+      content="Katja Radovic-Jonsson's personal website"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L8 4H6.5L9 8H1L3.5 4H2Z' fill='%233B2A3F'/%3E%3C/svg%3E"
+    />
+    <script is:inline>
+      try {
+        var m = localStorage.getItem("mode");
+        if (!m)
+          m = matchMedia("(prefers-color-scheme:dark)").matches
+            ? "night"
+            : "day";
+        document.documentElement.dataset.mode = m;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <!-- Mode button (always on top) -->
+    <button id="mode-btn" type="button">night ski</button>
 
-  <!-- Mode button (always on top) -->
-  <button id="mode-btn" type="button">night ski</button>
-
-  <!-- ══════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════
        WORLD — one canvas paints the whole scene.
        The landing page IS this scene at camera (0,0);
        every run is the same scene with the camera panned,
        so the environment never changes, it only moves.
   ══════════════════════════════════════════════ -->
-  <canvas id="world" aria-hidden="true"></canvas>
+    <canvas id="world" aria-hidden="true"></canvas>
 
-  <!-- ══════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════
        LAYER: LANDING — the trail sign
   ══════════════════════════════════════════════ -->
-  <div id="layer-landing" class="layer active">
-    <header class="site-header">
-      <h1>{intro.name}</h1>
-    </header>
+    <div id="layer-landing" class="layer active">
+      <header class="site-header">
+        <h1>{intro.name}</h1>
+      </header>
 
-    <Sign cap="TRAIL MAP" runs={trailMap} />
+      <Sign cap="TRAIL MAP" runs={trailMap} />
 
-    <div class="links-row landing-links">
-      <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-      <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+      <!-- The contact links, as bears on the snow either side of the sign. The
+         label is real text laid on the bear's flank rather than baked into the
+         PNG, so it stays selectable and readable by a screen reader. -->
+      <div class="bears">
+        <a class="bear" href={links.linkedin} target="_blank" rel="noopener">
+          <img src="/bear.png" alt="" aria-hidden="true" />
+          <span class="bear-text">LinkedIn</span>
+        </a>
+        <a class="bear" href={links.github} target="_blank" rel="noopener">
+          <img src="/bear.png" alt="" aria-hidden="true" />
+          <span class="bear-text">GitHub</span>
+        </a>
+      </div>
+
+      <p class="credit">
+        <a href="https://www.flaticon.com/free-icons/bear" title="bear icons"
+          >Bear icons created by Victoruler - Flaticon</a
+        >
+      </p>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════
        SECTION LAYERS — same world behind, text overlay
   ══════════════════════════════════════════════ -->
 
-  <!-- ══════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════
        EXPERIENCE — a second trail sign, reached from the green run.
        Same <Sign> as the landing page: cap, board of runs, post.
   ══════════════════════════════════════════════ -->
-  <div id="layer-experience" class="layer sub-layer">
-    <Sign cap="EXPERIENCE" runs={subRuns} />
-  </div>
+    <div id="layer-experience" class="layer sub-layer">
+      <Sign cap="EXPERIENCE" runs={subRuns} />
+    </div>
 
-  <!-- One list layer per group on the sub-sign, each its own run. -->
-  {LAYERS.map((g) => (
-    <div id={g.layer} class="layer section-layer">
+    <!-- One list layer per group on the sub-sign, each its own run. -->
+    {
+      LAYERS.map((g) => (
+        <div id={g.layer} class="layer section-layer">
+          <div class="sec-scroll">
+            <div class="sec-inner">
+              <button class="back-btn" data-back>
+                ← Experience
+              </button>
+              <h2>{g.title}</h2>
+              <div class="entries">
+                {g.entries.map((e) => (
+                  <article class="entry">
+                    <div class="eh">
+                      <h3>{e.title}</h3>
+                      <span class="when">{e.when}</span>
+                    </div>
+                    {e.org && <p class="org">{e.org}</p>}
+                    <ul>
+                      {e.pts.map((p) => (
+                        <li>{p}</li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+
+    <!-- Personal Projects (blue) -->
+    <div id="layer-projects" class="layer section-layer">
       <div class="sec-scroll">
         <div class="sec-inner">
-          <button class="back-btn" data-back>← Experience</button>
-          <h2>{g.title}</h2>
+          <button class="back-btn" data-back>← Trail Map</button>
+          <h2>Personal Projects</h2>
+          <p class="sec-note">Rated like ski runs — by me.</p>
           <div class="entries">
-            {g.entries.map((e) => (
-              <article class="entry">
-                <div class="eh"><h3>{e.title}</h3><span class="when">{e.when}</span></div>
-                {e.org && <p class="org">{e.org}</p>}
-                <ul>{e.pts.map((p) => <li>{p}</li>)}</ul>
-              </article>
-            ))}
+            {
+              projects.map((p) => (
+                <article class="entry">
+                  <div class="eh">
+                    <h3>
+                      <span class={`tdot tdot-${p.diff}`}>
+                        <Symbol diff={p.diff} />
+                      </span>
+                      {p.title}
+                    </h3>
+                    <span class="when">{p.when}</span>
+                  </div>
+                  {p.org && <p class="org">{p.org}</p>}
+                  <ul>
+                    {p.pts.map((pt) => (
+                      <li>{pt}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))
+            }
           </div>
         </div>
       </div>
     </div>
-  ))}
 
-  <!-- Personal Projects (blue) -->
-  <div id="layer-projects" class="layer section-layer">
-    <div class="sec-scroll">
-      <div class="sec-inner">
-        <button class="back-btn" data-back>← Trail Map</button>
-        <h2>Personal Projects</h2>
-        <p class="sec-note">Rated like ski runs — by me.</p>
-        <div class="entries">
-          {projects.map((p) => (
-            <article class="entry">
-              <div class="eh">
-                <h3>
-                  <span class={`tdot tdot-${p.diff}`}><Symbol diff={p.diff} /></span>
-                  {p.title}
-                </h3>
-                <span class="when">{p.when}</span>
-              </div>
-              {p.org && <p class="org">{p.org}</p>}
-              <ul>{p.pts.map((pt) => <li>{pt}</li>)}</ul>
-            </article>
-          ))}
+    <!-- Extracurricular (black) -->
+    <div id="layer-community" class="layer section-layer">
+      <div class="sec-scroll">
+        <div class="sec-inner">
+          <button class="back-btn" data-back>← Trail Map</button>
+          <h2>Extracurricular</h2>
+          <div class="entries">
+            {
+              community.map((c) => (
+                <article class="entry">
+                  <div class="eh">
+                    <>
+                      <h3>{c.title}</h3>
+                      <span class="when">{c.when}</span>
+                    </>
+                  </div>
+                  {c.org && <p class="org">{c.org}</p>}
+                  <ul>
+                    {c.pts.map((p) => (
+                      <li>{p}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))
+            }
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Extracurricular (black) -->
-  <div id="layer-community" class="layer section-layer">
-    <div class="sec-scroll">
-      <div class="sec-inner">
-        <button class="back-btn" data-back>← Trail Map</button>
-        <h2>Extracurricular</h2>
-        <div class="entries">
-          {community.map((c) => (
-            <article class="entry">
-              <div class="eh"><h3>{c.title}</h3><span class="when">{c.when}</span></div>
-              {c.org && <p class="org">{c.org}</p>}
-              <ul>{c.pts.map((p) => <li>{p}</li>)}</ul>
-            </article>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Skills (double black) -->
-  <!-- ══════════════════════════════════════════════
+    <!-- Skills (double black) -->
+    <!-- ══════════════════════════════════════════════
        SKILLS — a third sign, reached from the double-black run.
        Back points left, the way home to the trail map.
   ══════════════════════════════════════════════ -->
-  <div id="layer-skills" class="layer sub-layer">
-    <Sign cap="SKILLS" runs={skillRuns} />
-  </div>
-
-  {skillLayers.map((s) => (
-    <div id={s.layer} class="layer section-layer">
-      <div class="sec-scroll">
-        <div class="sec-inner">
-          <button class="back-btn" data-back>← Skills</button>
-          <h2>{s.title}</h2>
-          <p class="skill-items">{s.items}</p>
-        </div>
-      </div>
+    <div id="layer-skills" class="layer sub-layer">
+      <Sign cap="SKILLS" runs={skillRuns} />
     </div>
-  ))}
 
-<script>
-// ─── Helpers ────────────────────────────────────────────────────
-const root = document.documentElement;
-const allLayers = [...document.querySelectorAll<HTMLElement>('.layer')];
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    {
+      skillLayers.map((s) => (
+        <div id={s.layer} class="layer section-layer">
+          <div class="sec-scroll">
+            <div class="sec-inner">
+              <button class="back-btn" data-back>
+                ← Skills
+              </button>
+              <h2>{s.title}</h2>
+              <p class="skill-items">{s.items}</p>
+            </div>
+          </div>
+        </div>
+      ))
+    }
 
-function getVar(name: string): string {
-  return getComputedStyle(root).getPropertyValue(name).trim();
-}
+    <script>
+      // ─── Helpers ────────────────────────────────────────────────────
+      const root = document.documentElement;
+      const allLayers = [...document.querySelectorAll<HTMLElement>(".layer")];
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// Seeded RNG: the world is generated from fixed seeds, so it looks
-// identical on every load, on every page, at every moment.
-function srng(seed: number) {
-  let s = seed;
-  return () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
-}
-
-// ─── Mode toggle ────────────────────────────────────────────────
-const modeBtn = document.getElementById('mode-btn')!;
-function syncLabel() {
-  modeBtn.textContent = root.dataset.mode === 'night' ? 'bluebird' : 'night ski';
-}
-syncLabel();
-modeBtn.addEventListener('click', () => {
-  const next = root.dataset.mode === 'night' ? 'day' : 'night';
-  root.dataset.mode = next;
-  try { localStorage.setItem('mode', next); } catch(e) {}
-  syncLabel();
-  palette = null;   // colours are read from the CSS variables
-  draw();
-});
-
-// ─── Layer switching ─────────────────────────────────────────────
-// The world behind these layers never changes; only the sign and the
-// text come and go over it.
-function showLayer(id: string | null) {
-  allLayers.forEach(l => l.classList.remove('active'));
-  const t = document.getElementById(id);
-  if (t) {
-    t.classList.add('active');
-    const scroller = t.querySelector<HTMLElement>('.sec-scroll');
-    if (scroller) scroller.scrollTop = 0;
-  }
-}
-
-// ════════════════════════════════════════════════════════════════
-// THE WORLD — one canvas paints one continuous scene
-//
-// The landing page is this scene at camera (0, 0). A section page is
-// the very same scene: a run ends on a whole number of world periods,
-// and every part of the world tiles seamlessly, so you always land on
-// the identical view. So a run is nothing but this same environment
-// sliding past you — translation only. Never a cross-fade between two
-// different worlds, never rotation.
-//
-//   camX > 0 : world slides left  → you went right
-//   camX < 0 : world slides right → you went left
-// The camera has no vertical axis at all: every run is a level traverse,
-// and the view never drifts with the cursor.
-// ════════════════════════════════════════════════════════════════
-
-const worldCanvas = document.getElementById('world') as HTMLCanvasElement;
-const wctx = worldCanvas.getContext('2d')!;
-let W = 0, H = 0, dpr = 1;
-
-type Palette = {
-  night: boolean;
-  skyHi: string; skyLo: string;
-  mtnFar: string; mtnMid: string; mtnNear: string;
-  snow: string; snow2: string;
-  tree1: string; tree2: string; tree3: string; tree4: string;
-};
-let palette: Palette | null = null;
-function pal(): Palette {
-  if (!palette) {
-    palette = {
-      night: root.dataset.mode === 'night',
-      skyHi: getVar('--sky-hi'), skyLo: getVar('--sky-lo'),
-      mtnFar: getVar('--mtn-far'), mtnMid: getVar('--mtn-mid'), mtnNear: getVar('--mtn-near'),
-      snow: getVar('--snow'), snow2: getVar('--snow2'),
-      // fir tones, palest (farthest) to darkest (nearest)
-      tree1: getVar('--tree-1'), tree2: getVar('--tree-2'),
-      tree3: getVar('--tree-3'), tree4: getVar('--tree-4'),
-    };
-  }
-  return palette;
-}
-
-// ─── Ridgelines ─────────────────────────────────────────────────
-// Periodic value noise: smooth, and identical at u = 0 and u = 1, so
-// a ridge drawn tile after tile has no seam anywhere in it.
-function noise1d(seed: number, n: number) {
-  const r = srng(seed);
-  const v = Array.from({ length: n }, () => r());
-  return (u: number) => {
-    const x = u * n, i = Math.floor(x), f = x - i;
-    const a = v[((i % n) + n) % n], b = v[(((i + 1) % n) + n) % n];
-    const s = f * f * (3 - 2 * f);              // smoothstep
-    return a + (b - a) * s;
-  };
-}
-function fbm1d(seed: number) {
-  const a = noise1d(seed + 977, 3), b = noise1d(seed + 1951, 6),
-        c = noise1d(seed + 2903, 12), d = noise1d(seed + 4013, 24);
-  return (u: number) => (a(u) + 0.5 * b(u) + 0.25 * c(u) + 0.125 * d(u)) / 1.875;
-}
-type Ridge = { xf: number; hf: number }[];
-// hf = height as a fraction of viewport height, measured from the bottom
-function makeRidge(seed: number, lo: number, hi: number, samples = 120): Ridge {
-  const n = fbm1d(seed);
-  const pts: Ridge = [];
-  for (let i = 0; i <= samples; i++) {
-    const u = i / samples;
-    // the exponent keeps the shoulders low and the peaks pointed
-    pts.push({ xf: u, hf: lo + (hi - lo) * Math.pow(n(u), 1.55) });
-  }
-  return pts;
-}
-const RIDGE_FAR  = makeRidge(11, 0.70, 0.92);
-const RIDGE_MID  = makeRidge(29, 0.44, 0.70);
-const RIDGE_NEAR = makeRidge(47, 0.26, 0.54);
-
-// ─── Forests ────────────────────────────────────────────────────
-// One tile of firs per world period, repeated, so the forest is
-// continuous forever. Three depth bands per shoulder of the run: a
-// treeline along the crest, mid-slope firs, then big foreground firs
-// that frame the run and carry the speed of the pan.
-//
-// Spacing is stratified, not free random: each band is cut into n equal
-// slots and every slot gets exactly one fir, nudged off its slot centre by
-// a seeded jitter. Pure random clumps the shoulder and leaves bald patches;
-// this keeps the stand evenly spaced with organic irregularity on top.
-//
-// Every band is placed by `d0`/`d1` — how far it stands *below the snow
-// crest*, in units of H — never by an absolute screen line, so a fir follows
-// the crest down at the sides of the viewport instead of hanging in the air.
-// `d` doubles as the depth key the forest is sorted by, farthest first.
-//
-// Four flat tones instead of two, so a thick shoulder reads as a forest
-// and not one dark mass: the treeline stays the palest (haze), and each
-// nearer band picks between its own pair — `tones` — as it is laid out,
-// dealt round-robin from a seeded offset so both always appear. The left
-// shoulder carries `extraL` more firs than the right, so the forest is
-// deliberately denser on the left and no longer symmetrical.
-const JITTER = 0.38;             // how far off its slot centre a fir may sit
-type Tree = { xf: number; d: number; s: number; tone: number };
-const FIRS: Tree[] = (() => {
-  const r = srng(83);
-  const out: Tree[] = [];
-  const bands = [
-    { n: 12, extraL: 6, tones: [0],    x0: -0.04, x1: 0.26, d0: 0.000, d1: 0.035, s0: 0.070, s1: 0.125 },
-    { n: 10, extraL: 5, tones: [1, 2], x0: -0.02, x1: 0.22, d0: 0.055, d1: 0.135, s0: 0.130, s1: 0.215 },
-    { n: 8,  extraL: 3, tones: [2, 3], x0: -0.06, x1: 0.14, d0: 0.185, d1: 0.400, s0: 0.230, s1: 0.470 },
-  ];
-  for (const mirror of [false, true]) {          // left shoulder, then right
-    for (const b of bands) {
-      const n = b.n + (mirror ? 0 : b.extraL);   // thicker on the left
-      const slotX = (b.x1 - b.x0) / n;
-      const slotD = (b.d1 - b.d0) / n;
-      const toneAt = Math.floor(r() * b.tones.length);   // where the cycle starts
-      for (let i = 0; i < n; i++) {
-        const jx = (r() - 0.5) * 2 * JITTER;
-        const jd = (r() - 0.5) * 2 * JITTER;
-        let xf = b.x0 + (i + 0.5 + jx) * slotX;   // one fir per slot, never two
-        if (mirror) xf = 1 - xf;
-        out.push({
-          xf, d: b.d0 + (i + 0.5 + jd) * slotD,
-          s: b.s0 + r() * (b.s1 - b.s0),
-          tone: b.tones[(i + toneAt) % b.tones.length],
-        });
+      function getVar(name: string): string {
+        return getComputedStyle(root).getPropertyValue(name).trim();
       }
-    }
-  }
-  return out.sort((p, q) => p.d - q.d);            // farthest first, nearest last
-})();
 
-// A PNW spire fir: a bare leader tip, then nine tiers of long branches that
-// hang and overlap one another. Each tier is a downward chevron, and because
-// they all overlap the union is solid — no gaps for the snow to show through —
-// while the sides still serrate the way snow-laden branches do. The lowest
-// tier ends on a shallow flat hem, so the fir sits on its trunk and on the
-// snow instead of tapering away to a point.
-function fir(x: number, baseY: number, h: number, col: string) {
-  const half = h * 0.20;                     // half the width at the branches' base
-  const apex = baseY - h;
-  const trunkH = h * 0.09;
-  const hemY = baseY - trunkH;               // the lowest branches end here
-  const tiers = 9;
-  const hang = h * 0.26;                     // how deep an inner tier's arms droop
-  const top = apex + h * 0.13;               // the bare leader above the first arms
-  const step = (hemY - top) / tiers;         // one tier per step... and the last
-                                             // one hangs just one step deep, so
-                                             // the bottom stays flat, not cupped
-  const widthAt = (y: number) => half * Math.pow((y - apex) / (hemY - apex), 0.85);
+      // Seeded RNG: the world is generated from fixed seeds, so it looks
+      // identical on every load, on every page, at every moment.
+      function srng(seed: number) {
+        let s = seed;
+        return () => {
+          s = (s * 16807) % 2147483647;
+          return s / 2147483647;
+        };
+      }
 
-  wctx.fillStyle = col;
-  const trunkW = Math.max(1.2, half * 0.15);
-  wctx.fillRect(x - trunkW / 2, hemY, trunkW, trunkH);   // the trunk it stands on
+      // ─── Mode toggle ────────────────────────────────────────────────
+      const modeBtn = document.getElementById("mode-btn")!;
+      function syncLabel() {
+        modeBtn.textContent =
+          root.dataset.mode === "night" ? "bluebird" : "night ski";
+      }
+      syncLabel();
+      modeBtn.addEventListener("click", () => {
+        const next = root.dataset.mode === "night" ? "day" : "night";
+        root.dataset.mode = next;
+        try {
+          localStorage.setItem("mode", next);
+        } catch (e) {}
+        syncLabel();
+        palette = null; // colours are read from the CSS variables
+        draw();
+      });
 
-  const lead = widthAt(top);
-  wctx.beginPath();                          // the leader, up to a point
-  wctx.moveTo(x, apex);
-  wctx.lineTo(x + lead, top);
-  wctx.lineTo(x - lead, top);
-  wctx.closePath();
-  wctx.fill();
+      // ─── Layer switching ─────────────────────────────────────────────
+      // The world behind these layers never changes; only the sign and the
+      // text come and go over it.
+      function showLayer(id: string | null) {
+        allLayers.forEach((l) => l.classList.remove("active"));
+        const t = document.getElementById(id);
+        if (t) {
+          t.classList.add("active");
+          const scroller = t.querySelector<HTMLElement>(".sec-scroll");
+          if (scroller) scroller.scrollTop = 0;
+        }
+      }
 
-  for (let i = 0; i < tiers; i++) {          // the branches, each hanging a level
-    const y = top + i * step;
-    const w = widthAt(y);
-    const lowest = i === tiers - 1;
-    const d = lowest ? step : Math.min(hang, hemY - y);
-    wctx.beginPath();
-    wctx.moveTo(x - w, y);
-    wctx.lineTo(x + w, y);
-    if (lowest) {
-      // the bottom hem: level in the middle, the arms drooping at the sides
-      wctx.quadraticCurveTo(x + w * 0.70, y + d * 0.78, x + w * 0.42, y + d);
-      wctx.lineTo(x - w * 0.42, y + d);
-      wctx.quadraticCurveTo(x - w * 0.70, y + d * 0.78, x - w, y);
-    } else {
-      wctx.quadraticCurveTo(x + w * 0.62, y + d * 0.5, x, y + d);
-      wctx.quadraticCurveTo(x - w * 0.62, y + d * 0.5, x - w, y);
-    }
-    wctx.closePath();
-    wctx.fill();
-  }
-}
+      // ════════════════════════════════════════════════════════════════
+      // THE WORLD — one canvas paints one continuous scene
+      //
+      // The landing page is this scene at camera (0, 0). A section page is
+      // the very same scene: a run ends on a whole number of world periods,
+      // and every part of the world tiles seamlessly, so you always land on
+      // the identical view. So a run is nothing but this same environment
+      // sliding past you — translation only. Never a cross-fade between two
+      // different worlds, never rotation.
+      //
+      //   camX > 0 : world slides left  → you went right
+      //   camX < 0 : world slides right → you went left
+      // The camera has no vertical axis at all: every run is a level traverse,
+      // and the view never drifts with the cursor.
+      // ════════════════════════════════════════════════════════════════
 
-// ─── Stars overhead ─────────────────────────────────────────────
-const STARS = (() => {
-  const r = srng(7);
-  return Array.from({ length: 220 }, () => ({
-    xf: r(), yf: r() * 0.55, rad: 0.35 + r() * 0.9, a: 0.25 + r() * 0.65,
-  }));
-})();
+      const worldCanvas = document.getElementById("world") as HTMLCanvasElement;
+      const wctx = worldCanvas.getContext("2d")!;
+      let W = 0,
+        H = 0,
+        dpr = 1;
 
-// ─── Drawing ────────────────────────────────────────────────────
-const wrap = (v: number, m: number) => ((v % m) + m) % m;
+      type Palette = {
+        night: boolean;
+        skyHi: string;
+        skyLo: string;
+        mtnFar: string;
+        mtnMid: string;
+        mtnNear: string;
+        snow: string;
+        snow2: string;
+        tree1: string;
+        tree2: string;
+        tree3: string;
+        tree4: string;
+      };
+      let palette: Palette | null = null;
+      function pal(): Palette {
+        if (!palette) {
+          palette = {
+            night: root.dataset.mode === "night",
+            skyHi: getVar("--sky-hi"),
+            skyLo: getVar("--sky-lo"),
+            mtnFar: getVar("--mtn-far"),
+            mtnMid: getVar("--mtn-mid"),
+            mtnNear: getVar("--mtn-near"),
+            snow: getVar("--snow"),
+            snow2: getVar("--snow2"),
+            // fir tones, palest (farthest) to darkest (nearest)
+            tree1: getVar("--tree-1"),
+            tree2: getVar("--tree-2"),
+            tree3: getVar("--tree-3"),
+            tree4: getVar("--tree-4"),
+          };
+        }
+        return palette;
+      }
 
-// One ridge, tiled across the viewport at its own depth, so the three
-// ridgelines drift at different speeds and give the scene its depth.
-function drawRidge(ridge: Ridge, camX: number, depth: number, col: string) {
-  const off = wrap(camX * depth, W);
-  wctx.fillStyle = col;
-  wctx.beginPath();
-  wctx.moveTo(-off - W, H + 600);
-  for (let tile = -1; tile <= 1; tile++) {
-    const tileX = tile * W - off;
-    for (const p of ridge) wctx.lineTo(tileX + p.xf * W, H * (1 - p.hf));
-  }
-  wctx.lineTo(2 * W - off, H + 600);
-  wctx.closePath();
-  wctx.fill();
-}
+      // ─── Ridgelines ─────────────────────────────────────────────────
+      // Periodic value noise: smooth, and identical at u = 0 and u = 1, so
+      // a ridge drawn tile after tile has no seam anywhere in it.
+      function noise1d(seed: number, n: number) {
+        const r = srng(seed);
+        const v = Array.from({ length: n }, () => r());
+        return (u: number) => {
+          const x = u * n,
+            i = Math.floor(x),
+            f = x - i;
+          const a = v[((i % n) + n) % n],
+            b = v[(((i + 1) % n) + n) % n];
+          const s = f * f * (3 - 2 * f); // smoothstep
+          return a + (b - a) * s;
+        };
+      }
+      function fbm1d(seed: number) {
+        const a = noise1d(seed + 977, 3),
+          b = noise1d(seed + 1951, 6),
+          c = noise1d(seed + 2903, 12),
+          d = noise1d(seed + 4013, 24);
+        return (u: number) =>
+          (a(u) + 0.5 * b(u) + 0.25 * c(u) + 0.125 * d(u)) / 1.875;
+      }
+      type Ridge = { xf: number; hf: number }[];
+      // hf = height as a fraction of viewport height, measured from the bottom
+      function makeRidge(
+        seed: number,
+        lo: number,
+        hi: number,
+        samples = 120,
+      ): Ridge {
+        const n = fbm1d(seed);
+        const pts: Ridge = [];
+        for (let i = 0; i <= samples; i++) {
+          const u = i / samples;
+          // the exponent keeps the shoulders low and the peaks pointed
+          pts.push({ xf: u, hf: lo + (hi - lo) * Math.pow(n(u), 1.55) });
+        }
+        return pts;
+      }
+      const RIDGE_FAR = makeRidge(11, 0.7, 0.92);
+      const RIDGE_MID = makeRidge(29, 0.44, 0.7);
+      const RIDGE_NEAR = makeRidge(47, 0.26, 0.54);
 
-// ─── The snow line ──────────────────────────────────────────────
-// One quadratic crest, shared by the slope fill and by the firs, so every
-// tree stands on the ground. The crest falls away at the two sides of the
-// viewport and rides highest through the middle; a fir is planted on that
-// curve instead of on a fixed line, which is what used to leave the
-// treeline hovering over the snow at the edges.
-const CREST_F = 0.70;        // the crest, as a fraction of H
-const CREST_DROP = 0.075;    // how far it falls away at each side
-const CREST_LIFT = 0.055;    // ...and how far it rides up through the middle
-const CREST_PAD = 60;        // the slope is drawn this far past each side
+      // ─── Forests ────────────────────────────────────────────────────
+      // One tile of firs per world period, repeated, so the forest is
+      // continuous forever. Three depth bands per shoulder of the run: a
+      // treeline along the crest, mid-slope firs, then big foreground firs
+      // that frame the run and carry the speed of the pan.
+      //
+      // Spacing is stratified, not free random: each band is cut into n equal
+      // slots and every slot gets exactly one fir, nudged off its slot centre by
+      // a seeded jitter. Pure random clumps the shoulder and leaves bald patches;
+      // this keeps the stand evenly spaced with organic irregularity on top.
+      //
+      // Every band is placed by `d0`/`d1` — how far it stands *below the snow
+      // crest*, in units of H — never by an absolute screen line, so a fir follows
+      // the crest down at the sides of the viewport instead of hanging in the air.
+      // `d` doubles as the depth key the forest is sorted by, farthest first.
+      //
+      // Four flat tones instead of two, so a thick shoulder reads as a forest
+      // and not one dark mass: the treeline stays the palest (haze), and each
+      // nearer band picks between its own pair — `tones` — as it is laid out,
+      // dealt round-robin from a seeded offset so both always appear. The left
+      // shoulder carries `extraL` more firs than the right, so the forest is
+      // deliberately denser on the left and no longer symmetrical.
+      const JITTER = 0.38; // how far off its slot centre a fir may sit
+      type Tree = { xf: number; d: number; s: number; tone: number };
+      type Band = {
+        n: number;
+        extraL: number;
+        tones: number[];
+        tonesL?: number[];
+        x0: number;
+        x1: number;
+        d0: number;
+        d1: number;
+        s0: number;
+        s1: number;
+      };
+      const FIRS: Tree[] = (() => {
+        const r = srng(83);
+        const out: Tree[] = [];
+        const bands: Band[] = [
+          {
+            n: 12,
+            extraL: 6,
+            tones: [0],
+            x0: -0.04,
+            x1: 0.26,
+            d0: 0.0,
+            d1: 0.035,
+            s0: 0.07,
+            s1: 0.125,
+          },
+          {
+            n: 10,
+            extraL: 5,
+            tones: [1, 2],
+            x0: -0.02,
+            x1: 0.22,
+            d0: 0.055,
+            d1: 0.135,
+            s0: 0.13,
+            s1: 0.215,
+          },
+          {
+            n: 8,
+            extraL: 3,
+            tones: [2, 3],
+            // The left foreground leans darker than the right: this cycle has
+            // two dark firs for each light one, where the right is an even
+            // [2,3]. The seeded offset decides where in the cycle it starts,
+            // so the weighting is a ratio, not a fixed count per fir.
+            tonesL: [3, 3, 2, 2],
+            x0: -0.06,
+            x1: 0.14,
+            d0: 0.185,
+            d1: 0.4,
+            s0: 0.23,
+            s1: 0.47,
+          },
+        ];
+        for (const mirror of [false, true]) {
+          // left shoulder, then right
+          for (const b of bands) {
+            const n = b.n + (mirror ? 0 : b.extraL); // thicker on the left
+            const slotX = (b.x1 - b.x0) / n;
+            const slotD = (b.d1 - b.d0) / n;
+            // the left shoulder may weight its cycle differently from the right
+            const tones = mirror ? b.tones : (b.tonesL ?? b.tones);
+            const toneAt = Math.floor(r() * tones.length); // where the cycle starts
+            for (let i = 0; i < n; i++) {
+              const jx = (r() - 0.5) * 2 * JITTER;
+              const jd = (r() - 0.5) * 2 * JITTER;
+              let xf = b.x0 + (i + 0.5 + jx) * slotX; // one fir per slot, never two
+              if (mirror) xf = 1 - xf;
+              out.push({
+                xf,
+                d: b.d0 + (i + 0.5 + jd) * slotD,
+                s: b.s0 + r() * (b.s1 - b.s0),
+                tone: tones[(i + toneAt) % tones.length],
+              });
+            }
+          }
+        }
+        return out.sort((p, q) => p.d - q.d); // farthest first, nearest last
+      })();
 
-function snowTopY(x: number): number {
-  const yEdge = H * (CREST_F + CREST_DROP);
-  const yMid = H * (CREST_F - CREST_LIFT);
-  const t = Math.min(1, Math.max(0, (x + CREST_PAD) / (W + CREST_PAD * 2)));
-  const u = 1 - t;
-  return u * u * yEdge + 2 * u * t * yMid + t * t * yEdge;
-}
+      // A PNW spire fir: a bare leader tip, then nine tiers of long branches that
+      // hang and overlap one another. Each tier is a downward chevron, and because
+      // they all overlap the union is solid — no gaps for the snow to show through —
+      // while the sides still serrate the way snow-laden branches do. The lowest
+      // tier ends on a shallow flat hem, so the fir sits on its trunk and on the
+      // snow instead of tapering away to a point.
+      function fir(x: number, baseY: number, h: number, col: string) {
+        const half = h * 0.2; // half the width at the branches' base
+        const apex = baseY - h;
+        const trunkH = h * 0.09;
+        const hemY = baseY - trunkH; // the lowest branches end here
+        const tiers = 9;
+        const hang = h * 0.26; // how deep an inner tier's arms droop
+        const top = apex + h * 0.13; // the bare leader above the first arms
+        const step = (hemY - top) / tiers; // one tier per step... and the last
+        // one hangs just one step deep, so
+        // the bottom stays flat, not cupped
+        const widthAt = (y: number) =>
+          half * Math.pow((y - apex) / (hemY - apex), 0.85);
 
-// The run underfoot: one unbroken field of snow, filled with a single
-// gradient. Nothing is drawn on it — the trees and the ridges overhead
-// are what slide past and show you that you are moving.
-function drawSlope(p: Palette) {
-  const crest = H * CREST_F;
-  const g = wctx.createLinearGradient(0, crest - H * 0.06, 0, H + 120);
-  g.addColorStop(0, p.snow);
-  g.addColorStop(1, p.snow2);
-  wctx.fillStyle = g;
-  wctx.beginPath();
-  wctx.moveTo(-CREST_PAD, H + 600);
-  wctx.lineTo(-CREST_PAD, snowTopY(-CREST_PAD));
-  wctx.quadraticCurveTo(W * 0.5, H * (CREST_F - CREST_LIFT), W + CREST_PAD, snowTopY(W + CREST_PAD));
-  wctx.lineTo(W + CREST_PAD, H + 600);
-  wctx.closePath();
-  wctx.fill();
-}
+        wctx.fillStyle = col;
+        const trunkW = Math.max(1.2, half * 0.15);
+        wctx.fillRect(x - trunkW / 2, hemY, trunkW, trunkH); // the trunk it stands on
 
-// The forest is drawn as one forest, not tile by tile: every visible fir
-// goes into one list sorted by depth, so a pale far tree can never end up
-// painted over a dark near one from the tile next door.
-type Placed = { x: number; y: number; h: number; tone: number; d: number };
-const PLACED: Placed[] = [];
+        const lead = widthAt(top);
+        wctx.beginPath(); // the leader, up to a point
+        wctx.moveTo(x, apex);
+        wctx.lineTo(x + lead, top);
+        wctx.lineTo(x - lead, top);
+        wctx.closePath();
+        wctx.fill();
 
-function drawFirs(camX: number, p: Palette) {
-  const tones = [p.tree1, p.tree2, p.tree3, p.tree4];
-  const off = wrap(camX, W);
-  PLACED.length = 0;
-  for (let tile = -1; tile <= 2; tile++) {
-    const tileX = tile * W - off;
-    for (const t of FIRS) {
-      // never let a fir be wider than a fifth of the screen (phones)
-      const h = Math.min(t.s * H, W * 0.55);
-      const sx = tileX + t.xf * W;
-      if (sx < -h || sx > W + h) continue;            // off to the side
-      // planted on the snow, not on a fixed line: the ground it stands on is
-      // the crest curve at its own x, and `d` is how far below that it is
-      const sy = snowTopY(sx) + t.d * H;
-      if (sy - h > H + 80 || sy < -80) continue;      // off the top or bottom
-      PLACED.push({ x: sx, y: sy, h, tone: t.tone, d: t.d });
-    }
-  }
-  PLACED.sort((a, b) => a.d - b.d);                   // farthest first
-  for (const t of PLACED) fir(t.x, t.y, t.h, tones[t.tone]);
-}
+        for (let i = 0; i < tiers; i++) {
+          // the branches, each hanging a level
+          const y = top + i * step;
+          const w = widthAt(y);
+          const lowest = i === tiers - 1;
+          const d = lowest ? step : Math.min(hang, hemY - y);
+          wctx.beginPath();
+          wctx.moveTo(x - w, y);
+          wctx.lineTo(x + w, y);
+          if (lowest) {
+            // the bottom hem: level in the middle, the arms drooping at the sides
+            wctx.quadraticCurveTo(
+              x + w * 0.7,
+              y + d * 0.78,
+              x + w * 0.42,
+              y + d,
+            );
+            wctx.lineTo(x - w * 0.42, y + d);
+            wctx.quadraticCurveTo(x - w * 0.7, y + d * 0.78, x - w, y);
+          } else {
+            wctx.quadraticCurveTo(x + w * 0.62, y + d * 0.5, x, y + d);
+            wctx.quadraticCurveTo(x - w * 0.62, y + d * 0.5, x - w, y);
+          }
+          wctx.closePath();
+          wctx.fill();
+        }
+      }
 
-function drawStars(camX: number, p: Palette) {
-  if (!p.night) return;
-  const off = wrap(camX * 0.03, W);
-  for (const s of STARS) {
-    wctx.beginPath();
-    wctx.arc(wrap(s.xf * W - off, W), s.yf * H, s.rad, 0, Math.PI * 2);
-    wctx.fillStyle = `rgba(255,255,255,${s.a})`;
-    wctx.fill();
-  }
-}
+      // ─── Stars overhead ─────────────────────────────────────────────
+      const STARS = (() => {
+        const r = srng(7);
+        return Array.from({ length: 220 }, () => ({
+          xf: r(),
+          yf: r() * 0.55,
+          rad: 0.35 + r() * 0.9,
+          a: 0.25 + r() * 0.65,
+        }));
+      })();
 
-// ─── Camera ─────────────────────────────────────────────────────
-const cam = { x: 0 };                    // world pixels panned, horizontally only
+      // ─── Drawing ────────────────────────────────────────────────────
+      const wrap = (v: number, m: number) => ((v % m) + m) % m;
 
-function draw() {
-  const p = pal();
-  wctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const sky = wctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, p.skyHi);
-  sky.addColorStop(1, p.skyLo);
-  wctx.fillStyle = sky;
-  wctx.fillRect(0, 0, W, H);
-  drawStars(cam.x, p);
-  drawRidge(RIDGE_FAR,  cam.x, 0.06, p.mtnFar);
-  drawRidge(RIDGE_MID,  cam.x, 0.18, p.mtnMid);
-  drawRidge(RIDGE_NEAR, cam.x, 0.40, p.mtnNear);
-  drawSlope(p);
-  drawFirs(cam.x, p);
-}
+      // One ridge, tiled across the viewport at its own depth, so the three
+      // ridgelines drift at different speeds and give the scene its depth.
+      function drawRidge(
+        ridge: Ridge,
+        camX: number,
+        depth: number,
+        col: string,
+      ) {
+        const off = wrap(camX * depth, W);
+        wctx.fillStyle = col;
+        wctx.beginPath();
+        wctx.moveTo(-off - W, H + 600);
+        for (let tile = -1; tile <= 1; tile++) {
+          const tileX = tile * W - off;
+          for (const p of ridge) wctx.lineTo(tileX + p.xf * W, H * (1 - p.hf));
+        }
+        wctx.lineTo(2 * W - off, H + 600);
+        wctx.closePath();
+        wctx.fill();
+      }
 
-function resize() {
-  dpr = Math.min(2, window.devicePixelRatio || 1);
-  W = window.innerWidth;
-  H = window.innerHeight;
-  worldCanvas.width = Math.round(W * dpr);
-  worldCanvas.height = Math.round(H * dpr);
-  worldCanvas.style.width = W + 'px';
-  worldCanvas.style.height = H + 'px';
-}
+      // ─── The snow line ──────────────────────────────────────────────
+      // One quadratic crest, shared by the slope fill and by the firs, so every
+      // tree stands on the ground. The crest falls away at the two sides of the
+      // viewport and rides highest through the middle; a fir is planted on that
+      // curve instead of on a fixed line, which is what used to leave the
+      // treeline hovering over the snow at the edges.
+      const CREST_F = 0.7; // the crest, as a fraction of H
+      const CREST_DROP = 0.075; // how far it falls away at each side
+      const CREST_LIFT = 0.055; // ...and how far it rides up through the middle
+      const CREST_PAD = 60; // the slope is drawn this far past each side
 
-// ─── The run: pan the camera through the scene you are looking at ─
-type Dir = 'left' | 'upleft' | 'up' | 'upright' | 'right';
-const GOES_LEFT: Record<Dir, boolean> = { left: true, upleft: true, up: false, upright: false, right: false };
-// Reverses the camera's travel, not the arrow. An angled run mirrors to its
-// opposite angle; an upright run went right for one period, so it mirrors to
-// upleft, the one-period run to the left.
-const MIRROR: Record<Dir, Dir> = { left: 'right', right: 'left', upleft: 'upright', up: 'upleft', upright: 'upleft' };
-const PERIODS_STRAIGHT = 2;   // world periods a green / double-black run crosses
-const PERIODS_ANGLED = 1;     // ...and a blue / black one. Whole periods every
-                              //    time, so the trees and the ground come back
-                              //    identical. No run ever climbs or drops.
-const PAN_MS = 1600;          // the time a two-period run takes; a shorter run
-                              // takes proportionally less, so the world always
-                              // slides past at the very same speed.
-                              // (Angled runs traverse level, just like the
-                              // straight ones — only half as far.)
+      function snowTopY(x: number): number {
+        const yEdge = H * (CREST_F + CREST_DROP);
+        const yMid = H * (CREST_F - CREST_LIFT);
+        const t = Math.min(
+          1,
+          Math.max(0, (x + CREST_PAD) / (W + CREST_PAD * 2)),
+        );
+        const u = 1 - t;
+        return u * u * yEdge + 2 * u * t * yMid + t * t * yEdge;
+      }
 
-let pan: {
-  t0: number; dur: number;
-  fx: number; tx: number;                           // the anchors it runs between
-  revealed: boolean; onReveal: () => void;
-} | null = null;
+      // The run underfoot: one unbroken field of snow, filled with a single
+      // gradient. Nothing is drawn on it — the trees and the ridges overhead
+      // are what slide past and show you that you are moving.
+      function drawSlope(p: Palette) {
+        const crest = H * CREST_F;
+        const g = wctx.createLinearGradient(0, crest - H * 0.06, 0, H + 120);
+        g.addColorStop(0, p.snow);
+        g.addColorStop(1, p.snow2);
+        wctx.fillStyle = g;
+        wctx.beginPath();
+        wctx.moveTo(-CREST_PAD, H + 600);
+        wctx.lineTo(-CREST_PAD, snowTopY(-CREST_PAD));
+        wctx.quadraticCurveTo(
+          W * 0.5,
+          H * (CREST_F - CREST_LIFT),
+          W + CREST_PAD,
+          snowTopY(W + CREST_PAD),
+        );
+        wctx.lineTo(W + CREST_PAD, H + 600);
+        wctx.closePath();
+        wctx.fill();
+      }
 
-let raf = 0;
-function schedule() { if (!raf) raf = requestAnimationFrame(tick); }
+      // The forest is drawn as one forest, not tile by tile: every visible fir
+      // goes into one list sorted by depth, so a pale far tree can never end up
+      // painted over a dark near one from the tile next door.
+      type Placed = {
+        x: number;
+        y: number;
+        h: number;
+        tone: number;
+        d: number;
+      };
+      const PLACED: Placed[] = [];
 
-// A run always crosses a whole number of world periods, so wherever it
-// starts from, it stops on the same stretch of ground. Clicking while a run
-// is already in flight is not ignored: you turn around and ski back.
-function runPan(dir: Dir, onReveal: () => void) {
-  const straight = dir === 'left' || dir === 'right';
-  const sign = GOES_LEFT[dir] ? -1 : 1;
-  const total = W * (straight ? PERIODS_STRAIGHT : PERIODS_ANGLED);
-  const anchor = Math.round(cam.x / W) * W;         // the nearest settled view
-  const tx = anchor + sign * total;
-  const span = Math.abs(tx - cam.x);
-  pan = {
-    t0: performance.now(),
-    dur: Math.max(300, PAN_MS * (span / (W * PERIODS_STRAIGHT))),  // one speed
-    fx: cam.x, tx,
-    revealed: false,
-    onReveal,
-  };
-  schedule();
-}
+      function drawFirs(camX: number, p: Palette) {
+        const tones = [p.tree1, p.tree2, p.tree3, p.tree4];
+        const off = wrap(camX, W);
+        PLACED.length = 0;
+        for (let tile = -1; tile <= 2; tile++) {
+          const tileX = tile * W - off;
+          for (const t of FIRS) {
+            // never let a fir be wider than a fifth of the screen (phones)
+            const h = Math.min(t.s * H, W * 0.55);
+            const sx = tileX + t.xf * W;
+            if (sx < -h || sx > W + h) continue; // off to the side
+            // planted on the snow, not on a fixed line: the ground it stands on is
+            // the crest curve at its own x, and `d` is how far below that it is
+            const sy = snowTopY(sx) + t.d * H;
+            if (sy - h > H + 80 || sy < -80) continue; // off the top or bottom
+            PLACED.push({ x: sx, y: sy, h, tone: t.tone, d: t.d });
+          }
+        }
+        PLACED.sort((a, b) => a.d - b.d); // farthest first
+        for (const t of PLACED) fir(t.x, t.y, t.h, tones[t.tone]);
+      }
 
-// Smooth in and out at both ends, so the run starts and stops gently.
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      function drawStars(camX: number, p: Palette) {
+        if (!p.night) return;
+        const off = wrap(camX * 0.03, W);
+        for (const s of STARS) {
+          wctx.beginPath();
+          wctx.arc(wrap(s.xf * W - off, W), s.yf * H, s.rad, 0, Math.PI * 2);
+          wctx.fillStyle = `rgba(255,255,255,${s.a})`;
+          wctx.fill();
+        }
+      }
 
-function tick(ts: number) {
-  raf = 0;
-  let more = false;
+      // ─── Camera ─────────────────────────────────────────────────────
+      const cam = { x: 0 }; // world pixels panned, horizontally only
 
-  if (pan) {
-    const t = Math.min((ts - pan.t0) / pan.dur, 1);
-    const p = easeInOut(t);
-    cam.x = pan.fx + (pan.tx - pan.fx) * p;
-    if (!pan.revealed && p >= 0.7) { pan.revealed = true; pan.onReveal(); }
-    if (t < 1) more = true;
-    else pan = null;                                // the camera stays where it stopped
-  }
+      function draw() {
+        const p = pal();
+        wctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const sky = wctx.createLinearGradient(0, 0, 0, H);
+        sky.addColorStop(0, p.skyHi);
+        sky.addColorStop(1, p.skyLo);
+        wctx.fillStyle = sky;
+        wctx.fillRect(0, 0, W, H);
+        drawStars(cam.x, p);
+        drawRidge(RIDGE_FAR, cam.x, 0.06, p.mtnFar);
+        drawRidge(RIDGE_MID, cam.x, 0.18, p.mtnMid);
+        drawRidge(RIDGE_NEAR, cam.x, 0.4, p.mtnNear);
+        drawSlope(p);
+        drawFirs(cam.x, p);
+      }
 
-  draw();
-  if (more) schedule();
-}
+      function resize() {
+        dpr = Math.min(2, window.devicePixelRatio || 1);
+        W = window.innerWidth;
+        H = window.innerHeight;
+        worldCanvas.width = Math.round(W * dpr);
+        worldCanvas.height = Math.round(H * dpr);
+        worldCanvas.style.width = W + "px";
+        worldCanvas.style.height = H + "px";
+      }
 
-// ─── Navigation ─────────────────────────────────────────────────
-let lastDir: Dir = 'left';
-// The way back, so Back retraces the runs you took to get here — the sub-sign
-// returns to the trail map, and each list returns to the sub-sign.
-let current = 'layer-landing';
-const trail: string[] = [];
+      // ─── The run: pan the camera through the scene you are looking at ─
+      type Dir = "left" | "upleft" | "up" | "upright" | "right";
+      const GOES_LEFT: Record<Dir, boolean> = {
+        left: true,
+        upleft: true,
+        up: false,
+        upright: false,
+        right: false,
+      };
+      // Reverses the camera's travel, not the arrow. An angled run mirrors to its
+      // opposite angle; an upright run went right for one period, so it mirrors to
+      // upleft, the one-period run to the left.
+      const MIRROR: Record<Dir, Dir> = {
+        left: "right",
+        right: "left",
+        upleft: "upright",
+        up: "upleft",
+        upright: "upleft",
+      };
+      const PERIODS_STRAIGHT = 2; // world periods a green / double-black run crosses
+      const PERIODS_ANGLED = 1; // ...and a blue / black one. Whole periods every
+      //    time, so the trees and the ground come back
+      //    identical. No run ever climbs or drops.
+      const PAN_MS = 1600; // the time a two-period run takes; a shorter run
+      // takes proportionally less, so the world always
+      // slides past at the very same speed.
+      // (Angled runs traverse level, just like the
+      // straight ones — only half as far.)
 
-// Forward: a run you pick. Where you came from goes on the trail, so Back
-// can retrace it. The Back row is excluded — it is a sign's own way home, not
-// a run, and it is handled below.
-document.querySelectorAll<HTMLButtonElement>('.run-btn:not([data-back])').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = 'layer-' + btn.dataset.target!;
-    const dir = btn.dataset.dir as Dir;
-    lastDir = dir;
-    trail.push(current);
-    current = target;
+      let pan: {
+        t0: number;
+        dur: number;
+        fx: number;
+        tx: number; // the anchors it runs between
+        revealed: boolean;
+        onReveal: () => void;
+      } | null = null;
 
-    showLayer(null);        // the sign and your name slide away as you push off
-    if (reduced) { showLayer(target); return; }
-    runPan(dir, () => showLayer(target));         // pushing off along the traverse
-  });
-});
+      let raf = 0;
+      function schedule() {
+        if (!raf) raf = requestAnimationFrame(tick);
+      }
 
-// Back, in one place and one behaviour, for both kinds. A list's Back retraces
-// the run that got you there; a sign's own Back row pans the way its own arrow
-// points, because it is a run like any other. Either way it returns to the
-// layer it was reached from — so a sign nested under another sign goes home to
-// the sign above it rather than to the map.
-//
-// It deliberately does NOT set `lastDir`: that must keep meaning "the run you
-// skied to get here", or two Backs in a row would mirror an already-mirrored
-// direction and drift further off course each time.
-document.querySelectorAll<HTMLButtonElement>('[data-back]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const back = trail.pop() || 'layer-landing';
-    const dir = (btn.dataset.dir as Dir) || MIRROR[lastDir];
-    current = back;
-    showLayer(null);
-    if (reduced) { showLayer(back); return; }
-    runPan(dir, () => showLayer(back));
-  });
-});
+      // A run always crosses a whole number of world periods, so wherever it
+      // starts from, it stops on the same stretch of ground. Clicking while a run
+      // is already in flight is not ignored: you turn around and ski back.
+      function runPan(dir: Dir, onReveal: () => void) {
+        const straight = dir === "left" || dir === "right";
+        const sign = GOES_LEFT[dir] ? -1 : 1;
+        const total = W * (straight ? PERIODS_STRAIGHT : PERIODS_ANGLED);
+        const anchor = Math.round(cam.x / W) * W; // the nearest settled view
+        const tx = anchor + sign * total;
+        const span = Math.abs(tx - cam.x);
+        pan = {
+          t0: performance.now(),
+          dur: Math.max(300, PAN_MS * (span / (W * PERIODS_STRAIGHT))), // one speed
+          fx: cam.x,
+          tx,
+          revealed: false,
+          onReveal,
+        };
+        schedule();
+      }
 
-window.addEventListener('resize', () => { resize(); draw(); });
+      // Smooth in and out at both ends, so the run starts and stops gently.
+      const easeInOut = (t: number) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-resize();
-draw();
-</script>
+      function tick(ts: number) {
+        raf = 0;
+        let more = false;
 
-</body>
+        if (pan) {
+          const t = Math.min((ts - pan.t0) / pan.dur, 1);
+          const p = easeInOut(t);
+          cam.x = pan.fx + (pan.tx - pan.fx) * p;
+          if (!pan.revealed && p >= 0.7) {
+            pan.revealed = true;
+            pan.onReveal();
+          }
+          if (t < 1) more = true;
+          else pan = null; // the camera stays where it stopped
+        }
+
+        draw();
+        if (more) schedule();
+      }
+
+      // ─── Navigation ─────────────────────────────────────────────────
+      let lastDir: Dir = "left";
+      // The way back, so Back retraces the runs you took to get here — the sub-sign
+      // returns to the trail map, and each list returns to the sub-sign.
+      let current = "layer-landing";
+      const trail: string[] = [];
+
+      // Forward: a run you pick. Where you came from goes on the trail, so Back
+      // can retrace it. The Back row is excluded — it is a sign's own way home, not
+      // a run, and it is handled below.
+      document
+        .querySelectorAll<HTMLButtonElement>(".run-btn:not([data-back])")
+        .forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const target = "layer-" + btn.dataset.target!;
+            const dir = btn.dataset.dir as Dir;
+            lastDir = dir;
+            trail.push(current);
+            current = target;
+
+            showLayer(null); // the sign and your name slide away as you push off
+            if (reduced) {
+              showLayer(target);
+              return;
+            }
+            runPan(dir, () => showLayer(target)); // pushing off along the traverse
+          });
+        });
+
+      // Back, in one place and one behaviour, for both kinds. A list's Back retraces
+      // the run that got you there; a sign's own Back row pans the way its own arrow
+      // points, because it is a run like any other. Either way it returns to the
+      // layer it was reached from — so a sign nested under another sign goes home to
+      // the sign above it rather than to the map.
+      //
+      // It deliberately does NOT set `lastDir`: that must keep meaning "the run you
+      // skied to get here", or two Backs in a row would mirror an already-mirrored
+      // direction and drift further off course each time.
+      document
+        .querySelectorAll<HTMLButtonElement>("[data-back]")
+        .forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const back = trail.pop() || "layer-landing";
+            const dir = (btn.dataset.dir as Dir) || MIRROR[lastDir];
+            current = back;
+            showLayer(null);
+            if (reduced) {
+              showLayer(back);
+              return;
+            }
+            runPan(dir, () => showLayer(back));
+          });
+        });
+
+      window.addEventListener("resize", () => {
+        resize();
+        draw();
+      });
+
+      resize();
+      draw();
+    </script>
+  </body>
 </html>
 
 <style is:global>
-/* ─── Variables ───────────────────────────────── */
-:root {
-  --bg:       #F3ECE2;
-  --ink:      #3B2A3F;
-  --muted:    #7A6577;
-  /* No peach: the old coral sat around 2.5:1 on the cream, too low for link
+  /* ─── Variables ───────────────────────────────── */
+  :root {
+    --bg: #f3ece2;
+    --ink: #3b2a3f;
+    --muted: #7a6577;
+    /* No peach: the old coral sat around 2.5:1 on the cream, too low for link
      text and weak for the entry rule. Accents fall back to the ink, which is
      high contrast in both modes; night ski still overrides this with amber. */
-  --accent:   var(--ink);
-  --sky-hi:   #2188c9;
-  --sky-lo:   #a8d8f2;
-  --mtn-far:  #7caec8;
-  --mtn-mid:  #4d8aaa;
-  --mtn-near: #2f6682;
-  --snow:     #EEF3F8;
-  --snow2:    #c8d8e4;
-  /* fir tones, farthest / palest to nearest / darkest */
-  --tree-1:   #8aafc4;
-  --tree-2:   #6f9aa4;
-  --tree-3:   #47705c;
-  --tree-4:   #1E4024;
-  --sign-bg:  #2A1F14;
-  --sign-rim: #9B7820;
-  --sign-txt: #F5EDD8;
-  --post:     #5C3D1E;
-}
-[data-mode='night'] {
-  --bg:       #0b1510;
-  --ink:      #EDE6D8;
-  --muted:    #A3AFA0;
-  --accent:   #FFB340;
-  --sky-hi:   #020d18;
-  --sky-lo:   #091d30;
-  --mtn-far:  #0d2018;
-  --mtn-mid:  #091510;
-  --mtn-near: #050d08;
-  --snow:     #b0c4d0;
-  --snow2:    #7a99ab;
-  /* fir tones, farthest / palest to nearest / darkest */
-  --tree-1:   #0d2015;
-  --tree-2:   #0a1a11;
-  --tree-3:   #07130c;
-  --tree-4:   #040e07;
-  --sign-bg:  #1a1208;
-  --sign-rim: #7a5c10;
-  --sign-txt: #E8D9B8;
-  --post:     #3a2510;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  overflow: hidden;
-  font: 400 1.1rem / 1.65 'Fraunces Variable', Georgia, serif;
-  font-variation-settings: 'SOFT' 100;
-  background: var(--bg);
-  color: var(--ink);
-}
-
-/* ─── Mode button ────────────────────────────── */
-#mode-btn {
-  position: fixed; top: 1rem; right: 1rem; z-index: 300;
-  font: 600 0.95rem 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  background: var(--sign-bg); color: var(--sign-txt);
-  border: 2px solid var(--sign-rim); border-radius: 7px;
-  padding: 0.3rem 1rem; cursor: pointer;
-  transition: background 0.3s;
-}
-#mode-btn:hover { background: var(--sign-rim); }
-#mode-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* ─── World: one canvas paints the whole scene ─ */
-/* Landing page, runs and section pages are all this canvas at
-   different camera positions — nothing else draws scenery. */
-#world {
-  position: fixed; inset: 0; z-index: 0;
-  display: block; width: 100%; height: 100%;
-  pointer-events: none;
-  background: var(--bg);
-}
-
-/* ─── Layers ─────────────────────────────────── */
-.layer {
-  position: fixed; inset: 0; z-index: 10;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.35s ease;
-}
-.layer.active { opacity: 1; pointer-events: all; }
-
-/* ─── Landing layer ──────────────────────────── */
-#layer-landing {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;      /* the sign stands mid-page, not on the snow line */
-  /* the content centres in the box *inside* the padding, so this top pad
-     walks the sign down by half of it — a nudge, not a drop to the floor.
-     .sub-layer uses the same value, so both signs sit at the same height. */
-  padding-top: 15vh;
-}
-.site-header {
-  position: absolute; top: clamp(2.8rem, 9vh, 4.8rem);
-  left: 0; right: 0; text-align: center; pointer-events: none;
-  padding-inline: 1.25rem;              /* the name and line never touch the edge */
-}
-.site-header h1 {
-  font: 700 clamp(2.2rem, 7.6vw, 4.9rem) / 1 'Fraunces Variable', Georgia, serif;
-  font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 144;
-  color: var(--sign-txt);
+    --accent: var(--ink);
+    --sky-hi: #2188c9;
+    --sky-lo: #a8d8f2;
+    --mtn-far: #7caec8;
+    --mtn-mid: #4d8aaa;
+    --mtn-near: #2f6682;
+    --snow: #eef3f8;
+    --snow2: #c8d8e4;
+    /* fir tones, farthest / palest to nearest / darkest */
+    --tree-1: #8aafc4;
+    --tree-2: #6f9aa4;
+    --tree-3: #47705c;
+    --tree-4: #1e4024;
+    --sign-bg: #2a1f14;
+    --sign-rim: #9b7820;
+    --sign-txt: #f5edd8;
+    --post: #5c3d1e;
+  }
+  [data-mode="night"] {
+    --bg: #0b1510;
+    --ink: #ede6d8;
+    --muted: #a3afa0;
+    --accent: #ffb340;
+    --sky-hi: #020d18;
+    --sky-lo: #091d30;
+    --mtn-far: #0d2018;
+    --mtn-mid: #091510;
+    --mtn-near: #050d08;
+    --snow: #b0c4d0;
+    --snow2: #7a99ab;
+    /* fir tones, farthest / palest to nearest / darkest */
+    --tree-1: #0d2015;
+    --tree-2: #0a1a11;
+    --tree-3: #07130c;
+    --tree-4: #040e07;
+    --sign-bg: #1a1208;
+    --sign-rim: #7a5c10;
+    --sign-txt: #e8d9b8;
+    --post: #3a2510;
   }
 
-/* ─── Trail sign ─────────────────────────────── */
-/* Flat by design: solid fills, no borders, no drop shadows, no gradients
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    overflow: hidden;
+    font:
+      400 1.1rem / 1.65 "Fraunces Variable",
+      Georgia,
+      serif;
+    font-variation-settings: "SOFT" 100;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  /* ─── Mode button ────────────────────────────── */
+  #mode-btn {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 300;
+    font:
+      600 0.95rem "Barlow Condensed",
+      sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--sign-bg);
+    color: var(--sign-txt);
+    border: 2px solid var(--sign-rim);
+    border-radius: 7px;
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  #mode-btn:hover {
+    background: var(--sign-rim);
+  }
+  #mode-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* ─── World: one canvas paints the whole scene ─ */
+  /* Landing page, runs and section pages are all this canvas at
+   different camera positions — nothing else draws scenery. */
+  #world {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: var(--bg);
+  }
+
+  /* ─── Layers ─────────────────────────────────── */
+  .layer {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .layer.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ─── Landing layer ──────────────────────────── */
+  #layer-landing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* the sign stands mid-page, not on the snow line */
+    /* the content centres in the box *inside* the padding, so this top pad
+     walks the sign down by half of it — a nudge, not a drop to the floor.
+     .sub-layer uses the same value, so both signs sit at the same height. */
+    padding-top: 11vh;
+  }
+  .site-header {
+    position: absolute;
+    top: clamp(2.8rem, 9vh, 4.8rem);
+    left: 0;
+    right: 0;
+    text-align: center;
+    pointer-events: none;
+    padding-inline: 1.25rem; /* the name and line never touch the edge */
+  }
+  .site-header h1 {
+    font:
+      700 clamp(2.2rem, 7.6vw, 4.9rem) / 1 "Fraunces Variable",
+      Georgia,
+      serif;
+    font-variation-settings:
+      "SOFT" 100,
+      "WONK" 1,
+      "opsz" 144;
+    color: var(--sign-txt);
+  }
+
+  /* ─── Trail sign ─────────────────────────────── */
+  /* Flat by design: solid fills, no borders, no drop shadows, no gradients
    and no motion. The only softness is the corner radius. */
-.sign-wrap { display: flex; flex-direction: column; align-items: center; }
-.sign-cap {
-  font: 700 clamp(1.35rem, 3.4vw, 1.7rem) 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  background: var(--post); color: var(--sign-txt);
-  padding: 0.4rem 2.6rem;
-  border-radius: 10px 10px 0 0;
-  /* A tab, not a bar. Do not pin this to the board's width: a full-length cap
+  .sign-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .sign-cap {
+    font:
+      700 clamp(1.35rem, 3.4vw, 1.7rem) "Barlow Condensed",
+      sans-serif;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: var(--post);
+    color: var(--sign-txt);
+    padding: 0.4rem 2.6rem;
+    border-radius: 10px 10px 0 0;
+    /* A tab, not a bar. Do not pin this to the board's width: a full-length cap
      reads as a header strip, and the overhang is what makes it a sign cap.
      The cap is the post's brown, so the sign reads as one piece of timber
      rather than a gold header bolted to a brown one. */
-}
-.sign-board {
-  background: var(--sign-bg);
-  /* the board is also the sign's dark brown frame, showing between the runs
+  }
+  .sign-board {
+    background: var(--sign-bg);
+    /* the board is also the sign's dark brown frame, showing between the runs
      and around the edge — so the `padding` and the `gap` below are both
      frame thickness, not just spacing */
-  padding: 0.78rem 0.92rem;
-  /* a real width, not just min-width: the board is a content-sized flex
+    padding: 0.78rem 0.92rem;
+    /* a real width, not just min-width: the board is a content-sized flex
      item, so min-width alone would leave it at its narrowest */
-  width: min(480px, 90vw);
-  display: flex; flex-direction: column; gap: 0.62rem;
-  /* rounded on all four: the cap is narrower than the board, so the board's
+    width: min(480px, 90vw);
+    display: flex;
+    flex-direction: column;
+    gap: 0.62rem;
+    /* rounded on all four: the cap is narrower than the board, so the board's
      top corners stick out and are what the eye reads as the sign's top two.
      Leaving them square while the bottom pair was rounded was the mismatch. */
-  border-radius: 10px;
-}
-.post-shaft {
-  width: 18px; height: 84px;
-  background: var(--post);
-  border-radius: 0 0 4px 4px;
-}
-.run-btn {
-  display: flex; align-items: center; gap: 0.85rem;
-  width: 100%; padding: 0.65rem 0.95rem;
-  border: 0;                     /* the UA gives <button> a 2px border */
-  appearance: none;              /* ...and a grey background on some engines */
-  border-radius: 7px;
-  cursor: pointer; text-align: left;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
-  position: relative; overflow: hidden;
-}
-/* hover is a flat wash of light, never a move or a scale */
-.run-btn::after {
-  content: ''; position: absolute; inset: 0;
-  background: rgba(255,255,255,0.10);
-  opacity: 0;
-  transition: opacity 0.18s;
-}
-.run-btn:hover::after { opacity: 1; }
-.run-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.run-green  { background: #1b6238; color: #caf0db; }
-.run-blue   { background: #163672; color: #c4d8ff; }
-.run-black  { background: #1c1c1c; color: #ddd;    }
-.run-dblack { background: #0e0e0e; color: #ccc;    }
-/* Back to the map. Not a difficulty, so it is not given one: it wears the
+    border-radius: 10px;
+  }
+  .post-shaft {
+    width: 18px;
+    height: 84px;
+    background: var(--post);
+    border-radius: 0 0 4px 4px;
+  }
+  .run-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 0.65rem 0.95rem;
+    border: 0; /* the UA gives <button> a 2px border */
+    appearance: none; /* ...and a grey background on some engines */
+    border-radius: 7px;
+    cursor: pointer;
+    text-align: left;
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    position: relative;
+    overflow: hidden;
+  }
+  /* hover is a flat wash of light, never a move or a scale */
+  .run-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .run-btn:hover::after {
+    opacity: 1;
+  }
+  .run-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .run-green {
+    background: #1b6238;
+    color: #caf0db;
+  }
+  .run-blue {
+    background: #163672;
+    color: #c4d8ff;
+  }
+  .run-black {
+    background: #1c1c1c;
+    color: #ddd;
+  }
+  .run-dblack {
+    background: #0e0e0e;
+    color: #ccc;
+  }
+  /* Back to the map. Not a difficulty, so it is not given one: it wears the
    post's brown, the same as the cap and the sign's timber, and carries no
    rating symbol. A rating colour here would claim a grade the run does not
    have — and double black, of all things, is the hardest run on the board. */
-.run-back   { background: var(--post); color: var(--sign-txt); }
-.run-arrow { flex-shrink: 0; display: flex; align-items: center; }
-.run-arrow svg { width: clamp(34px, 4.6vw, 44px); height: auto; }
-.run-label { display: flex; flex-direction: row; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
-/* never wraps: a taller row on one sign than the other would undo the point
+  .run-back {
+    background: var(--post);
+    color: var(--sign-txt);
+  }
+  .run-arrow {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+  .run-arrow svg {
+    width: clamp(34px, 4.6vw, 44px);
+    height: auto;
+  }
+  .run-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1;
+    min-width: 0;
+  }
+  /* never wraps: a taller row on one sign than the other would undo the point
    of them being the same object. The board is wide enough at every size. */
-.run-name  { font-size: clamp(1.1rem, 2.6vw, 1.38rem); font-weight: 600; line-height: 1; white-space: nowrap; }
-/* the difficulty symbol rides the right-hand end of its row, like the
+  .run-name {
+    font-size: clamp(1.1rem, 2.6vw, 1.38rem);
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  /* the difficulty symbol rides the right-hand end of its row, like the
    rating plate on the far end of a real sign.
 
    Sized by HEIGHT, not width, and that is what keeps the four in agreement.
@@ -856,120 +1193,323 @@ body {
    since each is centred in its own box, on the same centre line too. The
    double black's box is wider (31 units, for two diamonds) so its width
    follows from its own aspect ratio; no hand-tuned multiplier needed. */
-.run-tag {
-  --sym-h: clamp(21px, 2.9vw, 28px);
-  --sym-w: calc(var(--sym-h) * 31 / 18);   /* the double black: the widest case */
-  margin-left: auto;
-  display: flex; align-items: center; justify-content: center;
-  width: var(--sym-w);                    /* one box for all four… */
-  flex-shrink: 0;                         /* …so the centres must not be squeezed */
-  opacity: 0.8;
-}
-.run-tag svg { height: var(--sym-h); width: auto; }
+  .run-tag {
+    --sym-h: clamp(21px, 2.9vw, 28px);
+    --sym-w: calc(
+      var(--sym-h) * 31 / 18
+    ); /* the double black: the widest case */
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sym-w); /* one box for all four… */
+    flex-shrink: 0; /* …so the centres must not be squeezed */
+    opacity: 0.8;
+  }
+  .run-tag svg {
+    height: var(--sym-h);
+    width: auto;
+  }
 
-/* Standing still: ask for less motion and the pan does not happen. */
-@media (prefers-reduced-motion: reduce) {
-  .layer { transition: none; }
-}
+  /* Standing still: ask for less motion and the pan does not happen. */
+  @media (prefers-reduced-motion: reduce) {
+    .layer {
+      transition: none;
+    }
+  }
 
-/* ─── Section layers — text overlaid on world ─── */
-.section-layer { overflow: hidden; }
+  /* ─── Section layers — text overlaid on world ─── */
+  .section-layer {
+    overflow: hidden;
+  }
 
-.sec-scroll {
-  position: absolute; inset: 0;
-  overflow-y: auto;
-}
+  .sec-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+  }
 
-.sec-inner {
-  max-width: 48rem;
-  margin: 0 auto;
-  padding: 2.5rem 2rem 6rem;
-}
-@media (min-width: 700px) {
-  .sec-inner { padding: 3rem 3.5rem 7rem; }
-}
+  .sec-inner {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 6rem;
+  }
+  @media (min-width: 700px) {
+    .sec-inner {
+      padding: 3rem 3.5rem 7rem;
+    }
+  }
 
-.back-btn {
-  font: 600 0.9rem 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  background: none; border: 1.5px solid var(--muted);
-  border-radius: 4px; color: var(--muted);
-  padding: 0.28rem 0.85rem; cursor: pointer; margin-bottom: 1.4rem;
-  transition: border-color 0.2s, color 0.2s;
-}
-.back-btn:hover { border-color: var(--ink); color: var(--ink); }
-.back-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .back-btn {
+    font:
+      600 0.9rem "Barlow Condensed",
+      sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: none;
+    border: 1.5px solid var(--muted);
+    border-radius: 4px;
+    color: var(--muted);
+    padding: 0.28rem 0.85rem;
+    cursor: pointer;
+    margin-bottom: 1.4rem;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+  .back-btn:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .back-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 
-.green-badge  { background: #1b6238; color: #caf0db; }
-.blue-badge   { background: #163672; color: #c4d8ff; }
-.black-badge  { background: #1c1c1c; color: #ddd; }
-.dblack-badge { background: #0e0e0e; color: #ccc; border: 1px solid #333; }
+  .green-badge {
+    background: #1b6238;
+    color: #caf0db;
+  }
+  .blue-badge {
+    background: #163672;
+    color: #c4d8ff;
+  }
+  .black-badge {
+    background: #1c1c1c;
+    color: #ddd;
+  }
+  .dblack-badge {
+    background: #0e0e0e;
+    color: #ccc;
+    border: 1px solid #333;
+  }
 
-h2 {
-  font: 700 clamp(1.9rem, 5.5vw, 3rem) / 1.05 'Fraunces Variable', Georgia, serif;
-  font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 144;
-  letter-spacing: -0.02em; margin-bottom: 0.25rem; color: var(--ink);
-}
-.sec-note {
-  color: var(--muted);
-  font: 500 0.98rem 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.04em; margin-bottom: 1.6rem;
-}
+  h2 {
+    font:
+      700 clamp(1.9rem, 5.5vw, 3rem) / 1.05 "Fraunces Variable",
+      Georgia,
+      serif;
+    font-variation-settings:
+      "SOFT" 100,
+      "WONK" 1,
+      "opsz" 144;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+    color: var(--ink);
+  }
+  .sec-note {
+    color: var(--muted);
+    font:
+      500 0.98rem "Barlow Condensed",
+      sans-serif;
+    letter-spacing: 0.04em;
+    margin-bottom: 1.6rem;
+  }
 
-.entries { display: flex; flex-direction: column; gap: 2rem; margin-top: 1.5rem; }
-.entry { border-left: 3px solid var(--accent); padding-left: 1.15rem; }
-.eh {
-  display: flex; flex-wrap: wrap;
-  justify-content: space-between; align-items: baseline;
-  gap: 0.15rem 1rem; margin-bottom: 0.18rem;
-}
-h3 {
-  font: 600 1.1rem / 1.2 'Fraunces Variable', Georgia, serif;
-  font-variation-settings: 'SOFT' 100;
-}
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  .entry {
+    border-left: 3px solid var(--accent);
+    padding-left: 1.15rem;
+  }
+  .eh {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.15rem 1rem;
+    margin-bottom: 0.18rem;
+  }
+  h3 {
+    font:
+      600 1.1rem / 1.2 "Fraunces Variable",
+      Georgia,
+      serif;
+    font-variation-settings: "SOFT" 100;
+  }
 
-/* ─── Sub-sign ───────────────────────────────────────────────
+  /* ─── Sub-sign ───────────────────────────────────────────────
    The Experience sign, one level below the landing sign. It is
    the same object — cap, board of runs, post — so it reuses
    .sign-* and .run-* wholesale rather than inventing a second
    visual language. The four rows fan out the way the main sign does:
    first ←, second ↖, third ↗, and Back to the map on the far right. */
-.sub-layer {
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center;
-  padding-top: 15vh;      /* matches #layer-landing, so both signs agree */
-}
-.when { font: 500 0.93rem 'Barlow Condensed', sans-serif; color: var(--muted); white-space: nowrap; }
-.org  { font: 500 0.95rem 'Barlow Condensed', sans-serif; color: var(--muted); margin-bottom: 0.3rem; }
-ul { padding-left: 1.1rem; margin: 0.3rem 0 0; }
-li { margin: 0.22rem 0; font-size: 0.98rem; line-height: 1.55; }
+  .sub-layer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 11vh; /* matches #layer-landing, so both signs agree */
+  }
+  .when {
+    font:
+      500 0.93rem "Barlow Condensed",
+      sans-serif;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .org {
+    font:
+      500 0.95rem "Barlow Condensed",
+      sans-serif;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+  ul {
+    padding-left: 1.1rem;
+    margin: 0.3rem 0 0;
+  }
+  li {
+    margin: 0.22rem 0;
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
 
-/* the project rating, inline in its title */
-.tdot { margin-right: 0.3rem; display: inline-flex; vertical-align: -0.12em; }
-.tdot svg { height: 0.85em; width: auto; }
-.tdot-green { color: #2E9E5B; }
-.tdot-blue  { color: #3A76E0; }
-.tdot-black { color: var(--ink); }
+  /* the project rating, inline in its title */
+  .tdot {
+    margin-right: 0.3rem;
+    display: inline-flex;
+    vertical-align: -0.12em;
+  }
+  .tdot svg {
+    height: 0.85em;
+    width: auto;
+  }
+  .tdot-green {
+    color: #2e9e5b;
+  }
+  .tdot-blue {
+    color: #3a76e0;
+  }
+  .tdot-black {
+    color: var(--ink);
+  }
 
-/* One category per page now, so the old two-column definition list is gone:
+  /* One category per page now, so the old two-column definition list is gone:
    the h2 is the label and this is what sits under it. */
-.skill-items { font-size: 0.98rem; line-height: 1.55; margin-top: 0.4rem; }
+  .skill-items {
+    font-size: 0.98rem;
+    line-height: 1.55;
+    margin-top: 0.4rem;
+  }
 
-.links-row {
-  margin-top: 2.5rem; display: flex; gap: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
-}
-.links-row a {
-  font: 600 0.95rem 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  /* the accent is the ink colour, so the underline is what marks these as links */
-  color: var(--accent); text-decoration: underline; text-underline-offset: 4px;
-  transition: opacity 0.2s;
-}
-.links-row a:hover { opacity: 0.65; }
-.links-row a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-/* on the landing the links sit under the sign, so they are centred and the
-   rule above them is dropped — it would cut the post in half */
-.landing-links { justify-content: center; margin-top: 1.75rem; padding-top: 0; border-top: 0; }
+  /* ─── Bears ───────────────────────────────────────────────
+   The contact links, standing on the snow either side of the
+   sign. `display: contents` lets the two bears position
+   themselves against the layer on a wide screen, and fall
+   back to a plain row underneath it on a narrow one. */
+  .bears {
+    display: contents;
+  }
+  /* the narrow fallback lays the two out in a row, so the flip has to be undone
+   there or one bear would be lying on its side */
+  @media (max-width: 779px) {
+    .bear:first-of-type img {
+      transform: none;
+    }
+  }
+  .bear {
+    /* 21% of the image box is empty below the bear's feet, so it is the feet —
+     not the box — that get placed on the snow. Everything hangs off --bear-w
+     so the two bears scale as one. */
+    --bear-w: clamp(96px, 12vw, 146px);
+    --bear-feet: clamp(
+      3.25rem,
+      14vh,
+      7.5rem
+    ); /* feet above the viewport bottom */
+    --sign-w: min(480px, 90vw); /* the board, to sit just outside */
+    --bear-gap: 1.5rem;
+    position: absolute;
+    bottom: calc(var(--bear-feet) - var(--bear-w) * 0.21);
+    width: var(--bear-w);
+    aspect-ratio: 1;
+    text-decoration: none;
+  }
+  /* Just outside the board's edge, not pinned to the screen: the board is
+   centred, so its edge is half the leftover width. This keeps the bears a
+   fixed gap from the sign at every window size instead of drifting away
+   from it on a wide screen. Stays positive from ~780px up, which is where
+   the narrow fallback below takes over. */
+  .bear:first-of-type {
+    left: calc((100vw - var(--sign-w)) / 2 - var(--bear-w) - var(--bear-gap));
+  }
+  .bear:last-of-type {
+    right: calc((100vw - var(--sign-w)) / 2 - var(--bear-w) - var(--bear-gap));
+  }
+  /* the left bear faces the other way, so the pair stand nose to nose */
+  .bear:first-of-type img {
+    transform: scaleX(-1);
+  }
+  .bear img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  /* The flank is solid from about 5% to 96% across and between 35% and 70%
+   down, so the label sits mid-flank, high enough to clear the legs. It is
+   mirrored on the flipped bear — the two are mirror images, so matching
+   percentages would throw the labels out of symmetry about the centre of
+   the page. */
+  .bear-text {
+    position: absolute;
+    left: 56%;
+    top: 44%;
+    transform: translate(-50%, -50%);
+    width: 64%;
+    text-align: center;
+    line-height: 1.1;
+    font:
+      700 1.05rem "Barlow Condensed",
+      sans-serif;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #f3e3ce; /* cream on the bear's brown flank */
+    overflow-wrap: anywhere;
+  }
+  .bear:first-of-type .bear-text {
+    left: 44%;
+  }
+  .bear:hover {
+    opacity: 0.85;
+  }
+  .bear:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
+    border-radius: 12px;
+  }
+
+  .credit {
+    position: absolute;
+    bottom: 0.7rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    opacity: 0.75;
+  }
+  .credit a {
+    color: inherit;
+  }
+
+  /* Narrow: the sign fills the width, so there is no snow to either side of
+   it. The bears stand under the post instead of beside it. */
+  @media (max-width: 779px) {
+    .bears {
+      display: flex;
+      justify-content: center;
+      gap: 1.4rem;
+      margin-top: 1.2rem;
+    }
+    .bear {
+      position: static;
+      width: clamp(80px, 28vw, 118px);
+    }
+  }
 </style>
