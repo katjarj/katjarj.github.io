@@ -36,7 +36,7 @@ export const work = [
     group: 'technical',
     title: 'Undergraduate Teaching Assistant',
     org: 'UBC Department of Computer Science',
-    when: 'Jan – Aug 2026',
+    when: 'Sep 2026 – present',
     pts: ['TA for CPSC 213: Introduction to Computer Systems'],
   },
 ];
