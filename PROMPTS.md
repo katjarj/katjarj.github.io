@@ -62,6 +62,14 @@ move the ski sign up toward the middle of the page
 44. make the dark brown border bit of the sign slightly thicker
 45. ok well also increase the distance between each item in the sign
 46. instead of the github and linkedin links at the bottom, put their text inside of these bear pngs (one for each link). put one bear to the left of the sign, on the snow, and one bear to the right of the sign, on the snow. these bear pngs must be attributed as such: <a href="https://www.flaticon.com/free-icons/bear" title="bear icons">Bear icons created by Victoruler - Flaticon</a>
+47. make a few more of the left foreground trees dark green
+48. make one less big foreground tree dark green (make it the lighter shade from before)
+49. remove the 'ski run' ranking from personal projects entirely
+50. remove the golden colour altogether (including from the mode button, replace that with the dark brown from the sign with the highlighted colour being the same shade as the back button)
+51. when in night mode (i.e. when the text on the mode button says bluebird) the button should be lighter (pick a colour from the palette)
+
+
+
 
 
 

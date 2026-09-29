@@ -14,7 +14,6 @@ import {
   community,
   skills,
 } from "../data/resume.js";
-import Symbol from "../components/Symbol.astro";
 import Sign from "../components/Sign.astro";
 
 // Every experience entry, in the order the groups list them, tagged by group.
@@ -190,18 +189,12 @@ const skillRuns = [
         <div class="sec-inner">
           <button class="back-btn" data-back>← Trail Map</button>
           <h2>Personal Projects</h2>
-          <p class="sec-note">Rated like ski runs — by me.</p>
           <div class="entries">
             {
               projects.map((p) => (
                 <article class="entry">
                   <div class="eh">
-                    <h3>
-                      <span class={`tdot tdot-${p.diff}`}>
-                        <Symbol diff={p.diff} />
-                      </span>
-                      {p.title}
-                    </h3>
+                    <h3>{p.title}</h3>
                     <span class="when">{p.when}</span>
                   </div>
                   {p.org && <p class="org">{p.org}</p>}
@@ -922,7 +915,6 @@ const skillRuns = [
     --tree-3: #47705c;
     --tree-4: #1e4024;
     --sign-bg: #2a1f14;
-    --sign-rim: #9b7820;
     --sign-txt: #f5edd8;
     --post: #5c3d1e;
   }
@@ -944,7 +936,6 @@ const skillRuns = [
     --tree-3: #07130c;
     --tree-4: #040e07;
     --sign-bg: #1a1208;
-    --sign-rim: #7a5c10;
     --sign-txt: #e8d9b8;
     --post: #3a2510;
   }
@@ -970,6 +961,12 @@ const skillRuns = [
 
   /* ─── Mode button ────────────────────────────── */
   #mode-btn {
+    /* The one element that inverts between modes: a dark plate on the pale
+       page, a pale chip on the dark one, so it always reads against whatever
+       background it is sitting on. Both fills are existing palette colours. */
+    --btn-fill: var(--sign-bg);
+    --btn-hover: var(--post);
+    --btn-text: var(--sign-txt);
     position: fixed;
     top: 1rem;
     right: 1rem;
@@ -979,16 +976,32 @@ const skillRuns = [
       sans-serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: var(--sign-bg);
-    color: var(--sign-txt);
-    border: 2px solid var(--sign-rim);
+    background: var(--btn-fill);
+    color: var(--btn-text);
+    /* No visible border, like every other flat surface here. The 2px is kept
+       only to hold the button's size, and it is painted in the fill colour —
+       following it on hover too, so no ring appears when the button fills. */
+    border: 2px solid var(--btn-fill);
     border-radius: 7px;
     padding: 0.3rem 1rem;
     cursor: pointer;
-    transition: background 0.3s;
+    transition:
+      background 0.3s,
+      border-color 0.3s,
+      color 0.3s;
   }
+  /* Night: the page is spruce, so the button flips to the sign's cream with
+     the board's near-black for the label. */
+  [data-mode="night"] #mode-btn {
+    --btn-fill: var(--sign-txt);
+    --btn-hover: var(--ink);
+    --btn-text: var(--sign-bg);
+  }
+  /* fills in with the same brown as the cap and the Back row, so the button
+     is the sign's own timber rather than a plate bolted to it */
   #mode-btn:hover {
-    background: var(--sign-rim);
+    background: var(--btn-hover);
+    border-color: var(--btn-hover);
   }
   #mode-btn:focus-visible {
     outline: 2px solid var(--accent);
@@ -1297,15 +1310,6 @@ const skillRuns = [
     margin-bottom: 0.25rem;
     color: var(--ink);
   }
-  .sec-note {
-    color: var(--muted);
-    font:
-      500 0.98rem "Barlow Condensed",
-      sans-serif;
-    letter-spacing: 0.04em;
-    margin-bottom: 1.6rem;
-  }
-
   .entries {
     display: flex;
     flex-direction: column;
@@ -1367,26 +1371,6 @@ const skillRuns = [
     margin: 0.22rem 0;
     font-size: 0.98rem;
     line-height: 1.55;
-  }
-
-  /* the project rating, inline in its title */
-  .tdot {
-    margin-right: 0.3rem;
-    display: inline-flex;
-    vertical-align: -0.12em;
-  }
-  .tdot svg {
-    height: 0.85em;
-    width: auto;
-  }
-  .tdot-green {
-    color: #2e9e5b;
-  }
-  .tdot-blue {
-    color: #3a76e0;
-  }
-  .tdot-black {
-    color: var(--ink);
   }
 
   /* One category per page now, so the old two-column definition list is gone:
