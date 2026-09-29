@@ -1849,10 +1849,13 @@ const subRuns = [
     /* 21% of the image box is empty below the bear's feet, so it is the feet —
      not the box — that get placed on the snow. Everything hangs off --bear-w
      so the two bears scale as one. */
-    --bear-w: clamp(96px, 12vw, 146px);
+    --bear-w: clamp(118px, 13.5vw, 182px);
     --bear-feet: clamp(3.25rem, 14vh, 7.5rem); /* feet above the viewport bottom */
     --sign-w: min(480px, 90vw); /* the board, to sit just outside */
-    --bear-gap: 1.5rem;
+    --bear-gap: 0.25rem; /* clearance from the board's edge, not the screen's */
+    /* the flank label travels with the bear, so the two can never disagree
+       about how big the animal is; the phone block pins its own size */
+    --bear-label: 1.45rem;
     position: absolute;
     bottom: calc(var(--bear-feet) - var(--bear-w) * 0.21);
     width: var(--bear-w);
@@ -1889,12 +1892,13 @@ const subRuns = [
     left: 56%;
     top: 44%;
     transform: translate(-50%, -50%);
-    width: 64%;
+    width: 70%;
     text-align: center;
     line-height: 1.1;
-    font:
-      700 1.05rem 'Barlow Condensed',
-      sans-serif;
+    /* longhands, so the size can come off the bear and not be restated */
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: var(--bear-label);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #f3e3ce; /* cream on the bear's brown flank */
@@ -1955,6 +1959,8 @@ const subRuns = [
       position: relative;
       inset: auto;
       width: clamp(80px, 28vw, 118px);
+      /* phones keep the label they already had; only the desktop bear grew */
+      --bear-label: 1.05rem;
     }
     /* :first-of-type / :last-of-type out-specifies a bare .bear, and a media
        query adds no specificity of its own, so these have to be undone there
