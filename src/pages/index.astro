@@ -948,6 +948,14 @@ const subRuns = [
     padding: 0;
   }
 
+  /* iOS Safari inflates text on phones in landscape, which silently changes
+     every clamp() in this file. Pin it so the mobile layout is the one that
+     was actually designed. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
     overflow: hidden;
     /* Longhands, not the `font` shorthand. The shorthand RESETS
@@ -974,8 +982,9 @@ const subRuns = [
     --btn-hover: var(--post);
     --btn-text: var(--sign-txt);
     position: fixed;
-    top: 1rem;
-    right: 1rem;
+    /* safe-area insets keep the button clear of a notch or a home indicator */
+    top: max(1rem, env(safe-area-inset-top));
+    right: max(1rem, env(safe-area-inset-right));
     z-index: 300;
     font:
       600 0.95rem 'Barlow Condensed',
@@ -1251,6 +1260,10 @@ const subRuns = [
     position: absolute;
     inset: 0;
     overflow-y: auto;
+    /* On a phone this is the only thing that scrolls, so it should not
+       rubber-band the page behind it when it reaches the end. */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sec-inner {
@@ -1258,7 +1271,10 @@ const subRuns = [
     margin: 0 auto;
     padding: 2.5rem 2rem 6rem;
   }
-  @media (min-width: 700px) {
+  /* 780px, not 700: the phone rules below key off max-width 779px, and an
+     overlapping pair means both apply in 700–779px with source order deciding
+     it. Disjoint is the only way that stays predictable. */
+  @media (min-width: 780px) {
     .sec-inner {
       padding: 3rem 3.5rem 7rem;
     }
@@ -1656,13 +1672,85 @@ const subRuns = [
       display: flex;
       justify-content: center;
       gap: 1.4rem;
+      /* `position` is load-bearing here: left/right/bottom are inert on a
+         static element, which left the pair sitting in normal flow at the top
+         of the body — on top of the name and the sign. */
+      position: fixed;
       left: 0;
       right: 0;
       bottom: 2.4rem; /* clear of the credit line pinned to the very bottom */
     }
+    /* `relative`, not `static`: the bear must stay in the flex row so the pair
+       lays out side by side, but it must ALSO stay a containing block, or the
+       absolutely-positioned .bear-text inside it stops anchoring to its own
+       bear and both labels pile into the middle of the pair. Switching from
+       absolute to relative also turns the desktop `left`/`right`/`bottom`
+       into relative offsets, so they are neutralised below. */
     .bear {
-      position: static;
+      position: relative;
+      inset: auto;
       width: clamp(80px, 28vw, 118px);
+    }
+    /* :first-of-type / :last-of-type out-specifies a bare .bear, and a media
+       query adds no specificity of its own, so these have to be undone there
+       too or the desktop offsets still apply as relative shifts. */
+    .bear:first-of-type,
+    .bear:last-of-type {
+      left: auto;
+      right: auto;
+    }
+  }
+
+  /* ─── Mobile ──────────────────────────────────────────────────
+     The scene is full-bleed, so a phone sees less of it and the same
+     words sit over different ground than they do on a wide screen.
+     Everything here is phone-only: the desktop look is untouched. */
+  @media (max-width: 779px) {
+    /* A scrim behind the copy, inset from the screen edges so the world
+       still shows either side, and faded top and bottom so the scene runs
+       into it rather than being cut off. Desktop gets none of this. */
+    .sec-inner {
+      padding: 1.75rem 0.75rem 7rem;
+    }
+    /* Deliberately nothing here to back the heading up. A wash behind it was
+       reverted twice as a "weird background overlay", and a text-shadow halo
+       was turned down after that. The h2 sits on the world on mobile exactly
+       as it does on desktop — the owner has seen both and prefers it clean.
+       The cards are opaque --post panels and the back button is a solid chip,
+       so nothing else on a card page touches the scene either. */
+    /* a touch target worth thumbing */
+    .back-btn {
+      padding: 0.6rem 1.05rem;
+      font-size: 1rem;
+    }
+    .credit {
+      font-size: 0.7rem;
+      padding-inline: 1rem;
+      bottom: max(0.7rem, env(safe-area-inset-bottom));
+    }
+    /* the mode button is the one undersized target on a phone; give it a thumb */
+    #mode-btn {
+      top: max(0.75rem, env(safe-area-inset-top));
+      right: max(0.75rem, env(safe-area-inset-right));
+      padding: 0.55rem 0.9rem;
+      font-size: 1rem;
+    }
+  }
+
+  /* A phone in landscape is ~390px tall, and the sign is ~398px: it
+     overflows. The post is the only part that can give, and nobody looks
+     at a signpost's leg, so it is what shrinks. Paired with `orientation`
+     so a short desktop window does not get a stubby post on a wide screen. */
+  @media (max-height: 520px) and (orientation: landscape) {
+    .post-shaft {
+      height: 34px;
+    }
+    .sub-layer,
+    #layer-landing {
+      padding-top: 4vh;
+    }
+    .bears {
+      bottom: 1.6rem;
     }
   }
 </style>
