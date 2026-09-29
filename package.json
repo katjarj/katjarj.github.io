@@ -1,1 +1,28 @@
-{"name":"katjarj.github.io","type":"module","private":true,"engines":{"node":">=22.12.0"},"scripts":{"dev":"astro dev","build":"astro build","preview":"astro preview"},"dependencies":{"@fontsource-variable/fraunces":"^5.3.0","@fontsource/barlow-condensed":"^5.3.0","astro":"^7.3.5"}}
+{
+  "name": "katjarj.github.io",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "astro": "^7.3.5"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "fsevents@2.3.3": true
+  }
+}

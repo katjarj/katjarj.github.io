@@ -1,7 +1,7 @@
 ---
-import "@fontsource-variable/fraunces/full.css";
-import "@fontsource/barlow-condensed/500.css";
-import "@fontsource/barlow-condensed/600.css";
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource/barlow-condensed/500.css';
+import '@fontsource/barlow-condensed/600.css';
 import {
   links,
   intro,
@@ -14,13 +14,12 @@ import {
   projectCats,
   community,
   skills,
-} from "../data/resume.js";
-import Sign from "../components/Sign.astro";
+} from '../data/resume.js';
+import Sign from '../components/Sign.astro';
 
 // Every experience entry, in the order the groups list them, tagged by group.
 const experience = [education, ...work, ...other];
-const groupOf = (id: string) =>
-  experience.filter((e) => e.group === id);
+const groupOf = (id: string) => experience.filter((e) => e.group === id);
 
 // Extracurricular is carded per organisation rather than per role, so one
 // card holds everything held under that org — a club's three positions sit
@@ -38,11 +37,11 @@ const ORGS = byOrg(community);
 // Projects gets its own sign too: the three categories, then Back.
 // Back points up-right, the reverse of the blue up-left run that reached this
 // sign, so it is the way home. That leaves ←, ↖ and → for the categories.
-const PROJECT_DIRS = ["left", "upleft", "right"];
+const PROJECT_DIRS = ['left', 'upleft', 'right'];
 const projectLayers = projectCats
   .map((c, i) => ({
     ...c,
-    dir: PROJECT_DIRS[i] || "left",
+    dir: PROJECT_DIRS[i] || 'left',
     items: projects.filter((p) => p.cat === c.id),
     layer: `layer-${c.id}`,
   }))
@@ -54,18 +53,18 @@ const projectRuns = [
     diff: c.diff,
     dir: c.dir,
   })),
-  { title: "Back to Trail Map", dir: "upright", back: true },
+  { title: 'Back to Trail Map', dir: 'upright', back: true },
 ];
 
 // Four options fan out the way the main sign does: ←, ↖, ↗, →. The three
 // groups take the first three; the Back row below is the fourth and takes →.
 // Left and right are the long two-period traverses, the angled pair one period
 // each, so each arrow is matched by its pan distance.
-const DIRS = ["left", "upleft", "upright"];
+const DIRS = ['left', 'upleft', 'upright'];
 const LAYERS = groups
   .map((g, i) => ({
     ...g,
-    dir: DIRS[i] || "upleft",
+    dir: DIRS[i] || 'upleft',
     entries: groupOf(g.id),
     layer: `layer-${g.id}`,
   }))
@@ -81,7 +80,7 @@ const subRuns = [
     diff: g.diff,
     dir: g.dir,
   })),
-  { title: "Back to Trail Map", dir: "right", back: true },
+  { title: 'Back to Trail Map', dir: 'right', back: true },
 ];
 
 // Skills splits the same way — a sign of its own, one page per category — and
@@ -89,7 +88,7 @@ const subRuns = [
 // from the trail map's double-black run, and that run traverses right, so home
 // is the other way. Back takes the ← slot and the three categories fill the
 // rest of the fan.
-const SKILL_DIRS = ["upleft", "upright", "right"];
+const SKILL_DIRS = ['upleft', 'upright', 'right'];
 // The layer id must be `layer-` + the run's id: the click handler builds the
 // target by prefixing `layer-` to `data-target`, which Sign.astro sets from
 // `r.id`. Anything else and showLayer finds nothing and the screen goes blank.
@@ -105,7 +104,7 @@ const skillRuns = [
     diff: s.diff,
     dir: s.dir,
   })),
-  { title: "Back to Trail Map", dir: "left", back: true },
+  { title: 'Back to Trail Map', dir: 'left', back: true },
 ];
 ---
 
@@ -114,28 +113,24 @@ const skillRuns = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Katja Radovic-Jonsson</title>
-    <meta
-      name="description"
-      content="Katja Radovic-Jonsson's personal website"
-    />
+    <meta name="description" content="Katja Radovic-Jonsson's personal website" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L8 4H6.5L9 8H1L3.5 4H2Z' fill='%233B2A3F'/%3E%3C/svg%3E"
     />
     <script is:inline>
       try {
-        var m = localStorage.getItem("mode");
-        if (!m)
-          m = matchMedia("(prefers-color-scheme:dark)").matches
-            ? "night"
-            : "day";
+        var m = localStorage.getItem('mode');
+        if (!m) m = matchMedia('(prefers-color-scheme:dark)').matches ? 'night' : 'day';
         document.documentElement.dataset.mode = m;
       } catch (e) {}
     </script>
   </head>
   <body>
     <!-- Mode button (always on top) -->
-    <button id="mode-btn" type="button">night ski</button>
+    <button id="mode-btn" type="button">
+      night ski
+    </button>
 
     <!-- ══════════════════════════════════════════════
        WORLD — one canvas paints the whole scene.
@@ -170,9 +165,9 @@ const skillRuns = [
       </div>
 
       <p class="credit">
-        <a href="https://www.flaticon.com/free-icons/bear" title="bear icons"
-          >Bear icons created by Victoruler - Flaticon</a
-        >
+        <a href="https://www.flaticon.com/free-icons/bear" title="bear icons">
+          Bear icons created by Victoruler - Flaticon
+        </a>
       </p>
     </div>
 
@@ -189,36 +184,34 @@ const skillRuns = [
     </div>
 
     <!-- One list layer per group on the sub-sign, each its own run. -->
-    {
-      LAYERS.map((g) => (
-        <div id={g.layer} class="layer section-layer">
-          <div class="sec-scroll">
-            <div class="sec-inner">
-              <button class="back-btn" data-back>
-                ← Experience
-              </button>
-              <h2>{g.title}</h2>
-              <div class="entries">
-                {g.entries.map((e) => (
-                  <article class="entry">
-                    <div class="eh">
-                      <h3>{e.title}</h3>
-                      <span class="when">{e.when}</span>
-                    </div>
-                    {e.org && <p class="org">{e.org}</p>}
-                    <ul>
-                      {e.pts.map((p) => (
-                        <li>{p}</li>
-                      ))}
-                    </ul>
-                  </article>
-                ))}
-              </div>
+    {LAYERS.map((g) => (
+      <div id={g.layer} class="layer section-layer">
+        <div class="sec-scroll">
+          <div class="sec-inner">
+            <button class="back-btn" data-back>
+              ← Experience
+            </button>
+            <h2>{g.title}</h2>
+            <div class="entries">
+              {g.entries.map((e) => (
+                <article class="entry">
+                  <div class="eh">
+                    <h3>{e.title}</h3>
+                    <span class="when">{e.when}</span>
+                  </div>
+                  {e.org && <p class="org">{e.org}</p>}
+                  <ul>
+                    {e.pts.map((p) => (
+                      <li>{p}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
             </div>
           </div>
         </div>
-      ))
-    }
+      </div>
+    ))}
 
     <!-- ══════════════════════════════════════════════
          PROJECTS — a sign of its own, reached from the blue run.
@@ -232,18 +225,16 @@ const skillRuns = [
       <div id={c.layer} class="layer section-layer">
         <div class="sec-scroll">
           <div class="sec-inner">
-            <button class="back-btn" data-back>← Projects</button>
+            <button class="back-btn" data-back>
+              ← Projects
+            </button>
             <h2>{c.title}</h2>
             <div class="entries entries-2">
               {c.items.map((p) => (
                 <article class="entry entry-shot">
                   <div class="shot">
                     {p.img ? (
-                      <img
-                        src={p.img}
-                        alt={`${p.title} screenshot`}
-                        loading="lazy"
-                      />
+                      <img src={p.img} alt={`${p.title} screenshot`} loading="lazy" />
                     ) : (
                       <span class="shot-empty">Screenshot</span>
                     )}
@@ -259,16 +250,13 @@ const skillRuns = [
                     ))}
                   </ul>
                   {p.github ? (
-                    <a
-                      class="card-link"
-                      href={p.github}
-                      target="_blank"
-                      rel="noopener"
-                    >
+                    <a class="card-link" href={p.github} target="_blank" rel="noopener">
                       GitHub ↗
                     </a>
                   ) : (
-                    <span class="card-link is-empty">GitHub — add a repo</span>
+                    <a href="https://github.com" class="card-link">
+                      GitHub — add a repo
+                    </a>
                   )}
                 </article>
               ))}
@@ -282,29 +270,29 @@ const skillRuns = [
     <div id="layer-community" class="layer section-layer">
       <div class="sec-scroll">
         <div class="sec-inner">
-          <button class="back-btn" data-back>← Trail Map</button>
+          <button class="back-btn" data-back>
+            ← Trail Map
+          </button>
           <h2>Extracurricular</h2>
           <div class="entries">
-            {
-              ORGS.map((g) => (
-                <article class="entry entry-org">
-                  <h3 class="org-name">{g.org}</h3>
-                  {g.items.map((c) => (
-                    <div class="role">
-                      <div class="eh">
-                        <h4>{c.title}</h4>
-                        <span class="when">{c.when}</span>
-                      </div>
-                      <ul>
-                        {c.pts.map((p) => (
-                          <li>{p}</li>
-                        ))}
-                      </ul>
+            {ORGS.map((g) => (
+              <article class="entry entry-org">
+                <h3 class="org-name">{g.org}</h3>
+                {g.items.map((c) => (
+                  <div class="role">
+                    <div class="eh">
+                      <h4>{c.title}</h4>
+                      <span class="when">{c.when}</span>
                     </div>
-                  ))}
-                </article>
-              ))
-            }
+                    <ul>
+                      {c.pts.map((p) => (
+                        <li>{p}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </article>
+            ))}
           </div>
         </div>
       </div>
@@ -319,27 +307,25 @@ const skillRuns = [
       <Sign cap="SKILLS" runs={skillRuns} />
     </div>
 
-    {
-      skillLayers.map((s) => (
-        <div id={s.layer} class="layer section-layer">
-          <div class="sec-scroll">
-            <div class="sec-inner">
-              <button class="back-btn" data-back>
-                ← Skills
-              </button>
-              <h2>{s.title}</h2>
-              <p class="skill-items">{s.items}</p>
-            </div>
+    {skillLayers.map((s) => (
+      <div id={s.layer} class="layer section-layer">
+        <div class="sec-scroll">
+          <div class="sec-inner">
+            <button class="back-btn" data-back>
+              ← Skills
+            </button>
+            <h2>{s.title}</h2>
+            <p class="skill-items">{s.items}</p>
           </div>
         </div>
-      ))
-    }
+      </div>
+    ))}
 
     <script>
       // ─── Helpers ────────────────────────────────────────────────────
       const root = document.documentElement;
-      const allLayers = [...document.querySelectorAll<HTMLElement>(".layer")];
-      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const allLayers = [...document.querySelectorAll<HTMLElement>('.layer')];
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       function getVar(name: string): string {
         return getComputedStyle(root).getPropertyValue(name).trim();
@@ -356,17 +342,16 @@ const skillRuns = [
       }
 
       // ─── Mode toggle ────────────────────────────────────────────────
-      const modeBtn = document.getElementById("mode-btn")!;
+      const modeBtn = document.getElementById('mode-btn')!;
       function syncLabel() {
-        modeBtn.textContent =
-          root.dataset.mode === "night" ? "bluebird" : "night ski";
+        modeBtn.textContent = root.dataset.mode === 'night' ? 'bluebird' : 'night ski';
       }
       syncLabel();
-      modeBtn.addEventListener("click", () => {
-        const next = root.dataset.mode === "night" ? "day" : "night";
+      modeBtn.addEventListener('click', () => {
+        const next = root.dataset.mode === 'night' ? 'day' : 'night';
         root.dataset.mode = next;
         try {
-          localStorage.setItem("mode", next);
+          localStorage.setItem('mode', next);
         } catch (e) {}
         syncLabel();
         palette = null; // colours are read from the CSS variables
@@ -377,11 +362,11 @@ const skillRuns = [
       // The world behind these layers never changes; only the sign and the
       // text come and go over it.
       function showLayer(id: string | null) {
-        allLayers.forEach((l) => l.classList.remove("active"));
+        allLayers.forEach((l) => l.classList.remove('active'));
         const t = document.getElementById(id);
         if (t) {
-          t.classList.add("active");
-          const scroller = t.querySelector<HTMLElement>(".sec-scroll");
+          t.classList.add('active');
+          const scroller = t.querySelector<HTMLElement>('.sec-scroll');
           if (scroller) scroller.scrollTop = 0;
         }
       }
@@ -402,8 +387,8 @@ const skillRuns = [
       // and the view never drifts with the cursor.
       // ════════════════════════════════════════════════════════════════
 
-      const worldCanvas = document.getElementById("world") as HTMLCanvasElement;
-      const wctx = worldCanvas.getContext("2d")!;
+      const worldCanvas = document.getElementById('world') as HTMLCanvasElement;
+      const wctx = worldCanvas.getContext('2d')!;
       let W = 0,
         H = 0,
         dpr = 1;
@@ -426,19 +411,19 @@ const skillRuns = [
       function pal(): Palette {
         if (!palette) {
           palette = {
-            night: root.dataset.mode === "night",
-            skyHi: getVar("--sky-hi"),
-            skyLo: getVar("--sky-lo"),
-            mtnFar: getVar("--mtn-far"),
-            mtnMid: getVar("--mtn-mid"),
-            mtnNear: getVar("--mtn-near"),
-            snow: getVar("--snow"),
-            snow2: getVar("--snow2"),
+            night: root.dataset.mode === 'night',
+            skyHi: getVar('--sky-hi'),
+            skyLo: getVar('--sky-lo'),
+            mtnFar: getVar('--mtn-far'),
+            mtnMid: getVar('--mtn-mid'),
+            mtnNear: getVar('--mtn-near'),
+            snow: getVar('--snow'),
+            snow2: getVar('--snow2'),
             // fir tones, palest (farthest) to darkest (nearest)
-            tree1: getVar("--tree-1"),
-            tree2: getVar("--tree-2"),
-            tree3: getVar("--tree-3"),
-            tree4: getVar("--tree-4"),
+            tree1: getVar('--tree-1'),
+            tree2: getVar('--tree-2'),
+            tree3: getVar('--tree-3'),
+            tree4: getVar('--tree-4'),
           };
         }
         return palette;
@@ -465,17 +450,11 @@ const skillRuns = [
           b = noise1d(seed + 1951, 6),
           c = noise1d(seed + 2903, 12),
           d = noise1d(seed + 4013, 24);
-        return (u: number) =>
-          (a(u) + 0.5 * b(u) + 0.25 * c(u) + 0.125 * d(u)) / 1.875;
+        return (u: number) => (a(u) + 0.5 * b(u) + 0.25 * c(u) + 0.125 * d(u)) / 1.875;
       }
       type Ridge = { xf: number; hf: number }[];
       // hf = height as a fraction of viewport height, measured from the bottom
-      function makeRidge(
-        seed: number,
-        lo: number,
-        hi: number,
-        samples = 120,
-      ): Ridge {
+      function makeRidge(seed: number, lo: number, hi: number, samples = 120): Ridge {
         const n = fbm1d(seed);
         const pts: Ridge = [];
         for (let i = 0; i <= samples; i++) {
@@ -611,8 +590,7 @@ const skillRuns = [
         const step = (hemY - top) / tiers; // one tier per step... and the last
         // one hangs just one step deep, so
         // the bottom stays flat, not cupped
-        const widthAt = (y: number) =>
-          half * Math.pow((y - apex) / (hemY - apex), 0.85);
+        const widthAt = (y: number) => half * Math.pow((y - apex) / (hemY - apex), 0.85);
 
         wctx.fillStyle = col;
         const trunkW = Math.max(1.2, half * 0.15);
@@ -637,12 +615,7 @@ const skillRuns = [
           wctx.lineTo(x + w, y);
           if (lowest) {
             // the bottom hem: level in the middle, the arms drooping at the sides
-            wctx.quadraticCurveTo(
-              x + w * 0.7,
-              y + d * 0.78,
-              x + w * 0.42,
-              y + d,
-            );
+            wctx.quadraticCurveTo(x + w * 0.7, y + d * 0.78, x + w * 0.42, y + d);
             wctx.lineTo(x - w * 0.42, y + d);
             wctx.quadraticCurveTo(x - w * 0.7, y + d * 0.78, x - w, y);
           } else {
@@ -670,12 +643,7 @@ const skillRuns = [
 
       // One ridge, tiled across the viewport at its own depth, so the three
       // ridgelines drift at different speeds and give the scene its depth.
-      function drawRidge(
-        ridge: Ridge,
-        camX: number,
-        depth: number,
-        col: string,
-      ) {
+      function drawRidge(ridge: Ridge, camX: number, depth: number, col: string) {
         const off = wrap(camX * depth, W);
         wctx.fillStyle = col;
         wctx.beginPath();
@@ -703,10 +671,7 @@ const skillRuns = [
       function snowTopY(x: number): number {
         const yEdge = H * (CREST_F + CREST_DROP);
         const yMid = H * (CREST_F - CREST_LIFT);
-        const t = Math.min(
-          1,
-          Math.max(0, (x + CREST_PAD) / (W + CREST_PAD * 2)),
-        );
+        const t = Math.min(1, Math.max(0, (x + CREST_PAD) / (W + CREST_PAD * 2)));
         const u = 1 - t;
         return u * u * yEdge + 2 * u * t * yMid + t * t * yEdge;
       }
@@ -804,12 +769,12 @@ const skillRuns = [
         H = window.innerHeight;
         worldCanvas.width = Math.round(W * dpr);
         worldCanvas.height = Math.round(H * dpr);
-        worldCanvas.style.width = W + "px";
-        worldCanvas.style.height = H + "px";
+        worldCanvas.style.width = W + 'px';
+        worldCanvas.style.height = H + 'px';
       }
 
       // ─── The run: pan the camera through the scene you are looking at ─
-      type Dir = "left" | "upleft" | "up" | "upright" | "right";
+      type Dir = 'left' | 'upleft' | 'up' | 'upright' | 'right';
       const GOES_LEFT: Record<Dir, boolean> = {
         left: true,
         upleft: true,
@@ -821,11 +786,11 @@ const skillRuns = [
       // opposite angle; an upright run went right for one period, so it mirrors to
       // upleft, the one-period run to the left.
       const MIRROR: Record<Dir, Dir> = {
-        left: "right",
-        right: "left",
-        upleft: "upright",
-        up: "upleft",
-        upright: "upleft",
+        left: 'right',
+        right: 'left',
+        upleft: 'upright',
+        up: 'upleft',
+        upright: 'upleft',
       };
       const PERIODS_STRAIGHT = 2; // world periods a green / double-black run crosses
       const PERIODS_ANGLED = 1; // ...and a blue / black one. Whole periods every
@@ -855,7 +820,7 @@ const skillRuns = [
       // starts from, it stops on the same stretch of ground. Clicking while a run
       // is already in flight is not ignored: you turn around and ski back.
       function runPan(dir: Dir, onReveal: () => void) {
-        const straight = dir === "left" || dir === "right";
+        const straight = dir === 'left' || dir === 'right';
         const sign = GOES_LEFT[dir] ? -1 : 1;
         const total = W * (straight ? PERIODS_STRAIGHT : PERIODS_ANGLED);
         const anchor = Math.round(cam.x / W) * W; // the nearest settled view
@@ -873,8 +838,7 @@ const skillRuns = [
       }
 
       // Smooth in and out at both ends, so the run starts and stops gently.
-      const easeInOut = (t: number) =>
-        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
       function tick(ts: number) {
         raf = 0;
@@ -897,33 +861,31 @@ const skillRuns = [
       }
 
       // ─── Navigation ─────────────────────────────────────────────────
-      let lastDir: Dir = "left";
+      let lastDir: Dir = 'left';
       // The way back, so Back retraces the runs you took to get here — the sub-sign
       // returns to the trail map, and each list returns to the sub-sign.
-      let current = "layer-landing";
+      let current = 'layer-landing';
       const trail: string[] = [];
 
       // Forward: a run you pick. Where you came from goes on the trail, so Back
       // can retrace it. The Back row is excluded — it is a sign's own way home, not
       // a run, and it is handled below.
-      document
-        .querySelectorAll<HTMLButtonElement>(".run-btn:not([data-back])")
-        .forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const target = "layer-" + btn.dataset.target!;
-            const dir = btn.dataset.dir as Dir;
-            lastDir = dir;
-            trail.push(current);
-            current = target;
+      document.querySelectorAll<HTMLButtonElement>('.run-btn:not([data-back])').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = 'layer-' + btn.dataset.target!;
+          const dir = btn.dataset.dir as Dir;
+          lastDir = dir;
+          trail.push(current);
+          current = target;
 
-            showLayer(null); // the sign and your name slide away as you push off
-            if (reduced) {
-              showLayer(target);
-              return;
-            }
-            runPan(dir, () => showLayer(target)); // pushing off along the traverse
-          });
+          showLayer(null); // the sign and your name slide away as you push off
+          if (reduced) {
+            showLayer(target);
+            return;
+          }
+          runPan(dir, () => showLayer(target)); // pushing off along the traverse
         });
+      });
 
       // Back, in one place and one behaviour, for both kinds. A list's Back retraces
       // the run that got you there; a sign's own Back row pans the way its own arrow
@@ -934,23 +896,21 @@ const skillRuns = [
       // It deliberately does NOT set `lastDir`: that must keep meaning "the run you
       // skied to get here", or two Backs in a row would mirror an already-mirrored
       // direction and drift further off course each time.
-      document
-        .querySelectorAll<HTMLButtonElement>("[data-back]")
-        .forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const back = trail.pop() || "layer-landing";
-            const dir = (btn.dataset.dir as Dir) || MIRROR[lastDir];
-            current = back;
-            showLayer(null);
-            if (reduced) {
-              showLayer(back);
-              return;
-            }
-            runPan(dir, () => showLayer(back));
-          });
+      document.querySelectorAll<HTMLButtonElement>('[data-back]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const back = trail.pop() || 'layer-landing';
+          const dir = (btn.dataset.dir as Dir) || MIRROR[lastDir];
+          current = back;
+          showLayer(null);
+          if (reduced) {
+            showLayer(back);
+            return;
+          }
+          runPan(dir, () => showLayer(back));
         });
+      });
 
-      window.addEventListener("resize", () => {
+      window.addEventListener('resize', () => {
         resize();
         draw();
       });
@@ -987,7 +947,7 @@ const skillRuns = [
     --sign-txt: #f5edd8;
     --post: #5c3d1e;
   }
-  [data-mode="night"] {
+  [data-mode='night'] {
     --bg: #0b1510;
     --ink: #ede6d8;
     --muted: #a3afa0;
@@ -1020,10 +980,10 @@ const skillRuns = [
   body {
     overflow: hidden;
     font:
-      400 1.1rem / 1.65 "Fraunces Variable",
+      400 1.1rem / 1.65 'Fraunces Variable',
       Georgia,
       serif;
-    font-variation-settings: "SOFT" 100;
+    font-variation-settings: 'SOFT' 100;
     background: var(--bg);
     color: var(--ink);
   }
@@ -1041,7 +1001,7 @@ const skillRuns = [
     right: 1rem;
     z-index: 300;
     font:
-      600 0.95rem "Barlow Condensed",
+      600 0.95rem 'Barlow Condensed',
       sans-serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -1061,7 +1021,7 @@ const skillRuns = [
   }
   /* Night: the page is spruce, so the button flips to the sign's cream with
      the board's near-black for the label. */
-  [data-mode="night"] #mode-btn {
+  [data-mode='night'] #mode-btn {
     --btn-fill: var(--sign-txt);
     --btn-hover: var(--ink);
     --btn-text: var(--sign-bg);
@@ -1127,13 +1087,13 @@ const skillRuns = [
   }
   .site-header h1 {
     font:
-      700 clamp(2.2rem, 7.6vw, 4.9rem) / 1 "Fraunces Variable",
+      700 clamp(2.2rem, 7.6vw, 4.9rem) / 1 'Fraunces Variable',
       Georgia,
       serif;
     font-variation-settings:
-      "SOFT" 100,
-      "WONK" 1,
-      "opsz" 144;
+      'SOFT' 100,
+      'WONK' 1,
+      'opsz' 144;
     color: var(--sign-txt);
   }
 
@@ -1147,7 +1107,7 @@ const skillRuns = [
   }
   .sign-cap {
     font:
-      700 clamp(1.35rem, 3.4vw, 1.7rem) "Barlow Condensed",
+      700 clamp(1.35rem, 3.4vw, 1.7rem) 'Barlow Condensed',
       sans-serif;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -1194,7 +1154,7 @@ const skillRuns = [
     border-radius: 7px;
     cursor: pointer;
     text-align: left;
-    font-family: "Barlow Condensed", sans-serif;
+    font-family: 'Barlow Condensed', sans-serif;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -1203,7 +1163,7 @@ const skillRuns = [
   }
   /* hover is a flat wash of light, never a move or a scale */
   .run-btn::after {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, 0.1);
@@ -1277,9 +1237,7 @@ const skillRuns = [
    follows from its own aspect ratio; no hand-tuned multiplier needed. */
   .run-tag {
     --sym-h: clamp(21px, 2.9vw, 28px);
-    --sym-w: calc(
-      var(--sym-h) * 31 / 18
-    ); /* the double black: the widest case */
+    --sym-w: calc(var(--sym-h) * 31 / 18); /* the double black: the widest case */
     margin-left: auto;
     display: flex;
     align-items: center;
@@ -1324,7 +1282,7 @@ const skillRuns = [
 
   .back-btn {
     font:
-      600 0.9rem "Barlow Condensed",
+      600 0.9rem 'Barlow Condensed',
       sans-serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -1368,13 +1326,13 @@ const skillRuns = [
 
   h2 {
     font:
-      700 clamp(1.9rem, 5.5vw, 3rem) / 1.05 "Fraunces Variable",
+      700 clamp(1.9rem, 5.5vw, 3rem) / 1.05 'Fraunces Variable',
       Georgia,
       serif;
     font-variation-settings:
-      "SOFT" 100,
-      "WONK" 1,
-      "opsz" 144;
+      'SOFT' 100,
+      'WONK' 1,
+      'opsz' 144;
     letter-spacing: -0.02em;
     margin-bottom: 0.25rem;
     color: var(--ink);
@@ -1423,10 +1381,10 @@ const skillRuns = [
   }
   h3 {
     font:
-      600 1.1rem / 1.2 "Fraunces Variable",
+      600 1.1rem / 1.2 'Fraunces Variable',
       Georgia,
       serif;
-    font-variation-settings: "SOFT" 100;
+    font-variation-settings: 'SOFT' 100;
   }
 
   /* ─── Sub-sign ───────────────────────────────────────────────
@@ -1443,17 +1401,19 @@ const skillRuns = [
     padding-top: 11vh; /* matches #layer-landing, so both signs agree */
   }
   .entry h3,
-  .entry h4 { color: var(--card-ink); }
+  .entry h4 {
+    color: var(--card-ink);
+  }
   .when {
     font:
-      500 0.93rem "Barlow Condensed",
+      500 0.93rem 'Barlow Condensed',
       sans-serif;
     color: var(--card-dim);
     white-space: nowrap;
   }
   .org {
     font:
-      500 0.95rem "Barlow Condensed",
+      500 0.95rem 'Barlow Condensed',
       sans-serif;
     color: var(--card-body);
     margin-bottom: 0.3rem;
@@ -1471,7 +1431,7 @@ const skillRuns = [
   /* One card per organisation, with that org's roles stacked inside it. */
   .org-name {
     font:
-      700 1.02rem "Barlow Condensed",
+      700 1.02rem 'Barlow Condensed',
       sans-serif;
     letter-spacing: 0.11em;
     text-transform: uppercase;
@@ -1503,7 +1463,7 @@ const skillRuns = [
   }
   .shot-empty {
     font:
-      600 0.78rem "Barlow Condensed",
+      600 0.78rem 'Barlow Condensed',
       sans-serif;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1517,17 +1477,18 @@ const skillRuns = [
     padding-top: 0.95rem;
     align-self: flex-start;
     font:
-      600 0.85rem "Barlow Condensed",
+      600 0.85rem 'Barlow Condensed',
       sans-serif;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--card-ink);
     text-decoration: none;
     padding-bottom: 1px;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--sign-txt) 45%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--sign-txt) 45%, transparent);
   }
-  .card-link:hover { border-bottom-color: var(--card-ink); }
+  .card-link:hover {
+    border-bottom-color: var(--card-ink);
+  }
   .card-link.is-empty {
     color: color-mix(in srgb, var(--sign-txt) 42%, transparent);
     border-bottom-style: dashed;
@@ -1562,11 +1523,7 @@ const skillRuns = [
      not the box — that get placed on the snow. Everything hangs off --bear-w
      so the two bears scale as one. */
     --bear-w: clamp(96px, 12vw, 146px);
-    --bear-feet: clamp(
-      3.25rem,
-      14vh,
-      7.5rem
-    ); /* feet above the viewport bottom */
+    --bear-feet: clamp(3.25rem, 14vh, 7.5rem); /* feet above the viewport bottom */
     --sign-w: min(480px, 90vw); /* the board, to sit just outside */
     --bear-gap: 1.5rem;
     position: absolute;
@@ -1609,7 +1566,7 @@ const skillRuns = [
     text-align: center;
     line-height: 1.1;
     font:
-      700 1.05rem "Barlow Condensed",
+      700 1.05rem 'Barlow Condensed',
       sans-serif;
     letter-spacing: 0.04em;
     text-transform: uppercase;

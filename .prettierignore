@@ -1,0 +1,4 @@
+public/projects/*.png
+node_modules
+dist
+.github

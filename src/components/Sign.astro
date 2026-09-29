@@ -12,6 +12,7 @@ import Symbol from './Symbol.astro';
 // symbol, which is what the Back row is.
 const { cap, runs = [] } = Astro.props;
 ---
+
 <div class="sign-wrap">
   <div class="sign-cap">{cap}</div>
   <div class="sign-board">
@@ -23,10 +24,16 @@ const { cap, runs = [] } = Astro.props;
         data-target={r.back ? undefined : r.id}
         data-back={r.back ? 'true' : undefined}
       >
-        <span class="run-arrow"><Arrow dir={r.dir} /></span>
+        <span class="run-arrow">
+          <Arrow dir={r.dir} />
+        </span>
         <span class="run-label">
           <span class="run-name">{r.title}</span>
-          {r.diff && <span class="run-tag"><Symbol diff={r.diff} /></span>}
+          {r.diff && (
+            <span class="run-tag">
+              <Symbol diff={r.diff} />
+            </span>
+          )}
         </span>
       </button>
     ))}

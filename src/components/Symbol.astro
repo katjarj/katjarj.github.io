@@ -10,14 +10,15 @@
 const { diff, label = false } = Astro.props;
 
 const NAME = {
-  green:  'Green circle',
-  blue:   'Blue square',
-  black:  'Black diamond',
+  green: 'Green circle',
+  blue: 'Blue square',
+  black: 'Black diamond',
   dblack: 'Double black diamond',
 };
 const d = diff in NAME ? diff : 'green';
 const pair = d === 'dblack';
 ---
+
 <svg
   viewBox={pair ? '0 0 31 18' : '0 0 18 18'}
   role={label ? 'img' : undefined}
@@ -25,9 +26,9 @@ const pair = d === 'dblack';
   aria-hidden={label ? undefined : 'true'}
   focusable="false"
 >
-  {d === 'green'  && <circle cx="9" cy="9" r="7" fill="currentColor" />}
-  {d === 'blue'   && <rect x="2.5" y="2.5" width="13" height="13" fill="currentColor" />}
-  {d === 'black'  && <polygon points="9,2 16,9 9,16 2,9" fill="currentColor" />}
-  {pair           && <polygon points="10,2 17,9 10,16 3,9" fill="currentColor" />}
-  {pair           && <polygon points="21,2 28,9 21,16 14,9" fill="currentColor" />}
+  {d === 'green' && <circle cx="9" cy="9" r="7" fill="currentColor" />}
+  {d === 'blue' && <rect x="2.5" y="2.5" width="13" height="13" fill="currentColor" />}
+  {d === 'black' && <polygon points="9,2 16,9 9,16 2,9" fill="currentColor" />}
+  {pair && <polygon points="10,2 17,9 10,16 3,9" fill="currentColor" />}
+  {pair && <polygon points="21,2 28,9 21,16 14,9" fill="currentColor" />}
 </svg>
