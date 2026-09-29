@@ -178,11 +178,16 @@ const subRuns = [
         <div class="sec-scroll">
           <div class="sec-inner">
             <button class="back-btn" data-back>
-              <span class="back-arrow" aria-hidden="true">←</span> Experience
+              <span class="back-arrow" aria-hidden="true">
+                ←
+              </span>{' '}
+              Experience
             </button>
             <h2>{g.title}</h2>
             <div class="entries">
-              {g.entries.map((e) => <Card entry={e} />)}
+              {g.entries.map((e) => (
+                <Card entry={e} />
+              ))}
             </div>
           </div>
         </div>
@@ -202,11 +207,16 @@ const subRuns = [
         <div class="sec-scroll">
           <div class="sec-inner">
             <button class="back-btn" data-back>
-              <span class="back-arrow" aria-hidden="true">←</span> Projects
+              <span class="back-arrow" aria-hidden="true">
+                ←
+              </span>{' '}
+              Projects
             </button>
             <h2>{c.title}</h2>
             <div class="entries entries-2">
-              {c.items.map((p) => <Card entry={p} />)}
+              {c.items.map((p) => (
+                <Card entry={p} />
+              ))}
             </div>
           </div>
         </div>
@@ -218,7 +228,10 @@ const subRuns = [
       <div class="sec-scroll">
         <div class="sec-inner">
           <button class="back-btn" data-back>
-            <span class="back-arrow" aria-hidden="true">←</span> Trail Map
+            <span class="back-arrow" aria-hidden="true">
+              ←
+            </span>{' '}
+            Trail Map
           </button>
           <h2>Extracurricular</h2>
           <div class="entries">
@@ -251,18 +264,19 @@ const subRuns = [
       <div class="sec-scroll">
         <div class="sec-inner">
           <button class="back-btn" data-back>
-            <span class="back-arrow" aria-hidden="true">←</span> Trail Map
+            <span class="back-arrow" aria-hidden="true">
+              ←
+            </span>{' '}
+            Trail Map
           </button>
           <h2>Skills</h2>
           <div class="entries">
-            {
-              skills.map((s) => (
-                <article class="entry entry-org">
-                  <h3 class="org-name">{s.title}</h3>
-                  <p class="skill-items">{s.items}</p>
-                </article>
-              ))
-            }
+            {skills.map((s) => (
+              <article class="entry entry-org">
+                <h3 class="org-name">{s.title}</h3>
+                <p class="skill-items">{s.items}</p>
+              </article>
+            ))}
           </div>
         </div>
       </div>
