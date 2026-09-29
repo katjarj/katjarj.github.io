@@ -22,7 +22,7 @@ export const education = {
 export const work = [
   {
     group: 'technical',
-    title: 'Software developer co-op',
+    title: 'Software Developer Co-op',
     org: 'UBC Faculty of Medicine Digital Solutions',
     when: 'Jan – Aug 2026',
     pts: [
@@ -34,7 +34,7 @@ export const work = [
   },
   {
     group: 'technical',
-    title: 'Undergraduate teaching assistant',
+    title: 'Undergraduate Teaching Assistant',
     org: 'UBC Department of Computer Science',
     when: 'Jan – Aug 2026',
     pts: ['TA for CPSC 213: Introduction to Computer Systems'],
@@ -59,7 +59,7 @@ export const projects = [
     title: 'Music Player',
     cat: 'academic',
     when: 'Jan – Apr 2025',
-    img: '',
+    img: '/projects/music-player.png',
     github: 'https://github.com/katjarj/music-player',
     pts: [
       'Playlist manager and player for local files in object-oriented Java, with JSON save/load',
@@ -69,9 +69,9 @@ export const projects = [
   {
     title: 'Rabbit Hole',
     cat: 'hackathons',
-    org: 'cmd-f hackathon. Best Use of Gemini API Award',
+    org: 'cmd-f: Best Use of Gemini API Award',
     when: 'Mar 2026',
-    img: '',
+    img: '/projects/rabbit-hole.png',
     github: 'https://github.com/selinuz/RabbitHole',
     pts: [
       'Next.js web app that helps users navigate difficult conversations with science-backed frameworks',
@@ -82,9 +82,9 @@ export const projects = [
   {
     title: 'AwardScope',
     cat: 'hackathons',
-    org: 'Hack the Coast hackathon',
+    org: 'Hack the Coast',
     when: 'Feb 2026',
-    img: '',
+    img: '/projects/awardscope.png',
     github: 'https://github.com/Tjindl/AwardScope',
     pts: [
       'Full-stack Next.js app that helps students find financial aid they qualify for, deployed on Vercel',
@@ -94,9 +94,9 @@ export const projects = [
   {
     title: 'Arc’Share’yx',
     cat: 'hackathons',
-    org: 'youCode hackathon',
+    org: 'youCode',
     when: 'Apr 2025',
-    img: '',
+    img: '/projects/arcshareyx.png',
     github: 'https://github.com/katjarj/arc-share-yx',
     pts: [
       'Outdoor gear-sharing web app: post and respond to listings, earn credits for sharing',
@@ -107,9 +107,9 @@ export const projects = [
   {
     title: 'BusBuddies',
     cat: 'hackathons',
-    org: 'cmd-f hackathon',
+    org: 'cmd-f',
     when: 'Mar 2025',
-    img: '',
+    img: '/projects/busbuddies.png',
     github: 'https://github.com/joy1234567891/BusBuddies',
     pts: [
       'Managed a team of four building a web app that matches students by bus route',
@@ -119,9 +119,9 @@ export const projects = [
   {
     title: 'WellSpring',
     cat: 'hackathons',
-    org: 'HackCamp hackathon. Finalist and Most Accessible Design Awards',
+    org: 'HackCamp: Finalist and Most Accessible Design Awards',
     when: 'Nov 2024',
-    img: '',
+    img: '/projects/wellspring.png',
     github: 'https://github.com/RuhaniMittal29/WellSpring',
     pts: [
       'Led a team of four building a web app to track health stats like fitness and water intake',
@@ -132,12 +132,12 @@ export const projects = [
     title: 'Personal Website',
     cat: 'side',
     when: '2026',
-    img: '',
+    img: '/projects/personal-site.png',
     github: 'https://github.com/katjarj/katjarj.github.io',
     pts: [
-      'This site: a ski trail map drawn on a single canvas, where every run pans that same scene',
-      'Sections are the trail map with the camera moved, so the world never changes — it only moves',
-      'Astro, plain CSS and a little vanilla JS; no UI framework',
+      'This site! A ski trail map drawn on a single canvas',
+      'Inspired by my passion for skiing!',
+      'Astro, plain CSS and a little vanilla JS',
     ],
   },
 ];
@@ -167,7 +167,7 @@ export const community = [
     ],
   },
   {
-    title: 'Computer science peer tutor',
+    title: 'Computer Science Peer Tutor',
     org: 'Eric Hamber Secondary School',
     when: 'Jan – Jun 2024',
     pts: ['Helped 25+ students with Python, binary arithmetic, and digital circuits'],
@@ -193,7 +193,7 @@ export const community = [
 export const other = [
   {
     group: 'nontechnical',
-    title: 'Ski instructor',
+    title: 'Ski Instructor',
     org: 'Whistler Blackcomb',
     when: 'Dec 2022 – present',
     pts: [
@@ -203,7 +203,7 @@ export const other = [
   },
   {
     group: 'nontechnical',
-    title: 'Private math tutor',
+    title: 'Private Math Tutor',
     org: 'Vancouver, BC',
     when: 'May 2025 – present',
     pts: [
@@ -212,7 +212,7 @@ export const other = [
   },
   {
     group: 'nontechnical',
-    title: 'Tech specialist',
+    title: 'Tech Specialist',
     org: 'London Drugs',
     when: 'Nov 2022 – Dec 2025',
     pts: ['Advised clients across the Tech department and ran photo orders at the Photo Lab'],

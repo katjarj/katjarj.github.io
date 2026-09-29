@@ -178,7 +178,7 @@ const subRuns = [
         <div class="sec-scroll">
           <div class="sec-inner">
             <button class="back-btn" data-back>
-              ← Experience
+              <span class="back-arrow" aria-hidden="true">←</span> Experience
             </button>
             <h2>{g.title}</h2>
             <div class="entries">
@@ -202,7 +202,7 @@ const subRuns = [
         <div class="sec-scroll">
           <div class="sec-inner">
             <button class="back-btn" data-back>
-              ← Projects
+              <span class="back-arrow" aria-hidden="true">←</span> Projects
             </button>
             <h2>{c.title}</h2>
             <div class="entries entries-2">
@@ -218,7 +218,7 @@ const subRuns = [
       <div class="sec-scroll">
         <div class="sec-inner">
           <button class="back-btn" data-back>
-            ← Trail Map
+            <span class="back-arrow" aria-hidden="true">←</span> Trail Map
           </button>
           <h2>Extracurricular</h2>
           <div class="entries">
@@ -251,7 +251,7 @@ const subRuns = [
       <div class="sec-scroll">
         <div class="sec-inner">
           <button class="back-btn" data-back>
-            ← Trail Map
+            <span class="back-arrow" aria-hidden="true">←</span> Trail Map
           </button>
           <h2>Skills</h2>
           <div class="entries">
@@ -308,6 +308,11 @@ const subRuns = [
       // ─── Layer switching ─────────────────────────────────────────────
       // The world behind these layers never changes; only the sign and the
       // text come and go over it.
+      // The bears stand on the snow beside a sign, so they belong only on a
+      // layer that actually has one — and they dip out during the pan between
+      // pages, so they never hang over a page that has no sign under them. The
+      // credit is their attribution, so it comes and goes with them.
+      const bearGroup = document.querySelectorAll<HTMLElement>('.bears, .credit');
       function showLayer(id: string | null) {
         allLayers.forEach((l) => l.classList.remove('active'));
         // null means "hide everything", which the callers do mid-pan before the
@@ -318,6 +323,9 @@ const subRuns = [
           const scroller = t.querySelector<HTMLElement>('.sec-scroll');
           if (scroller) scroller.scrollTop = 0;
         }
+        // a layer with a sign in it gets the bears; a card list does not
+        const onSignPage = t !== null && t.querySelector('.sign-wrap') !== null;
+        bearGroup.forEach((el) => el.classList.toggle('bears-away', !onSignPage));
       }
 
       // ════════════════════════════════════════════════════════════════
@@ -1205,6 +1213,12 @@ const subRuns = [
     .layer {
       transition: none;
     }
+    /* no pan means no transition to hide behind, so the bears snap */
+    .bear,
+    .bears-away .bear,
+    .credit.bears-away {
+      transition: none;
+    }
   }
 
   /* ─── Section layers — text overlaid on world ─── */
@@ -1229,26 +1243,50 @@ const subRuns = [
     }
   }
 
+  /* The way back, on a list page. A solid --post chip rather than an outline:
+     the outlined version was only 4.5:1 on the cream in day mode, and a hairline
+     on a busy background reads as faint. A solid chip is 6.7:1, and it is
+     deliberately the same material as the sign's own Back row, so the button
+     looks like the run you came down. Borderless, per the flat design. */
   .back-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     font:
-      600 0.9rem 'Barlow Condensed',
+      600 0.95rem 'Barlow Condensed',
       sans-serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: none;
-    border: 1.5px solid var(--muted);
-    border-radius: 4px;
-    color: var(--muted);
-    padding: 0.28rem 0.85rem;
+    background: var(--post);
+    color: var(--sign-txt);
+    border: 0; /* the UA gives <button> a 2px border */
+    appearance: none;
+    border-radius: 7px; /* the run-button radius, so the two match */
+    padding: 0.42rem 0.95rem;
     cursor: pointer;
-    margin-bottom: 1.4rem;
-    transition:
-      border-color 0.2s,
-      color 0.2s;
+    margin-bottom: 1.6rem;
+    overflow: hidden;
   }
-  .back-btn:hover {
-    border-color: var(--ink);
-    color: var(--ink);
+  /* a flat wash of light on hover, exactly as a run row does — never a move */
+  .back-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .back-btn:hover::after {
+    opacity: 1;
+  }
+  /* the arrow is its own span so the gap comes from `gap`, not a space that
+     the uppercasing would leave dangling; it is hidden from screen readers
+     because the label already says where you are going */
+  .back-btn .back-arrow {
+    position: relative;
+    font-size: 1.1em;
+    line-height: 1;
   }
   .back-btn:focus-visible {
     outline: 2px solid var(--accent);
@@ -1397,7 +1435,10 @@ const subRuns = [
   /* The screenshot slot and the repo link, under a project card. */
   .shot {
     aspect-ratio: 16 / 10;
-    margin: -0.35rem 0 0.9rem;
+    /* No negative top margin: it used to bleed the image up into the card's
+       padding, which is why the top of a project card sat closer to its edge
+       than the bottom. The top is now the card's own padding, matching it. */
+    margin: 0 0 0.9rem;
     border-radius: 7px;
     overflow: hidden;
     background: color-mix(in srgb, var(--sign-bg) 62%, transparent);
@@ -1407,6 +1448,9 @@ const subRuns = [
   .shot img {
     width: 100%;
     height: 100%;
+    /* Zoom to fill: `cover` scales the image until the frame is completely
+       covered, so there is never an unfilled band at any screen size. It does
+       crop — the screenshots are 1.24 to 1.65 wide, against a 1.60 frame. */
     object-fit: cover;
     display: block;
   }
@@ -1461,6 +1505,25 @@ const subRuns = [
   .bears {
     display: contents;
   }
+  /* A page with no sign under it has no snow beside a signpost, so the bears
+     leave. `visibility` is what actually takes them out of the tab order and
+     the hit-testing, not just the paint — otherwise an invisible link would
+     still be focusable and still be clickable through a card. */
+  .bears-away .bear {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.28s ease,
+      visibility 0s;
+  }
+  /* the attribution is for the bears, so it leaves with them */
+  .credit.bears-away {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.28s ease,
+      visibility 0s;
+  }
   /* the narrow fallback lays the two out in a row, so the flip has to be undone
    there or one bear would be lying on its side */
   @media (max-width: 779px) {
@@ -1468,10 +1531,17 @@ const subRuns = [
       transform: none;
     }
   }
+  /* the pair cross-fade in and out rather than snapping. showLayer(null) runs
+     mid-pan, so the fade happens while the world is still moving, and the
+     bears are back before the next page settles. */
   .bear {
     /* above the .layer pages (z-index 10) so the links stay reachable on
        every page, but below the mode button (300) */
     z-index: 20;
+    /* fades, and is untabbable and unclickable while it is out */
+    transition:
+      opacity 0.28s ease,
+      visibility 0s linear 0.28s;
     /* 21% of the image box is empty below the bear's feet, so it is the feet —
      not the box — that get placed on the snow. Everything hangs off --bear-w
      so the two bears scale as one. */

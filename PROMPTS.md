@@ -43,3 +43,8 @@ move the ski sign up toward the middle of the page 22. move the sign slightly do
 60. go through agents.md and do cleanup as needed to reduce redundancy. once complete, go through all the code and let me know what refactors can be done to reduce duplication and increase code quality without going overboard
 63. now make the bears persistent across all pages
 64. remove the sign that divides the skills up, instead just put them all on one page divided by headers above each section
+65. the back button on each non-sign page needs to be more visible and overall just nicer
+66. and now with the bear persistence pls make them NOT present when it is a page that does not contain a sign (ie. a page with cards). also make them disappear and reappear between each page transition
+67. ive added project screenshots in the data/ folder, can you link them to the resume to be used in the site? the file names are self explanatory
+68. increase the top padding of each project card by a few pixels to match the bottom
+69. also for each screenshot just zoom to fit the frame, i dont want any unfilled bits on the frame
