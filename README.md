@@ -5,9 +5,7 @@
 You land at a signpost at the top of a mountain. Four runs leave it: Experience,
 Personal Projects, Extracurricular and Skills. Each one is colour-coded and
 arrowed the way a real run would be — green circle, blue square, black diamond,
-double black — and taking one pans the camera across the same scene until you
-arrive at the trail map again, a little further along. Nothing about the
-landscape changes. You just ski through it.
+double black. This site is an experience inspired by my lifelong passion for skiing.
 
 It is built with [Astro](https://astro.build), plain CSS and a little vanilla
 JS. No framework, no UI kit.
