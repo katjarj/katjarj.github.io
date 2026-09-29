@@ -34,3 +34,9 @@ move the ski sign up toward the middle of the page 22. move the sign slightly do
 55. instead of splitting with headers split with a sign! left = academic, up-left = hackathons, right = side projects, and up-right = back (because we're going back to the parent sign)
 56. academic should be a green run, hackathons blue, and side projects black
 57. is it possible to extract a project card into its own component?
+61. now update the readme to be more user-directed than just instructions for me
+
+58. how do i add the links to the cards now
+59. how do i improve the formatting of the js in the resume
+60. go through agents.md and do cleanup as needed to reduce redundancy. once complete, go through all the code and let me know what refactors can be done to reduce duplication and increase code quality without going overboard
+

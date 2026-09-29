@@ -16,6 +16,7 @@ import {
   skills,
 } from '../data/resume.js';
 import Sign from '../components/Sign.astro';
+import Card from '../components/Card.astro';
 
 // Every experience entry, in the order the groups list them, tagged by group.
 const experience = [education, ...work, ...other];
@@ -193,20 +194,7 @@ const skillRuns = [
             </button>
             <h2>{g.title}</h2>
             <div class="entries">
-              {g.entries.map((e) => (
-                <article class="entry">
-                  <div class="eh">
-                    <h3>{e.title}</h3>
-                    <span class="when">{e.when}</span>
-                  </div>
-                  {e.org && <p class="org">{e.org}</p>}
-                  <ul>
-                    {e.pts.map((p) => (
-                      <li>{p}</li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
+              {g.entries.map((e) => <Card entry={e} />)}
             </div>
           </div>
         </div>
@@ -230,36 +218,7 @@ const skillRuns = [
             </button>
             <h2>{c.title}</h2>
             <div class="entries entries-2">
-              {c.items.map((p) => (
-                <article class="entry entry-shot">
-                  <div class="shot">
-                    {p.img ? (
-                      <img src={p.img} alt={`${p.title} screenshot`} loading="lazy" />
-                    ) : (
-                      <span class="shot-empty">Screenshot</span>
-                    )}
-                  </div>
-                  <div class="eh">
-                    <h3>{p.title}</h3>
-                    <span class="when">{p.when}</span>
-                  </div>
-                  {p.org && <p class="org">{p.org}</p>}
-                  <ul>
-                    {p.pts.map((pt) => (
-                      <li>{pt}</li>
-                    ))}
-                  </ul>
-                  {p.github ? (
-                    <a class="card-link" href={p.github} target="_blank" rel="noopener">
-                      GitHub ↗
-                    </a>
-                  ) : (
-                    <a href="https://github.com" class="card-link">
-                      GitHub — add a repo
-                    </a>
-                  )}
-                </article>
-              ))}
+              {c.items.map((p) => <Card entry={p} />)}
             </div>
           </div>
         </div>

@@ -148,7 +148,7 @@ export const community = [
     when: 'May 2026 – present',
     pts: [
       'Manage three Internal Events Directors, organizing events for 1500+ UBC CS students',
-      'Work with the CS Department on Tri-Mentorship Program events; lead weekly huddles and mentor new execs',
+      'Work with the CS Department on Tri-Mentorship Program events; lead team syncs and mentor new execs',
     ],
   },
   {

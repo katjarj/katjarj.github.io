@@ -1,0 +1,43 @@
+---
+// One card, for every entry in the site. The project card is this card plus a
+// screenshot slot and a repo link, so `img` and `github` are the only optional
+// parts and an experience entry simply omits them. An empty `img`/`github`
+// renders a labelled placeholder, so a half-finished project still looks right.
+//
+// The styling all lives in the page's global block, so this component carries
+// no <style> of its own: a card is the sign's timber wherever it lands.
+const { entry: e } = Astro.props;
+---
+<article class:list={["entry", e.img && "entry-shot"]}>
+  {
+    e.img !== undefined && (
+      <div class="shot">
+        {e.img ? (
+          <img src={e.img} alt={`${e.title} screenshot`} loading="lazy" />
+        ) : (
+          <span class="shot-empty">Screenshot</span>
+        )}
+      </div>
+    )
+  }
+  <div class="eh">
+    <h3>{e.title}</h3>
+    <span class="when">{e.when}</span>
+  </div>
+  {e.org && <p class="org">{e.org}</p>}
+  <ul>
+    {e.pts.map((p) => <li>{p}</li>)}
+  </ul>
+  {
+    e.github !== undefined &&
+      (e.github ? (
+        <a class="card-link" href={e.github} target="_blank" rel="noopener">
+          GitHub ↗
+        </a>
+      ) : (
+        <a href="https://github.com" class="card-link is-empty">
+          GitHub — add a repo
+        </a>
+      ))
+  }
+</article>
