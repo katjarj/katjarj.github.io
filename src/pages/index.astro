@@ -18,7 +18,21 @@ import Sign from "../components/Sign.astro";
 
 // Every experience entry, in the order the groups list them, tagged by group.
 const experience = [education, ...work, ...other];
-const groupOf = (id: string) => experience.filter((e) => e.group === id);
+const groupOf = (id: string) =>
+  experience.filter((e) => e.group === id);
+
+// Extracurricular is carded per organisation rather than per role, so one
+// card holds everything held under that org — a club's three positions sit
+// together instead of repeating the club's name three times down the page.
+const byOrg = (arr: { org: string }[]) => {
+  const seen = new Map<string, typeof arr>();
+  for (const e of arr) {
+    if (!seen.has(e.org)) seen.set(e.org, []);
+    seen.get(e.org)!.push(e);
+  }
+  return [...seen].map(([org, items]) => ({ org, items }));
+};
+const ORGS = byOrg(community);
 
 // Four options fan out the way the main sign does: ←, ↖, ↗, →. The three
 // groups take the first three; the Back row below is the fourth and takes →.
@@ -189,10 +203,17 @@ const skillRuns = [
         <div class="sec-inner">
           <button class="back-btn" data-back>← Trail Map</button>
           <h2>Personal Projects</h2>
-          <div class="entries">
+          <div class="entries entries-2">
             {
               projects.map((p) => (
-                <article class="entry">
+                <article class="entry entry-shot">
+                  <div class="shot">
+                    {p.img ? (
+                      <img src={p.img} alt={`${p.title} screenshot`} loading="lazy" />
+                    ) : (
+                      <span class="shot-empty">Screenshot</span>
+                    )}
+                  </div>
                   <div class="eh">
                     <h3>{p.title}</h3>
                     <span class="when">{p.when}</span>
@@ -203,6 +224,13 @@ const skillRuns = [
                       <li>{pt}</li>
                     ))}
                   </ul>
+                  {p.github ? (
+                    <a class="card-link" href={p.github} target="_blank" rel="noopener">
+                      GitHub ↗
+                    </a>
+                  ) : (
+                    <span class="card-link is-empty">GitHub — add a repo</span>
+                  )}
                 </article>
               ))
             }
@@ -219,20 +247,22 @@ const skillRuns = [
           <h2>Extracurricular</h2>
           <div class="entries">
             {
-              community.map((c) => (
-                <article class="entry">
-                  <div class="eh">
-                    <>
-                      <h3>{c.title}</h3>
-                      <span class="when">{c.when}</span>
-                    </>
-                  </div>
-                  {c.org && <p class="org">{c.org}</p>}
-                  <ul>
-                    {c.pts.map((p) => (
-                      <li>{p}</li>
-                    ))}
-                  </ul>
+              ORGS.map((g) => (
+                <article class="entry entry-org">
+                  <h3 class="org-name">{g.org}</h3>
+                  {g.items.map((c) => (
+                    <div class="role">
+                      <div class="eh">
+                        <h4>{c.title}</h4>
+                        <span class="when">{c.when}</span>
+                      </div>
+                      <ul>
+                        {c.pts.map((p) => (
+                          <li>{p}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </article>
               ))
             }
@@ -1310,15 +1340,39 @@ const skillRuns = [
     margin-bottom: 0.25rem;
     color: var(--ink);
   }
+  /* ─── Cards ───────────────────────────────────────────────
+     The section pages are cards rather than a list on bare snow,
+     and a card is the sign's own timber. So the text on one is
+     the sign's cream, not the page's --ink: that is a dark plum in
+     bluebird and would be unreadable against brown. */
   .entries {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
     margin-top: 1.5rem;
   }
+  /* two columns for the project cards, which carry a screenshot */
+  .entries-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 720px) {
+    .entries-2 {
+      grid-template-columns: 1fr;
+    }
+  }
   .entry {
-    border-left: 3px solid var(--accent);
-    padding-left: 1.15rem;
+    --card-ink: var(--sign-txt);
+    --card-body: color-mix(in srgb, var(--sign-txt) 88%, transparent);
+    /* 84% is the first step that clears 4.5:1 in BOTH modes on --post: at
+       72% the dates fall to 3.8:1 in night ski. Do not dim this further. */
+    --card-dim: color-mix(in srgb, var(--sign-txt) 84%, transparent);
+    --card-line: color-mix(in srgb, var(--sign-txt) 20%, transparent);
+    background: var(--post);
+    color: var(--card-ink);
+    border-radius: 10px;
+    padding: 1.05rem 1.15rem 1.15rem;
+    display: flex;
+    flex-direction: column;
   }
   .eh {
     display: flex;
@@ -1349,28 +1403,92 @@ const skillRuns = [
     justify-content: center;
     padding-top: 11vh; /* matches #layer-landing, so both signs agree */
   }
+  .entry h3,
+  .entry h4 { color: var(--card-ink); }
   .when {
     font:
       500 0.93rem "Barlow Condensed",
       sans-serif;
-    color: var(--muted);
+    color: var(--card-dim);
     white-space: nowrap;
   }
   .org {
     font:
       500 0.95rem "Barlow Condensed",
       sans-serif;
-    color: var(--muted);
+    color: var(--card-body);
     margin-bottom: 0.3rem;
   }
-  ul {
-    padding-left: 1.1rem;
+  .entry ul {
+    padding-left: 1.05rem;
     margin: 0.3rem 0 0;
   }
-  li {
+  .entry li {
     margin: 0.22rem 0;
     font-size: 0.98rem;
     line-height: 1.55;
+    color: var(--card-body);
+  }
+  /* One card per organisation, with that org's roles stacked inside it. */
+  .org-name {
+    font:
+      700 1.02rem "Barlow Condensed",
+      sans-serif;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--card-ink);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--card-line);
+  }
+  .role + .role {
+    margin-top: 0.95rem;
+    padding-top: 0.95rem;
+    border-top: 1px solid var(--card-line);
+  }
+  /* The screenshot slot and the repo link, under a project card. */
+  .shot {
+    aspect-ratio: 16 / 10;
+    margin: -0.35rem 0 0.9rem;
+    border-radius: 7px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--sign-bg) 62%, transparent);
+    display: grid;
+    place-items: center;
+  }
+  .shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .shot-empty {
+    font:
+      600 0.78rem "Barlow Condensed",
+      sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--sign-txt) 45%, transparent);
+  }
+  .card-link {
+    margin-top: 0.95rem;
+    align-self: flex-start;
+    font:
+      600 0.85rem "Barlow Condensed",
+      sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--card-ink);
+    text-decoration: none;
+    padding-bottom: 1px;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--sign-txt) 45%, transparent);
+  }
+  .card-link:hover { border-bottom-color: var(--card-ink); }
+  .card-link.is-empty {
+    color: color-mix(in srgb, var(--sign-txt) 42%, transparent);
+    border-bottom-style: dashed;
+    cursor: default;
   }
 
   /* One category per page now, so the old two-column definition list is gone:

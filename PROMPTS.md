@@ -68,6 +68,8 @@ move the ski sign up toward the middle of the page
 50. remove the golden colour altogether (including from the mode button, replace that with the dark brown from the sign with the highlighted colour being the same shade as the back button)
 51. when in night mode (i.e. when the text on the mode button says bluebird) the button should be lighter (pick a colour from the palette)
 
+53. instead of all the items on the pages being listed like a resume on blank space, use the brown from the sign and make cards for each project/experience/extracurricular/etc. experience can all be in one column, projects can be in two columns and leave placeholders for me to put images for each project and a github link for each, extracurriculars can be split into cards based on organization, also all in one column
+
 
 
 
