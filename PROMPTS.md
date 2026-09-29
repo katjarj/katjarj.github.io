@@ -55,6 +55,8 @@ move the ski sign up toward the middle of the page
 37. now the top tab ('experience' or 'trail map') is full length, i dont want that. revert that
 38. make my name bigger and a bit lower
 39. would it be possible to extract the signs to its own component of some kind to reduce duplication as i add more? the reason i'm asking is so that when i add more signs to help separate out some of the other sections (for example maybe i will want to separate my skils into different categories) i can easily create a new sign that has the same styles and behaviour. also generalise back so a nested sign can return to its own parent sign rather than always the trail map
+40. now separate the skills using a sign. the back button should point left (toward the parent) and the rest fill in the usual spots
+
 
 
 

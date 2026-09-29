@@ -50,4 +50,11 @@ export const trailMap = [
   { id: 'community',  title: 'Extracurricular',   diff: 'black',  dir: 'upright' },
   { id: 'skills',     title: 'Skills',            diff: 'dblack', dir: 'right'   },
 ];
-export const skills = [['Programming', 'Python, C++, Java, C, R, Racket'], ['Tools', 'Git, UML, Figma, VS Code, Docker, Jira, Bamboo, GitHub Copilot, Claude Code'], ['Web', 'HTML, Tailwind CSS, TypeScript, React.js, Next.js']];
+// Skill categories. Each is a run on the SKILLS sign and a page behind it, so
+// each carries an `id` (which names its layer) and a `diff` (its trail rating,
+// which drives both the row's colour and its symbol). Re-rate freely.
+export const skills = [
+  { id: 'programming', title: 'Programming', diff: 'green', items: 'Python, C++, Java, C, R, Racket' },
+  { id: 'tools',       title: 'Tools',       diff: 'blue',  items: 'Git, UML, Figma, VS Code, Docker, Jira, Bamboo, GitHub Copilot, Claude Code' },
+  { id: 'web',         title: 'Web',         diff: 'black', items: 'HTML, Tailwind CSS, TypeScript, React.js, Next.js' },
+];

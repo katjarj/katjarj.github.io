@@ -25,6 +25,21 @@ const subRuns = [
   ...LAYERS.map((g) => ({ id: g.id, title: g.title, diff: g.diff, dir: g.dir })),
   { title: 'Back to Trail Map', dir: 'right', back: true },
 ];
+
+// Skills splits the same way — a sign of its own, one page per category — and
+// its Back points the way back to its parent, which here is left: you arrived
+// from the trail map's double-black run, and that run traverses right, so home
+// is the other way. Back takes the ← slot and the three categories fill the
+// rest of the fan.
+const SKILL_DIRS = ['upleft', 'upright', 'right'];
+// The layer id must be `layer-` + the run's id: the click handler builds the
+// target by prefixing `layer-` to `data-target`, which Sign.astro sets from
+// `r.id`. Anything else and showLayer finds nothing and the screen goes blank.
+const skillLayers = skills.map((s, i) => ({ ...s, dir: SKILL_DIRS[i], layer: `layer-${s.id}` }));
+const skillRuns = [
+  ...skillLayers.map((s) => ({ id: s.id, title: s.title, diff: s.diff, dir: s.dir })),
+  { title: 'Back to Trail Map', dir: 'left', back: true },
+];
 ---
 <html lang="en">
 <head>
@@ -156,26 +171,29 @@ const subRuns = [
   </div>
 
   <!-- Skills (double black) -->
-  <div id="layer-skills" class="layer section-layer">
-    <div class="sec-scroll">
-      <div class="sec-inner">
-        <button class="back-btn" data-back>← Trail Map</button>
-        <h2>Skills</h2>
-        <dl class="skills-dl">
-          {skills.map(([k, v]) => (
-            <>
-              <dt>{k}</dt>
-              <dd>{v}</dd>
-            </>
-          ))}
-        </dl>
-        <div class="links-row">
-          <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
-          <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+  <!-- ══════════════════════════════════════════════
+       SKILLS — a third sign, reached from the double-black run.
+       Back points left, the way home to the trail map.
+  ══════════════════════════════════════════════ -->
+  <div id="layer-skills" class="layer sub-layer">
+    <Sign cap="SKILLS" runs={skillRuns} />
+  </div>
+
+  {skillLayers.map((s) => (
+    <div id={s.layer} class="layer section-layer">
+      <div class="sec-scroll">
+        <div class="sec-inner">
+          <button class="back-btn" data-back>← Skills</button>
+          <h2>{s.title}</h2>
+          <p class="skill-items">{s.items}</p>
+          <div class="links-row">
+            <a href={links.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+            <a href={links.github} target="_blank" rel="noopener">GitHub ↗</a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  ))}
 
 <script>
 // ─── Helpers ────────────────────────────────────────────────────
@@ -944,15 +962,9 @@ li { margin: 0.22rem 0; font-size: 0.98rem; line-height: 1.55; }
 .tdot-blue  { color: #3A76E0; }
 .tdot-black { color: var(--ink); }
 
-.skills-dl {
-  display: grid; grid-template-columns: max-content 1fr;
-  gap: 0.6rem 1.8rem; margin-top: 1.5rem;
-}
-.skills-dl dt {
-  font: 700 1.1rem 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent);
-}
-.skills-dl dd { font-size: 0.98rem; line-height: 1.55; }
+/* One category per page now, so the old two-column definition list is gone:
+   the h2 is the label and this is what sits under it. */
+.skill-items { font-size: 0.98rem; line-height: 1.55; margin-top: 0.4rem; }
 
 .links-row {
   margin-top: 2.5rem; display: flex; gap: 1.5rem;
