@@ -41,4 +41,5 @@ move the ski sign up toward the middle of the page 22. move the sign slightly do
 58. how do i add the links to the cards now
 59. how do i improve the formatting of the js in the resume
 60. go through agents.md and do cleanup as needed to reduce redundancy. once complete, go through all the code and let me know what refactors can be done to reduce duplication and increase code quality without going overboard
-
+63. now make the bears persistent across all pages
+64. remove the sign that divides the skills up, instead just put them all on one page divided by headers above each section

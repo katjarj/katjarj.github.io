@@ -239,7 +239,7 @@ export const trailMap = [
   { id: 'experience', title: 'Experience', diff: 'green', dir: 'left' },
   { id: 'projects', title: 'Personal Projects', diff: 'blue', dir: 'upleft' },
   { id: 'community', title: 'Extracurricular', diff: 'black', dir: 'upright' },
-  { id: 'skills', title: 'Skills', diff: 'dblack', dir: 'right' },
+  { id: 'skills', title: 'Skills', diff: 'dblack', dir: 'right' }, // one page, banded — no sub-sign
 ];
 // Skill categories. Each is a run on the SKILLS sign and a page behind it, so
 // each carries an `id` (which names its layer) and a `diff` (its trail rating,

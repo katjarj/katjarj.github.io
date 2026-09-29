@@ -87,29 +87,10 @@ const subRuns = [
   { title: 'Back to Trail Map', dir: 'right', back: true },
 ];
 
-// Skills splits the same way — a sign of its own, one page per category — and
-// its Back points the way back to its parent, which here is left: you arrived
-// from the trail map's double-black run, and that run traverses right, so home
-// is the other way. Back takes the ← slot and the three categories fill the
-// rest of the fan.
-const SKILL_DIRS = ['upleft', 'upright', 'right'];
-// The layer id must be `layer-` + the run's id: the click handler builds the
-// target by prefixing `layer-` to `data-target`, which Sign.astro sets from
-// `r.id`. Anything else and showLayer finds nothing and the screen goes blank.
-const skillLayers = skills.map((s, i) => ({
-  ...s,
-  dir: SKILL_DIRS[i],
-  layer: `layer-${s.id}`,
-}));
-const skillRuns = [
-  ...skillLayers.map((s) => ({
-    id: s.id,
-    title: s.title,
-    diff: s.diff,
-    dir: s.dir,
-  })),
-  { title: 'Back to Trail Map', dir: 'left', back: true },
-];
+// Note for the signs that do exist: a generated layer id must be `layer-` plus
+// the run's id, because the click handler builds the target by prefixing
+// `layer-` to `data-target`, which Sign.astro sets from `r.id`. Anything else
+// and showLayer finds nothing and the screen goes blank.
 ---
 
 <html lang="en">
@@ -153,27 +134,31 @@ const skillRuns = [
       </header>
 
       <Sign cap="TRAIL MAP" runs={trailMap} />
-
-      <!-- The contact links, as bears on the snow either side of the sign. The
-         label is real text laid on the bear's flank rather than baked into the
-         PNG, so it stays selectable and readable by a screen reader. -->
-      <div class="bears">
-        <a class="bear" href={links.linkedin} target="_blank" rel="noopener">
-          <img src="/bear.png" alt="" aria-hidden="true" />
-          <span class="bear-text">LinkedIn</span>
-        </a>
-        <a class="bear" href={links.github} target="_blank" rel="noopener">
-          <img src="/bear.png" alt="" aria-hidden="true" />
-          <span class="bear-text">GitHub</span>
-        </a>
-      </div>
-
-      <p class="credit">
-        <a href="https://www.flaticon.com/free-icons/bear" title="bear icons">
-          Bear icons created by Victoruler - Flaticon
-        </a>
-      </p>
     </div>
+
+    <!-- ══════════════════════════════════════════════
+         CONTACT — the two bears live OUTSIDE every .layer, so they stay put
+         on every page instead of vanishing on the first run. The credit sits
+         with them for the same reason.
+    ══════════════════════════════════════════════ -->
+    <!-- The label is real text laid on the bear's flank rather than baked into
+         the PNG, so it stays selectable and readable by a screen reader. -->
+    <div class="bears">
+      <a class="bear" href={links.linkedin} target="_blank" rel="noopener">
+        <img src="/bear.png" alt="" aria-hidden="true" />
+        <span class="bear-text">LinkedIn</span>
+      </a>
+      <a class="bear" href={links.github} target="_blank" rel="noopener">
+        <img src="/bear.png" alt="" aria-hidden="true" />
+        <span class="bear-text">GitHub</span>
+      </a>
+    </div>
+
+    <p class="credit">
+      <a href="https://www.flaticon.com/free-icons/bear" title="bear icons">
+        Bear icons created by Victoruler - Flaticon
+      </a>
+    </p>
 
     <!-- ══════════════════════════════════════════════
        SECTION LAYERS — same world behind, text overlay
@@ -260,28 +245,28 @@ const skillRuns = [
       </div>
     </div>
 
-    <!-- Skills (double black) -->
-    <!-- ══════════════════════════════════════════════
-       SKILLS — a third sign, reached from the double-black run.
-       Back points left, the way home to the trail map.
-  ══════════════════════════════════════════════ -->
-    <div id="layer-skills" class="layer sub-layer">
-      <Sign cap="SKILLS" runs={skillRuns} />
-    </div>
-
-    {skillLayers.map((s) => (
-      <div id={s.layer} class="layer section-layer">
-        <div class="sec-scroll">
-          <div class="sec-inner">
-            <button class="back-btn" data-back>
-              ← Skills
-            </button>
-            <h2>{s.title}</h2>
-            <p class="skill-items">{s.items}</p>
+    <!-- Skills: one page, banded by a header per category — no sub-sign, because
+         the categories are not a choice, they are one list. -->
+    <div id="layer-skills" class="layer section-layer">
+      <div class="sec-scroll">
+        <div class="sec-inner">
+          <button class="back-btn" data-back>
+            ← Trail Map
+          </button>
+          <h2>Skills</h2>
+          <div class="entries">
+            {
+              skills.map((s) => (
+                <article class="entry entry-org">
+                  <h3 class="org-name">{s.title}</h3>
+                  <p class="skill-items">{s.items}</p>
+                </article>
+              ))
+            }
           </div>
         </div>
       </div>
-    ))}
+    </div>
 
     <script>
       // ─── Helpers ────────────────────────────────────────────────────
@@ -1459,12 +1444,13 @@ const skillRuns = [
     cursor: default;
   }
 
-  /* One category per page now, so the old two-column definition list is gone:
-   the h2 is the label and this is what sits under it. */
+  /* One category per card, so the old two-column definition list is gone:
+   the .org-name header is the label and this is what sits under it. */
   .skill-items {
+    color: var(--card-body);
     font-size: 0.98rem;
     line-height: 1.55;
-    margin-top: 0.4rem;
+    margin-top: 0;
   }
 
   /* ─── Bears ───────────────────────────────────────────────
@@ -1483,6 +1469,9 @@ const skillRuns = [
     }
   }
   .bear {
+    /* above the .layer pages (z-index 10) so the links stay reachable on
+       every page, but below the mode button (300) */
+    z-index: 20;
     /* 21% of the image box is empty below the bear's feet, so it is the feet —
      not the box — that get placed on the snow. Everything hangs off --bear-w
      so the two bears scale as one. */
@@ -1550,7 +1539,8 @@ const skillRuns = [
   }
 
   .credit {
-    position: absolute;
+    position: fixed;
+    z-index: 20; /* travels with the bears — see .bear */
     bottom: 0.7rem;
     left: 0;
     right: 0;
@@ -1564,14 +1554,18 @@ const skillRuns = [
     color: inherit;
   }
 
-  /* Narrow: the sign fills the width, so there is no snow to either side of
-   it. The bears stand under the post instead of beside it. */
+  /* Narrow: the sign fills the width, so there is no snow either side of it.
+     The bears stay fixed to the foot of the viewport — they are outside every
+     layer now, so they cannot simply sit under the sign in flow, or they would
+     scroll away with the landing page. */
   @media (max-width: 779px) {
     .bears {
       display: flex;
       justify-content: center;
       gap: 1.4rem;
-      margin-top: 1.2rem;
+      left: 0;
+      right: 0;
+      bottom: 2.4rem; /* clear of the credit line pinned to the very bottom */
     }
     .bear {
       position: static;
