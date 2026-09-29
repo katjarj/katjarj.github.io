@@ -23,7 +23,21 @@ Astro (static output), plain CSS (no Tailwind, no UI kit), a little vanilla JS. 
 
 All resume content lives in `src/data/resume.js`. Edit content there, not in markup. Cards are rendered by `Card.astro`; the only card written inline is the extracurricular one.
 
-Entries are plain objects: `title`, `org`, `when`, `pts` (an array of bullet strings). Grouping is by a tag on the entry — `group` for experience, `cat` for projects — matched against an id in the array that owns the label and rating (see Signs). Adding an entry is one object; adding or re-ordering a whole group is a one-line change to that array. Only the _signs_ carry a trail rating, in a `diff` field; individual entries do not.
+The file runs in **the order the site navigates**, one `───` banner per section, so the shape of the site is readable top to bottom:
+
+| Section | Exports |
+| --- | --- |
+| Who | `links`, `intro` |
+| The trail map | `trailMap` — the four landing runs; every `id` names a layer |
+| Experience | `experience` (all entries, flat) + `experienceGroups` (the sub-sign) |
+| Projects | `projectCategories` (the sub-sign) + `projects` |
+| Extracurricular | `extracurricular` |
+| Skills | `skills` |
+
+- **One flat `experience` array, tagged not bucketed.** It used to be `education` (a lone object) + `work` + `other`, split by employment type — but the site only ever filters by the `group` tag, so those buckets were a leftover from the source document. The page's `const experience = [education, ...work, ...other]` special case is gone. Array order is only ever seen *within* a group, so entries are ordered by the sub-signs and dropping a job in anywhere is safe.
+- **Sign-row arrays sit with the content they divide**: `experienceGroups` right after `experience`, `projectCategories` right before `projects`.
+- Entries are plain objects: `title`, `org`, `when`, `pts` (an array of bullet strings). Grouping is by a tag on the entry — `group` for experience, `cat` for projects — matched against an id in the array that owns the label and rating (see Signs). Adding an entry is one object; adding or re-ordering a whole group is a one-line change to that array. Only the _signs_ carry a trail rating, in a `diff` field; individual entries do not.
+- **`extracurricular` is grouped per organisation by the page** (`byOrg` in the frontmatter), not here — so keep one org's roles next to each other; the page folds them in order.
 
 ## Design
 

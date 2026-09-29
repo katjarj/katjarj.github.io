@@ -1,3 +1,6 @@
+// ─── Who ────────────────────────────────────────────────────
+// The only two things that are not part of the trail map. `links` is the whole
+// of the contact section: LinkedIn and GitHub.
 export const links = {
   linkedin: 'https://linkedin.com/in/katja-radovic-jonsson',
   github: 'https://github.com/katjarj',
@@ -8,18 +11,28 @@ export const intro = {
     'Computer science at UBC. Hackathon builder, teacher, and ski instructor at Whistler Blackcomb.',
   where: 'Vancouver, BC. Willing to relocate.',
 };
-export const education = {
-  group: 'education',
-  title: 'B.Sc. Computer Science',
-  org: 'The University of British Columbia',
-  when: '2024 – present',
-  pts: [
-    '92.3% GPA',
-    'Dean’s Scholar Award; Loran Provincial Award',
-    'Courses: CPSC 110, 121, 210, 213, 221; DSCI 100',
-  ],
-};
-export const work = [
+
+// ─── The trail map ──────────────────────────────────────────
+// The four runs on the landing sign, and the whole shape of the site: every id
+// here names a layer. `diff` is the trail rating, and it drives both the row's
+// colour and its symbol from this one value, so the two can never drift apart.
+// `dir` is the way the camera travels when you take that run, and it is also
+// what a page's Back arrow retraces. A run with no `diff` is unrated — it wears
+// the sign's own frame colour and carries no symbol.
+export const trailMap = [
+  { id: 'experience', title: 'Experience', diff: 'green', dir: 'left' },
+  { id: 'projects', title: 'Personal Projects', diff: 'blue', dir: 'upleft' },
+  { id: 'community', title: 'Extracurricular', diff: 'black', dir: 'upright' },
+  { id: 'skills', title: 'Skills', diff: 'dblack', dir: 'right' },
+];
+// ─── Experience ─────────────────────────────────────────────
+// One flat list, ordered by the sub-signs below so each group reads top to
+// bottom exactly as it did before these were three separate arrays. Every
+// entry carries a `group` id that names the sub-sign it appears under, and
+// that tag is the only thing that decides placement — the array order is
+// only ever seen within a group, so adding a job is a uniform one-object
+// change wherever you drop it.
+export const experience = [
   {
     group: 'technical',
     title: 'Software Developer Co-op',
@@ -39,12 +52,60 @@ export const work = [
     when: 'Sep 2026 – present',
     pts: ['TA for CPSC 213: Introduction to Computer Systems'],
   },
+  {
+    group: 'nontechnical',
+    title: 'Ski Instructor',
+    org: 'Whistler Blackcomb',
+    when: 'Dec 2022 – present',
+    pts: [
+      'Teach beginner to intermediate skiing in group and private lessons',
+      'Supervise students and meet their needs; give feedback to students and parents; debrief with supervisors daily',
+    ],
+  },
+  {
+    group: 'nontechnical',
+    title: 'Private Math Tutor',
+    org: 'Vancouver, BC',
+    when: 'May 2025 – present',
+    pts: [
+      'Teach high school and intro university math, with personalized goals and progress tracking',
+    ],
+  },
+  {
+    group: 'nontechnical',
+    title: 'Tech Specialist',
+    org: 'London Drugs',
+    when: 'Nov 2022 – Dec 2025',
+    pts: ['Advised clients across the Tech department and ran photo orders at the Photo Lab'],
+  },
+  {
+    group: 'education',
+    title: 'B.Sc. Computer Science',
+    org: 'The University of British Columbia',
+    when: '2024 – present',
+    pts: [
+      '92.3% GPA',
+      'Dean’s Scholar Award; Loran Provincial Award',
+      'Courses: CPSC 110, 121, 210, 213, 221; DSCI 100',
+    ],
+  },
 ];
-// The project categories, in the order they appear on the sign. Each project
-// below carries a `cat` id, so adding a project is a one-line change there and
+
+// The EXPERIENCE sub-sign: one run per group, each carrying a trail rating in
+// `diff` and matched against the `group` tag on the entries above. Reordering
+// or re-rating a whole group is a one-line change here; adding a job is a
+// one-object change up there. A group with no entries is not drawn at all.
+export const experienceGroups = [
+  { id: 'technical', title: 'Technical', diff: 'green' },
+  { id: 'nontechnical', title: 'Non-technical', diff: 'blue' },
+  { id: 'education', title: 'Education', diff: 'black' },
+];
+// ─── Projects ───────────────────────────────────────────────
+// The categories, in the order they appear on the sign. Each project below
+// carries a `cat` id, so adding a project is a one-object change down there and
 // re-ordering, renaming or re-rating a whole category is a one-line change
 // here. `diff` is the trail rating, which drives the run's colour and symbol.
-export const projectCats = [
+export const projectCategories = [
   { id: 'academic', title: 'Academic', diff: 'green' },
   { id: 'hackathons', title: 'Hackathons', diff: 'blue' },
   { id: 'side', title: 'Side Projects', diff: 'black' },
@@ -140,8 +201,36 @@ export const projects = [
       'Astro, plain CSS and a little vanilla JS',
     ],
   },
+  {
+    title: 'WiCS Marketing Manager',
+    cat: 'side',
+    when: '2026',
+    img: '/projects/wics-marketing.png',
+    github: 'https://github.com/katjarj/marketing-manager',
+    pts: [
+      'A tool for managing marketing tickets in a team environment',
+      'Designed for my team at UBC Women in Computer Science',
+      'TypeScript, Supabase, and Tailwind CSS',
+    ],
+  },
+  {
+    title: 'Google Calendar CLI',
+    cat: 'side',
+    when: '2026',
+    img: '/projects/gcal-terminal.png',
+    github: 'https://github.com/katjarj/gcal-terminal',
+    pts: [
+      'A way to add Google Calendar events using only the terminal!',
+      'Perhaps the nerdiest thing I have ever done',
+      'JS and a little bit of Bash',
+    ],
+  },
 ];
-export const community = [
+// ─── Extracurricular ────────────────────────────────────────
+// Grouped per organisation by the page, not here: a club's several roles sit
+// under one card rather than repeating the club's name down the page. Keep the
+// roles of one org next to each other — the page folds them in order.
+export const extracurricular = [
   {
     title: 'VP Internal',
     org: 'UBC Women in Computer Science',
@@ -190,60 +279,11 @@ export const community = [
     ],
   },
 ];
-export const other = [
-  {
-    group: 'nontechnical',
-    title: 'Ski Instructor',
-    org: 'Whistler Blackcomb',
-    when: 'Dec 2022 – present',
-    pts: [
-      'Teach beginner to intermediate skiing in group and private lessons',
-      'Supervise students and meet their needs; give feedback to students and parents; debrief with supervisors daily',
-    ],
-  },
-  {
-    group: 'nontechnical',
-    title: 'Private Math Tutor',
-    org: 'Vancouver, BC',
-    when: 'May 2025 – present',
-    pts: [
-      'Teach high school and intro university math, with personalized goals and progress tracking',
-    ],
-  },
-  {
-    group: 'nontechnical',
-    title: 'Tech Specialist',
-    org: 'London Drugs',
-    when: 'Nov 2022 – Dec 2025',
-    pts: ['Advised clients across the Tech department and ran photo orders at the Photo Lab'],
-  },
-];
 
-// ─── Sub-signs: how the Experience section sorts itself ───────────
-// The section is cut into sub-signs, one per group, each carrying a trail
-// rating in `diff`. Every entry above is tagged with a `group` id, so adding a
-// job is a one-line change there, while reordering or re-rating a whole group
-// is a one-line change here. A group with no entries is simply not drawn.
-export const groups = [
-  { id: 'technical', title: 'Technical', diff: 'green' },
-  { id: 'nontechnical', title: 'Non-technical', diff: 'blue' },
-  { id: 'education', title: 'Education', diff: 'black' },
-];
-
-// ─── The runs on the main TRAIL MAP sign ──────────────────────
-// `diff` is the trail rating, and it drives both the row's colour and its
-// symbol from this one value, so the two can never drift apart. `dir` is the
-// way the camera travels when you take that run. A run with no `diff` is
-// unrated — it wears the sign's own frame colour and carries no symbol.
-export const trailMap = [
-  { id: 'experience', title: 'Experience', diff: 'green', dir: 'left' },
-  { id: 'projects', title: 'Personal Projects', diff: 'blue', dir: 'upleft' },
-  { id: 'community', title: 'Extracurricular', diff: 'black', dir: 'upright' },
-  { id: 'skills', title: 'Skills', diff: 'dblack', dir: 'right' }, // one page, banded — no sub-sign
-];
-// Skill categories. Each is a run on the SKILLS sign and a page behind it, so
-// each carries an `id` (which names its layer) and a `diff` (its trail rating,
-// which drives both the row's colour and its symbol). Re-rate freely.
+// ─── Skills ─────────────────────────────────────────────────
+// One page, banded by a header per category — no sub-sign, because the
+// categories are not a choice, they are one list. `id` names the layer and
+// `diff` is the trail rating, driving both the row's colour and its symbol.
 export const skills = [
   {
     id: 'programming',
@@ -255,12 +295,12 @@ export const skills = [
     id: 'tools',
     title: 'Tools',
     diff: 'blue',
-    items: 'Git, UML, Figma, VS Code, Docker, Jira, Bamboo, GitHub Copilot, Claude Code',
+    items: 'Git, UML, Figma, Docker, Jira, Bamboo, GitHub Copilot, Claude Code',
   },
   {
     id: 'web',
     title: 'Web',
     diff: 'black',
-    items: 'HTML, Tailwind CSS, TypeScript, React.js, Next.js',
+    items: 'HTML, Tailwind CSS, TypeScript, React.js, Next.js, Astro',
   },
 ];

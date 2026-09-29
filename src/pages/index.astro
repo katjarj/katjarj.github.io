@@ -5,22 +5,19 @@ import '@fontsource/barlow-condensed/600.css';
 import {
   links,
   intro,
-  education,
-  work,
-  other,
-  groups,
   trailMap,
+  experience,
+  experienceGroups,
   projects,
-  projectCats,
-  community,
+  projectCategories,
+  extracurricular,
   skills,
 } from '../data/resume.js';
 import Sign from '../components/Sign.astro';
 import Card from '../components/Card.astro';
 import Arrow from '../components/Arrow.astro';
 
-// Every experience entry, in the order the groups list them, tagged by group.
-const experience = [education, ...work, ...other];
+// Every experience entry, in the order the sub-signs list them, tagged by group.
 const groupOf = (id: string) => experience.filter((e) => e.group === id);
 
 // Extracurricular is carded per organisation rather than per role, so one
@@ -37,7 +34,7 @@ const byOrg = <T extends { org: string }>(arr: T[]) => {
   }
   return [...seen].map(([org, items]) => ({ org, items }));
 };
-const ORGS = byOrg(community);
+const ORGS = byOrg(extracurricular);
 
 // The reverse of a run's direction — which way a Back retraces it. This is the
 // build-time twin of MIRROR in the script below, and it exists so a card
@@ -64,7 +61,7 @@ const backOf = (runs: { id: string; dir: string }[], id: string) => {
 // Back points up-right, the reverse of the blue up-left run that reached this
 // sign, so it is the way home. That leaves ←, ↖ and → for the categories.
 const PROJECT_DIRS = ['left', 'upleft', 'right'];
-const projectLayers = projectCats
+const projectLayers = projectCategories
   .map((c, i) => {
     const dir = PROJECT_DIRS[i] || 'left';
     return {
@@ -91,7 +88,7 @@ const projectRuns = [
 // Left and right are the long two-period traverses, the angled pair one period
 // each, so each arrow is matched by its pan distance.
 const DIRS = ['left', 'upleft', 'upright'];
-const LAYERS = groups
+const LAYERS = experienceGroups
   .map((g, i) => {
     const dir = DIRS[i] || 'upleft';
     return {

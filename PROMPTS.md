@@ -53,3 +53,5 @@ move the ski sign up toward the middle of the page 22. move the sign slightly do
 72. make this site mobile friendly. ask questions as needed
 
 73. create a sunrise/sunset transition effect when switching between dark and light mode
+74. now organize the resume.js file into const names that make more sense and just overall organize it to be more consistent with the site itself
+
