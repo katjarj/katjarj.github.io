@@ -280,6 +280,23 @@ export const extracurricular = [
   },
 ];
 
+// ─── The resume PDF ─────────────────────────────────────────
+// Served from `public/resume.pdf`, so the path here is the only place the
+// filename is written down. The page reaches this by SCROLLING DOWN from the
+// landing — it is deliberately not a fifth run on the trail map, because the
+// map is a four-way fan of traverses and a scroll is not a traverse.
+//
+// There is no embedded viewer: the page shows the document itself as plain
+// images, so there is no PDF toolbar, no zoom strip and no editor border. The
+// images are rasterised from the PDF by `scripts/rasterise.py` (macOS Quartz);
+// re-run it after re-exporting. The download link below is the copy you keep.
+export const resume = {
+  heading: 'Resume',
+  file: '/resume.pdf',
+  note: 'My resume as a PDF — take a copy!',
+  pages: ['/resume/resume-1.png', '/resume/resume-2.png'],
+};
+
 // ─── Skills ─────────────────────────────────────────────────
 // One page, banded by a header per category — no sub-sign, because the
 // categories are not a choice, they are one list. `id` names the layer and

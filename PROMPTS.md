@@ -54,4 +54,22 @@ move the ski sign up toward the middle of the page 22. move the sign slightly do
 
 73. create a sunrise/sunset transition effect when switching between dark and light mode
 74. now organize the resume.js file into const names that make more sense and just overall organize it to be more consistent with the site itself
+75. add a feature so that when you scroll down from the landing it leads to a viewable pdf of my resume and a link to download it
+76. i want it to be a visual scroll down into the snow
+77. make it scroll a little lower and as you scroll make the resume gradually appear
+78. can the resume pdf not be in that viewer thing? and a bit more like, blended into the snow if that makes sense
+79. move the flaticon attribution to always be at the bottom even on the resume page
+82. make the bear icon attribution disappear on the resume page
+83. make the resume like, scroll onto the page. as in, you only see a little bit at a time until you've fully scrolled. it should also be in front of the attribution tag object
+84. move the highest mountain a few pixels lower
+85. also the resume view is kind of glitching now
+86. scrolling thru the resume is still kind of glitchy
+87. now the bottom third of each page doesnt render
+88. great, now is there a way to subtly indicate that the user can scroll?
 
+80. the resume pdf itself is not visible, is it possible to bring it back without the border of the editor? e.g. make it like an image almost
+
+81. the resume header and the icon attribution needs to be dark even in dark mode due to the white background. also center the heading and resume note
+
+89. no not a scroll to read, i mean an indicator on the landing
+90. move the 'scroll for my resume' down a little bit

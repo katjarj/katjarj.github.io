@@ -11,6 +11,7 @@ import {
   projects,
   projectCategories,
   extracurricular,
+  resume,
   skills,
 } from '../data/resume.js';
 import Sign from '../components/Sign.astro';
@@ -161,6 +162,18 @@ const subRuns = [
       </header>
 
       <Sign cap="TRAIL MAP" runs={trailMap} />
+
+      <!-- The wheel does something here that no other page does: it dives, and
+           the résumé comes up out of the snow. Nothing on the sign says so, and
+           the page itself never scrolls, so the gesture is invisible until you
+           try it. This is the sign's own down arrow (Arrow.astro `down`) and
+           three words under the post. aria-hidden: a screen-reader user reads
+           the résumé from the link above, and the dive is not a thing they can
+           do, so a spoken hint would be noise. -->
+      <p class="dive-cue" id="dive-cue" aria-hidden="true">
+        <span>scroll for my resume!</span>
+        <Arrow dir="down" />
+      </p>
     </div>
 
     <!-- ══════════════════════════════════════════════
@@ -309,6 +322,33 @@ const subRuns = [
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════
+         RÉSUMÉ — reached by scrolling DOWN from the landing, not by a
+         run. The world keeps sitting exactly where it is; this scrolls over
+         it, like any other page. There is no Back button here: the way
+         back out of the snow is to scroll up off the top of the page.
+    ══════════════════════════════════════════════ -->
+    <div id="layer-resume" class="layer section-layer">
+      <div class="sec-scroll">
+        <div class="sec-inner">
+          <h2>{resume.heading}</h2>
+          <p class="resume-note">{resume.note}</p>
+          <a class="dl-btn" href={resume.file} download>
+            Download the PDF
+          </a>
+          <!-- The pages are rasterised from the PDF and mounted on first reveal,
+               so the site is not carrying 787KB of résumé on every visit. The
+               list rides on the slot rather than being closed over, so it stays
+               visible in the DOM. -->
+          <div
+            class="resume-pages"
+            id="resume-pages"
+            data-pages={JSON.stringify(resume.pages)}
+          ></div>
+        </div>
+      </div>
+    </div>
+
     <script>
       // ─── Helpers ────────────────────────────────────────────────────
       const root = document.documentElement;
@@ -399,9 +439,16 @@ const subRuns = [
       // text come and go over it.
       // The bears stand on the snow beside a sign, so they belong only on a
       // layer that actually has one — and they dip out during the pan between
-      // pages, so they never hang over a page that has no sign under them. The
-      // credit is their attribution, so it comes and goes with them.
-      const bearGroup = document.querySelectorAll<HTMLElement>('.bears, .credit');
+      // pages, so they never hang over a page that has no sign under them.
+      //
+      // The credit is NOT in this group. It is a licence attribution, not
+      // decoration, so it stays on every page a person might read — including
+      // the card pages, which the bears never appear on. It is hidden on
+      // exactly one layer: the résumé, where two full-bleed white pages of
+      // paper sit behind everything and a dark line of text across the bottom
+      // of the paper reads as a mistake.
+      const bearGroup = document.querySelectorAll<HTMLElement>('.bears');
+      const credit = document.querySelector<HTMLElement>('.credit')!;
       function showLayer(id: string | null) {
         allLayers.forEach((l) => l.classList.remove('active'));
         // null means "hide everything", which the callers do mid-pan before the
@@ -412,9 +459,12 @@ const subRuns = [
           const scroller = t.querySelector<HTMLElement>('.sec-scroll');
           if (scroller) scroller.scrollTop = 0;
         }
-        // a layer with a sign in it gets the bears; a card list does not
+        // a layer with a sign in it gets the bears; a card list does not, and
+        // neither does the résumé — it is a page of paper, not a way out
         const onSignPage = t !== null && t.querySelector('.sign-wrap') !== null;
         bearGroup.forEach((el) => el.classList.toggle('bears-away', !onSignPage));
+        // …and the attribution goes the other way: everywhere except the résumé
+        credit.classList.toggle('credit-away', t !== null && t.id === 'layer-resume');
       }
 
       // ════════════════════════════════════════════════════════════════
@@ -535,8 +585,7 @@ const subRuns = [
 
       function hexToRgb(hex: string): [number, number, number] {
         let h = hex.trim().replace('#', '');
-        if (h.length === 3)
-          h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+        if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
         const n = parseInt(h, 16);
         return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
       }
@@ -547,9 +596,7 @@ const subRuns = [
       }
       // day → the hour → night, meeting at the halfway point.
       function mixAt(v: string, day: string, night: string, t: number): string {
-        return t < 0.5
-          ? mixHex(day, MID[v], t * 2)
-          : mixHex(MID[v], night, (t - 0.5) * 2);
+        return t < 0.5 ? mixHex(day, MID[v], t * 2) : mixHex(MID[v], night, (t - 0.5) * 2);
       }
 
       // Both palettes are read straight off the CSS, by briefly wearing each
@@ -649,7 +696,7 @@ const subRuns = [
         }
         return pts;
       }
-      const RIDGE_FAR = makeRidge(11, 0.7, 0.92);
+      const RIDGE_FAR = makeRidge(11, 0.7, 0.9);
       const RIDGE_MID = makeRidge(29, 0.44, 0.7);
       const RIDGE_NEAR = makeRidge(47, 0.26, 0.54);
 
@@ -825,6 +872,10 @@ const subRuns = [
 
       // ─── Drawing ────────────────────────────────────────────────────
       const wrap = (v: number, m: number) => ((v % m) + m) % m;
+      // How far below the viewport the filled ground has to run. It is the
+      // deepest dive plus a margin, because `draw` translates the world up by
+      // cam.y and everything below this line would otherwise be a gap.
+      const FLOOR = () => H + MAX_DIVE() + 200;
 
       // One ridge, tiled across the viewport at its own depth, so the three
       // ridgelines drift at different speeds and give the scene its depth.
@@ -832,12 +883,12 @@ const subRuns = [
         const off = wrap(camX * depth, W);
         wctx.fillStyle = col;
         wctx.beginPath();
-        wctx.moveTo(-off - W, H + 600);
+        wctx.moveTo(-off - W, FLOOR());
         for (let tile = -1; tile <= 1; tile++) {
           const tileX = tile * W - off;
           for (const p of ridge) wctx.lineTo(tileX + p.xf * W, H * (1 - p.hf));
         }
-        wctx.lineTo(2 * W - off, H + 600);
+        wctx.lineTo(2 * W - off, FLOOR());
         wctx.closePath();
         wctx.fill();
       }
@@ -871,7 +922,7 @@ const subRuns = [
         g.addColorStop(1, p.snow2);
         wctx.fillStyle = g;
         wctx.beginPath();
-        wctx.moveTo(-CREST_PAD, H + 600);
+        wctx.moveTo(-CREST_PAD, FLOOR());
         wctx.lineTo(-CREST_PAD, snowTopY(-CREST_PAD));
         wctx.quadraticCurveTo(
           W * 0.5,
@@ -879,7 +930,7 @@ const subRuns = [
           W + CREST_PAD,
           snowTopY(W + CREST_PAD),
         );
-        wctx.lineTo(W + CREST_PAD, H + 600);
+        wctx.lineTo(W + CREST_PAD, FLOOR());
         wctx.closePath();
         wctx.fill();
       }
@@ -896,9 +947,14 @@ const subRuns = [
       };
       const PLACED: Placed[] = [];
 
-      function drawFirs(camX: number, p: Palette) {
+      function drawFirs(camX: number, p: Palette, camY: number) {
         const tones = [p.tree1, p.tree2, p.tree3, p.tree4];
         const off = wrap(camX, W);
+        // the visible band of the world moves down by camY, since the world is
+        // drawn translated up by that much — without this, the near firs would
+        // be culled as you dive and the foreground would empty out
+        const top = camY - 120;
+        const bottom = H + camY + 120;
         PLACED.length = 0;
         for (let tile = -1; tile <= 2; tile++) {
           const tileX = tile * W - off;
@@ -910,7 +966,7 @@ const subRuns = [
             // planted on the snow, not on a fixed line: the ground it stands on is
             // the crest curve at its own x, and `d` is how far below that it is
             const sy = snowTopY(sx) + t.d * H;
-            if (sy - h > H + 80 || sy < -80) continue; // off the top or bottom
+            if (sy - h > bottom || sy < top) continue; // off the top or bottom
             PLACED.push({ x: sx, y: sy, h, tone: t.tone, d: t.d });
           }
         }
@@ -967,11 +1023,22 @@ const subRuns = [
       }
 
       // ─── Camera ─────────────────────────────────────────────────────
-      const cam = { x: 0 }; // world pixels panned, horizontally only
+      // `y` is the descent into the snow, and it is the one movement on this
+      // site that is not a run: every run is horizontal, and the only way down
+      // is the scroll. It is a plain translate of the whole scene, so nothing
+      // in the drawing code has to know about it — except the fills, which
+      // have to reach far enough below to still cover the screen once the
+      // world has been pushed up, and the fir cull, which has to follow it.
+      const cam = { x: 0, y: 0 };
+      // How far down you can go. At 0.7 of the viewport the snow crest has
+      // risen past the top of the frame and the screen is nothing but snow.
+      const MAX_DIVE = () => H * 0.7;
 
       function draw() {
         const p = pal();
         wctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // the dive: the whole world slides up as you scroll down into it
+        wctx.translate(0, -cam.y);
         const sky = wctx.createLinearGradient(0, 0, 0, H);
         sky.addColorStop(0, p.skyHi);
         sky.addColorStop(1, p.skyLo);
@@ -983,7 +1050,7 @@ const subRuns = [
         drawRidge(RIDGE_MID, cam.x, 0.18, p.mtnMid);
         drawRidge(RIDGE_NEAR, cam.x, 0.4, p.mtnNear);
         drawSlope(p);
-        drawFirs(cam.x, p);
+        drawFirs(cam.x, p, cam.y);
       }
 
       function resize() {
@@ -994,6 +1061,13 @@ const subRuns = [
         worldCanvas.height = Math.round(H * dpr);
         worldCanvas.style.width = W + 'px';
         worldCanvas.style.height = H + 'px';
+        // the dive is a fraction of the viewport, so a shorter window has a
+        // shallower one — re-clamp or the old offset is out of range
+        if (cam.y > MAX_DIVE()) cam.y = MAX_DIVE();
+        if (diveOffset > cam.y) {
+          diveOffset = cam.y;
+          setDive();
+        }
       }
 
       // ─── The run: pan the camera through the scene you are looking at ─
@@ -1098,6 +1172,12 @@ const subRuns = [
           const target = 'layer-' + btn.dataset.target!;
           const dir = btn.dataset.dir as Dir;
           lastDir = dir;
+          // a run is always a level traverse: if the visitor had dived part of
+          // the way into the snow, that offset is dropped before they set off
+          cam.y = 0;
+          diveOffset = 0;
+          setDive();
+          releaseReveal();
           trail.push(current);
           current = target;
 
@@ -1136,6 +1216,234 @@ const subRuns = [
           runPan(dir, () => showLayer(back));
         });
       });
+
+      // ─── The résumé: down from the landing ─────────────────────────
+      // The one movement here that is not a run, so it is the one that does
+      // not pan sideways: the world simply slides up as you scroll, the sky
+      // and the ridges leave the top of the frame, and the snow fills it.
+      // The camera still never drifts and still never rotates — `cam.y` is a
+      // straight translate of a scene that is otherwise only ever moved, not
+      // redrawn, so the world you land on is the world you left.
+
+      // The document itself, as plain images: no PDF toolbar, no zoom strip, no
+      // editor border, and nothing that behaves differently on iOS. Mounted on
+      // first reveal rather than sitting in the markup, because 787KB of résumé
+      // is a lot to ask of every visit to a ski trail map.
+      const resumePages = document.getElementById('resume-pages')!;
+      let pagesMounted = false;
+      function mountPages() {
+        if (pagesMounted) return;
+        pagesMounted = true;
+        const list: string[] = JSON.parse(resumePages.dataset.pages || '[]');
+        resumePages.innerHTML = list
+          .map(
+            (src, i) =>
+              '<figure class="rp"><div class="rp-window">' +
+              '<img src="' +
+              src +
+              '" alt="Resume, page ' +
+              (i + 1) +
+              ' of ' +
+              list.length +
+              '" loading="lazy" decoding="async" width="1240" height="1754"></div></figure>',
+          )
+          .join('');
+      }
+
+      // The scroll is 1:1 with the wheel, so it feels like a page rather than a
+      // gesture, and it is clamped: the dive has a floor and does not run away.
+      // `diveOffset` is the same distance as cam.y, handed to the DOM through
+      // --dive so the sign and the bears travel with the snow instead of
+      // hanging in the air above it.
+      let diveOffset = 0;
+      // The landing's hint that the wheel goes deeper. Keyed off `diveOffset`
+      // in `setDive()` rather than the wheel handler, because that is the one
+      // place the world's offset changes — so the cue comes back by itself
+      // everywhere the world returns to the top: scrolling up out of the snow,
+      // and taking a run (which drops the offset to 0 before setting off).
+      // It cannot disagree with the dive about where the top is.
+      const diveCue = document.getElementById('dive-cue')!;
+      function setDive() {
+        root.style.setProperty('--dive', (-diveOffset).toFixed(1) + 'px');
+        diveCue.classList.toggle('is-taken', diveOffset > 2);
+      }
+      function diveTo(y: number) {
+        const max = MAX_DIVE();
+        cam.y = Math.max(0, Math.min(max, y));
+        diveOffset = cam.y;
+        setDive();
+        setReveal(cam.y);
+        draw();
+      }
+      // The last stretch of the dive crossfades the trail map into the résumé
+      // rather than switching pages at the bottom, so the page is already
+      // standing there as you arrive. Both layers have their opacity written
+      // inline — the résumé layer is not `.active` through this, so it stays
+      // unclickable until the dive actually finishes.
+      const landingLayer = document.getElementById('layer-landing') as HTMLElement;
+      const resumeLayer = document.getElementById('layer-resume') as HTMLElement;
+      const REVEAL_FROM = 0.55; // the fraction of the dive it starts to appear
+      function setReveal(y: number) {
+        const t = (y / MAX_DIVE() - REVEAL_FROM) / (1 - REVEAL_FROM);
+        if (t <= 0) {
+          landingLayer.style.opacity = '';
+          resumeLayer.style.opacity = '';
+          landingLayer.classList.remove('revealing');
+          resumeLayer.classList.remove('revealing');
+          return;
+        }
+        const k = Math.min(1, t);
+        landingLayer.classList.add('revealing');
+        resumeLayer.classList.add('revealing');
+        landingLayer.style.opacity = (1 - k).toFixed(3);
+        resumeLayer.style.opacity = k.toFixed(3);
+      }
+      // hand the opacities back to the stylesheet before showLayer runs, or the
+      // inline values would beat the `.active` rule and freeze the page half-faded
+      function releaseReveal() {
+        landingLayer.style.opacity = '';
+        resumeLayer.style.opacity = '';
+        landingLayer.classList.remove('revealing');
+        resumeLayer.classList.remove('revealing');
+      }
+      // The résumé is a page, not part of the descent, so the world comes back
+      // to rest as it arrives rather than staying parked half-sunk. Eased over
+      // the same 350ms the layer takes to fade in, so the two land together.
+      function settleDown(dur: number) {
+        const from = diveOffset;
+        if (from === 0) return;
+        const t0 = performance.now();
+        const step = () => {
+          const k = Math.min(1, (performance.now() - t0) / dur);
+          diveOffset = from * (1 - k * k * (3 - 2 * k));
+          setDive();
+          if (k < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+      function reachedTheBottom() {
+        if (current !== 'layer-landing') return;
+        if (cam.y < MAX_DIVE() - 1) return; // still descending
+        trail.push(current);
+        current = 'layer-resume';
+        mountPages();
+        releaseReveal();
+        showLayer('layer-resume');
+        if (reduced) {
+          diveOffset = 0;
+          setDive();
+        } else {
+          settleDown(350);
+        }
+      }
+
+      // Momentum: the wheel that took you down often keeps going, and this page
+      // is now too short to scroll, so the first flick up is usually the tail
+      // of the gesture that got you here. A little travel has to build up
+      // before it counts as a way out, so going back is deliberate rather than
+      // a rebound off the bottom of the dive.
+      const BACK_COMMIT = 36;
+      let backRun = 0;
+      const resumeScroller = document.querySelector<HTMLElement>('#layer-resume .sec-scroll')!;
+      // One wheel handler for both directions, and it has to be able to
+      // preventDefault: coming back up is a gesture now, not only a click.
+      // The rule for going back is at the TOP of the page and no further — the
+      // résumé is taller than a phone, so if any upward scroll surfaced the
+      // trail map you could never read the thing you came for. Scroll to the
+      // top, keep going, and the world rises back out of the snow.
+      window.addEventListener(
+        'wheel',
+        (e) => {
+          if (diveRaf) return; // a rise is already in flight; don't fight it
+          if (current === 'layer-landing') {
+            // a sideways flick is a pan gesture, not a scroll
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+            diveTo(cam.y + e.deltaY);
+            reachedTheBottom();
+            return;
+          }
+          if (current !== 'layer-resume') return;
+          if (e.deltaY >= 0 || resumeScroller.scrollTop > 0) {
+            backRun = 0;
+            return; // the page scrolls first
+          }
+          backRun += -e.deltaY;
+          if (backRun < BACK_COMMIT) return;
+          backRun = 0;
+          e.preventDefault();
+          surface();
+        },
+        { passive: false },
+      );
+
+      // Touch: drag up to dive, drag down at the top of the page to surface.
+      let touchY: number | null = null;
+      window.addEventListener(
+        'touchstart',
+        (e) => {
+          touchY = e.touches[0].clientY;
+        },
+        { passive: true },
+      );
+      window.addEventListener(
+        'touchmove',
+        (e) => {
+          if (touchY === null || diveRaf) return;
+          const dy = touchY - e.touches[0].clientY;
+          touchY = e.touches[0].clientY;
+          if (current === 'layer-landing') {
+            diveTo(cam.y + dy);
+            reachedTheBottom();
+          } else if (current === 'layer-resume' && dy < 0 && resumeScroller.scrollTop === 0) {
+            surface();
+          }
+        },
+        { passive: true },
+      );
+      window.addEventListener('touchend', () => {
+        touchY = null;
+      });
+
+      // The way back up is the same dive in reverse, and it is animated so the
+      // world rises rather than cutting. One rAF, independent of the pan's.
+      let diveRaf = 0;
+      function surface() {
+        if (diveRaf) cancelAnimationFrame(diveRaf);
+        const back = trail.pop() || 'layer-landing';
+        current = back;
+        releaseReveal();
+        if (reduced) {
+          cam.y = 0;
+          diveOffset = 0;
+          setDive();
+          draw();
+          showLayer(back);
+          return;
+        }
+        const from = cam.y;
+        const t0 = performance.now();
+        const up = () => {
+          const k = Math.min(1, (performance.now() - t0) / 650);
+          const e = 1 - Math.pow(1 - k, 3); // ease out: it leaves quickly, settles
+          cam.y = from * (1 - e);
+          // the bears and the sign rise back down with the world, not on their
+          // own clock — they are standing in it
+          diveOffset = cam.y;
+          setDive();
+          draw();
+          if (k < 1) diveRaf = requestAnimationFrame(up);
+          else {
+            diveRaf = 0;
+            cam.y = 0;
+            diveOffset = 0;
+            setDive();
+            draw();
+            showLayer(back);
+          }
+        };
+        showLayer(back);
+        diveRaf = requestAnimationFrame(up);
+      }
 
       window.addEventListener('resize', () => {
         resize();
@@ -1306,6 +1614,21 @@ const subRuns = [
     opacity: 1;
     pointer-events: all;
   }
+  /* The last stretch of the dive crossfades the trail map into the résumé
+     instead of switching pages at the bottom, so the class transition has to
+     stand aside while the opacity is being written per frame. Without this
+     it would lag a third of a second behind every notch. */
+  .layer.revealing {
+    transition: none;
+  }
+  /* The résumé is the one layer that has to sit IN FRONT of the credit rather
+     than under it: its paper runs the full height of the screen, and a fixed
+     line of text pinned to the bottom would ride over the document. 30 clears
+     the bears and the credit (both 20) and still sits under the mode
+     button (300). */
+  #layer-resume {
+    z-index: 30;
+  }
 
   /* ─── Landing layer ──────────────────────────── */
   #layer-landing {
@@ -1338,6 +1661,78 @@ const subRuns = [
       'WONK' 1,
       'opsz' 144;
     color: var(--sign-txt);
+  }
+
+  /* ─── Dive cue ─────────────────────────────── */
+  /* The wheel on this page does something nothing else says it does: it dives,
+     and the résumé comes up out of the snow. The page itself never scrolls, so
+     without this the gesture is invisible until you happen to try it.
+
+     It is a flex child of the same centred column the sign is in, so it sits
+     directly under the post at any window height — the one placement that
+     follows the sign instead of guessing at it, which a `bottom:` offset
+     cannot do once the bears take the foot of a phone.
+
+     But being the last child of a `justify-content: center` column, it would
+     push the sign up by half its own box, and the landing sign is meant to sit
+     level with the sub-signs. So the two margins are equal and opposite:
+     `margin-top: --cue-gap` sets the air under the post, and `margin-bottom`
+     cancels the height **and** the gap, leaving the cue contributing NOTHING to
+     the column and the sign exactly where it was. `--cue-gap` is the whole
+     knob — change it and the cue moves, the sign does not. It is `clamp()`ed on
+     vh because a short phone has no room to give. Measured A/B on the built
+     page, hiding the cue and re-measuring: the sign is at `230..672` either
+     way, **delta 0px**, with the cue sitting `--cue-gap` lower. Do not "tidy"
+     the negative margin away.
+
+     Colour is `--post`, the same brown the credit uses for small text on
+     snow — dark in both modes, so nothing to switch. Sentence case, not
+     uppercase: "ALL CAPS labels" is on the Avoid list. */
+  .dive-cue {
+    --cue-h: 2.8rem; /* the box, which the two margins below cancel */
+    /* The air between the post and the cue, scaled on vh. It has to shrink on
+       a short phone: a 390x667 window already has the bears' heads level with
+       the bottom of the sign, so anything more than a few px here walks the
+       cue straight across them. 1.5rem is the desktop cap. */
+    --cue-gap: clamp(0rem, 2.7vh, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    height: var(--cue-h);
+    margin-top: var(--cue-gap);
+    /* cancels BOTH the height and the gap, so the cue drops by exactly
+       --cue-gap while the sign above it stays where it was. Cancel only the
+       height and the sign rides up by half the gap. */
+    margin-bottom: calc(-1 * (var(--cue-h) + var(--cue-gap)));
+    color: var(--post);
+    opacity: 0.66;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  /* CSS owns the size, as it does for every other arrow on the site. Plain
+     `svg`, not `:global(svg)`: this style block is `is:global`, where
+     `:global()` is meaningless. */
+  .dive-cue svg {
+    width: 14px;
+    height: 14px;
+  }
+  .dive-cue span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    line-height: 1;
+    letter-spacing: 0.06em;
+  }
+  /* Taken the hint: gone, rather than riding along down the page */
+  .dive-cue.is-taken {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dive-cue {
+      transition: none;
+    }
   }
 
   /* ─── Trail sign ─────────────────────────────── */
@@ -1502,7 +1897,7 @@ const subRuns = [
     /* no pan means no transition to hide behind, so the bears snap */
     .bear,
     .bears-away .bear,
-    .credit.bears-away {
+    .credit.credit-away {
       transition: none;
     }
   }
@@ -1519,7 +1914,11 @@ const subRuns = [
     /* On a phone this is the only thing that scrolls, so it should not
        rubber-band the page behind it when it reaches the end. */
     overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
+    /* NOT -webkit-overflow-scrolling: touch. It forces a composited scrolling
+       layer, which tears position: sticky. The résumé used to be the only
+       sticky thing here and showed the tearing; it no longer uses sticky at
+       all, so this is belt-and-braces. It is a legacy shim for iOS 12 and
+       earlier anyway; the phone block scopes it. */
   }
 
   .sec-inner {
@@ -1588,6 +1987,92 @@ const subRuns = [
     height: auto;
   }
   .back-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ─── The résumé ────────────────────────────────────────────────
+     This page is white paper, so its text is dark in BOTH modes. --post is
+     the one palette colour that is: --ink flips to cream at night and would
+     vanish against the page. The credit is the same — it sits on snow, which
+     is light in both modes, so --muted was never enough to read.
+
+     The link is a tenth of that same brown: a solid --post chip was the
+     loudest thing on a field of snow, this is a stain in it, and the chip
+     still has an edge you can see the control by. No border, no shadow, no
+     gradient, no motion. */
+  #layer-resume h2,
+  #layer-resume .resume-note {
+    text-align: center;
+  }
+  .resume-note {
+    max-width: 32rem;
+    margin: 0 auto 1.6rem;
+    color: var(--post);
+  }
+  /* The document, as images. No frame, no shadow, no border: the paper is
+     already white on white, and a box around it is exactly the editor chrome
+     this is here to avoid.
+
+     There is deliberately NO crop here: no `aspect-ratio`, no `overflow: hidden`,
+     no `position: sticky`, and no script. Each sheet is simply as tall as it
+     needs to be, so every pixel of the résumé renders, and ordinary document
+     scroll carries you down it a screen at a time.
+
+     That is the third attempt at the "see a bit at a time" effect and the only
+     one that cannot hide content. The two before it both cropped a portrait
+     sheet in a fixed window and then had to MOVE the image to reveal the rest,
+     and both failed in ways that only showed up on a real screen:
+
+       - a 100vh window against a 928px sheet left 115px of travel, so the page
+         sat still while you scrolled past 3.6k px of dead runway;
+       - a square window with the sticky pin dropped cropped 272px of every
+         sheet — permanently, because nothing was left to move the image back.
+
+     A static crop is the trap. It only ever looks right until you ask where
+     the bottom third went, and the answer is: there is no scroll position that
+     reaches it. The whole thing works because the sheet is simply taller than
+     the screen. */
+  .resume-pages {
+    margin-top: 2rem;
+  }
+  .rp-window {
+    background: #fff; /* the paper, so the sheet sits on its own white */
+  }
+  .rp-window img {
+    display: block;
+    width: 100%;
+    /* height: auto — a forced height would squash the sheet out of its
+       page proportions */
+    height: auto;
+  }
+  .rp + .rp {
+    margin-top: 3rem;
+  }
+  .dl-btn {
+    /* centred under the heading: fit-content keeps the chip its own width, and
+       auto margins do the centring without touching the rest of the column */
+    display: block;
+    width: fit-content;
+    margin-inline: auto;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--post);
+    background: color-mix(in srgb, var(--post) 10%, transparent);
+    border: 0;
+    border-radius: 7px;
+    /* still a target worth thumbing, even though it looks like a stain */
+    padding: 0.7rem 1.15rem;
+    transition: opacity 0.18s ease;
+  }
+  .dl-btn:hover {
+    opacity: 0.75;
+  }
+  .dl-btn:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -1817,14 +2302,6 @@ const subRuns = [
       opacity 0.28s ease,
       visibility 0s;
   }
-  /* the attribution is for the bears, so it leaves with them */
-  .credit.bears-away {
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 0.28s ease,
-      visibility 0s;
-  }
   /* the narrow fallback lays the two out in a row, so the flip has to be undone
    there or one bear would be lying on its side */
   @media (max-width: 779px) {
@@ -1922,8 +2399,20 @@ const subRuns = [
     text-align: center;
     font-size: 0.62rem;
     letter-spacing: 0.02em;
-    color: var(--muted);
-    opacity: 0.75;
+    /* dark in both modes: this sits on snow, which is light in both, and it
+       has to stay legible over the white résumé page as well */
+    color: var(--post);
+    opacity: 0.8;
+  }
+  /* the one place the attribution goes: over the résumé, whose white pages run
+     the full height of the screen. `visibility` is what takes it out of the tab
+     order, not just the paint. */
+  .credit.credit-away {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.28s ease,
+      visibility 0s;
   }
   .credit a {
     color: inherit;
@@ -1969,12 +2458,39 @@ const subRuns = [
     }
   }
 
+  /* ─── The dive ──────────────────────────────────────────────────
+     The canvas slides up as you scroll, and everything standing IN
+     the world has to go with it — the sign and your name are DOM, not
+     canvas, so without this they hang in the air while the snow moves
+     out from under them. One length, `--dive`, is set per frame from
+     cam.y.
+
+     It is NOT a CSS transition: the wheel already supplies the easing,
+     and a transition on top would lag a frame behind every notch.
+
+     `.bear` is named rather than `.bears`, because on a wide screen
+     `.bears` is `display: contents` and generates no box at all — a
+     transform on it would silently do nothing. The bears are the
+     actual boxes, on both layouts. */
+  #layer-landing .site-header,
+  #layer-landing .sign-wrap,
+  #layer-landing .dive-cue,
+  .bear,
+  .credit {
+    transform: translateY(var(--dive, 0px));
+  }
+
   /* ─── Mobile ──────────────────────────────────────────────────
      The scene is full-bleed, so a phone sees less of it and the same
      words sit over different ground than they do on a wide screen.
      Everything here is phone-only: the desktop look is untouched. */
   @media (max-width: 779px) {
-    /* A scrim behind the copy, inset from the screen edges so the world
+    /* momentum scrolling, iOS only. In the base rule this tears the résumé's
+       sticky windows, so it lives here with the other phone-only bits. */
+    .sec-scroll {
+      -webkit-overflow-scrolling: touch;
+    }
+    /* a scrim behind the copy, inset from the screen edges so the world
        still shows either side, and faded top and bottom so the scene runs
        into it rather than being cut off. Desktop gets none of this. */
     .sec-inner {
